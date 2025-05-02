@@ -22,6 +22,7 @@
     "test:e2e:store": "jest --config ./apps/store/test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -95,6 +96,7 @@
       "^@common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@database/mongo(|/.*)$": "<rootDir>/libs/database/mongo/src/$1",
       "^@database/postgres(|/.*)$": "<rootDir>/libs/database/postgres/src/$1",
+      "^@modules(|/.*)$": "<rootDir>/libs/module/src/$1",
       "^@security(|/.*)$": "<rootDir>/libs/security/src/$1"
     }
   }

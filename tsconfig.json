@@ -36,6 +36,12 @@
       "@database/postgres/*": [
         "libs/database/postgres/src/*"
       ],
+      "@modules": [
+        "libs/module/src"
+      ],
+      "@modules/*": [
+        "libs/module/src/*"
+      ],
       "@security": [
         "libs/security/src"
       ],

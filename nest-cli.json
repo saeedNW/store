@@ -33,6 +33,15 @@
         "tsConfigPath": "libs/database/postgres/tsconfig.lib.json"
       }
     },
+    "module": {
+      "type": "library",
+      "root": "libs/module",
+      "entryFile": "index",
+      "sourceRoot": "libs/module/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/module/tsconfig.lib.json"
+      }
+    },
     "panel": {
       "type": "application",
       "root": "apps/panel",
