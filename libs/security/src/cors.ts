@@ -1,7 +1,8 @@
+import { getEnvVariable } from '@common/utilities/functions';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 export const getCorsConfig: CorsOptions = {
-	origin: process.env.CORS_ORIGIN?.split(','), // Restrict origins (use env variable)
+	origin: getEnvVariable('CORS_ORIGIN').split(','), // Restrict origins (use env variable)
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // OPTIONS is automatically handled
 	allowedHeaders: ['Content-Type', 'Authorization'], // Restrict headers
 	credentials: true, // Allow cookies, but only if origin is not "*"
