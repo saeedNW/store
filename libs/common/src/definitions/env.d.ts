@@ -10,7 +10,7 @@ namespace NodeJS {
 		// Application Environmental Variables
 		STORE_PORT: string;
 		PANEL_PORT: string;
-		SUPPORT_PORT: string;
+		VENDOR_PORT: string;
 		CORS_ORIGIN: string;
 
 		// Postgres Environmental Variables
