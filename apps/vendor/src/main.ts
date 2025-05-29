@@ -19,8 +19,6 @@ async function bootstrap() {
 		bufferLogs: true,
 		logger,
 	});
-	// Register custom logger
-	app.useLogger(logger);
 	// Register custom logging interceptor
 	app.useGlobalInterceptors(new LoggingInterceptor(logger));
 	// Register assets folder as static files directory
