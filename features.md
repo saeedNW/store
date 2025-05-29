@@ -28,22 +28,21 @@
 13. Blog
 14. blog Comment
 15. Author
-16. Vendor
-17. Shop
-18. Product
-19. Product Features
-20. Product QA
-21. Product Review and Rating
-22. Basket
-23. Order
-24. Discount
-25. Payment
-26. Logger
-27. Activity
-28. Notification
-29. Ticket
-30. Report
-31. Session
+16. Shop
+17. Product
+18. Product Features
+19. Product QA
+20. Product Review and Rating
+21. Basket
+22. Order
+23. Discount
+24. Payment
+25. Logger
+26. Activity
+27. Notification
+28. Ticket
+29. Report
+30. Session
 
 ## Features by Database
 
@@ -56,17 +55,16 @@
    6. Roles
    7. Permissions
    8. Category
-   9. Vendor
-   10. Shop
-   11. Product
-   12. Product Features
-   13. Product QA
-   14. Product Review and Rating
-   15. Basket
-   16. Order
-   17. Discount
-   18. Payment
-   19. Ticket
+   9. Shop
+   10. Product
+   11. Product Features
+   12. Product QA
+   13. Product Review and Rating
+   14. Basket
+   15. Order
+   16. Discount
+   17. Payment
+   18. Ticket
 2. MongoDB
    1. File Manager
    2. Blog
@@ -74,3 +72,22 @@
    4. Author
    5. Activity
    6. Notifications
+
+## Token
+
+Access token => 15–30 minutes
+Refresh token => 7–15 days
+
+Token Data
+
+    ID
+    userId
+    deviceInfo
+    ipAddress
+    refreshTokenHash
+    accessTokenHash
+    createdAt
+    expiresAt
+    revoked
+
+Save tokens in postgres
