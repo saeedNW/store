@@ -9,9 +9,20 @@ import { HttpExceptionFilter } from '@common/filters';
 import { UnprocessableEntityPipe } from '@common/pipe';
 import { customHeadersMiddleware } from '@common/middlewares';
 import { swaggerConfiguration } from '@common/config';
+import { CustomLoggerService, LoggingInterceptor } from '@modules/logger';
 
 async function bootstrap() {
-	const app = await NestFactory.create<NestExpressApplication>(AppModule);
+	// Create a new instance of the CustomLoggerService
+	const logger = new CustomLoggerService();
+	// Create a new instance of the Nest application
+	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+		bufferLogs: true,
+		logger,
+	});
+	// Register custom logger
+	app.useLogger(logger);
+	// Register custom logging interceptor
+	app.useGlobalInterceptors(new LoggingInterceptor(logger));
 	// Register assets folder as static files directory
 	app.useStaticAssets('assets');
 	// Apply CORS config
