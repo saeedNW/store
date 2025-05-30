@@ -9,7 +9,7 @@
 
 1. Store (Website)
 2. Panel (Admin)
-3. Vendor (Seller)
+3. shop (Seller)
 
 ## Features
 

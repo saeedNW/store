@@ -32,7 +32,7 @@ async function bootstrap() {
 	// Set global prefix for all routes
 	app.setGlobalPrefix('/api');
 	// Initialize swagger
-	swaggerConfiguration(app, 'Vendor panel API');
+	swaggerConfiguration(app, 'shop panel API');
 	// Initialize custom response interceptor
 	app.useGlobalInterceptors(new ResponseTransformerInterceptor() as NestInterceptor);
 	// Initialize custom exception filter
@@ -40,8 +40,8 @@ async function bootstrap() {
 	// Initialize custom validation pipe
 	app.useGlobalPipes(new UnprocessableEntityPipe() as ValidationPipe);
 	// Starting server
-	await app.listen(process.env.VENDOR_PORT || 3002, () => {
-		console.log(`Server is running on PORT ${process.env.VENDOR_PORT || 3002}`);
+	await app.listen(process.env.SHOP_PORT || 3002, () => {
+		console.log(`Server is running on PORT ${process.env.SHOP_PORT || 3002}`);
 	});
 }
 bootstrap().catch((err) => console.error(err));

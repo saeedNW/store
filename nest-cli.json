@@ -78,13 +78,13 @@
         "tsConfigPath": "apps/store/tsconfig.app.json"
       }
     },
-    "vendor": {
+    "shop": {
       "type": "application",
-      "root": "apps/vendor",
+      "root": "apps/shop",
       "entryFile": "main",
-      "sourceRoot": "apps/vendor/src",
+      "sourceRoot": "apps/shop/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/vendor/tsconfig.app.json"
+        "tsConfigPath": "apps/shop/tsconfig.app.json"
       }
     }
   }

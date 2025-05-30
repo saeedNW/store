@@ -12,7 +12,7 @@
 		"start:dev": "nest start --watch",
 		"start:debug": "nest start --debug --watch",
 		"start:prod:panel": "node dist/apps/panel/main",
-		"start:prod:vendor": "node dist/apps/vendor/main",
+		"start:prod:shop": "node dist/apps/shop/main",
 		"start:prod:store": "node dist/apps/store/main",
 		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
 		"test": "jest",
@@ -20,7 +20,7 @@
 		"test:cov": "jest --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
 		"test:e2e:panel": "jest --config ./apps/panel/test/jest-e2e.json",
-		"test:e2e:vendor": "jest --config ./apps/vendor/test/jest-e2e.json",
+		"test:e2e:shop": "jest --config ./apps/shop/test/jest-e2e.json",
 		"test:e2e:store": "jest --config ./apps/store/test/jest-e2e.json"
 	},
 	"dependencies": {

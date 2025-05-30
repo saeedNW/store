@@ -10,7 +10,7 @@ namespace NodeJS {
 		// Application Environmental Variables
 		STORE_PORT: string;
 		PANEL_PORT: string;
-		VENDOR_PORT: string;
+		SHOP_PORT: string;
 		CORS_ORIGIN: string;
 
 		// Postgres Environmental Variables
@@ -41,7 +41,7 @@ namespace NodeJS {
 		// JWT Environmental Variables
 		PANEL_JWT_SECRET: string;
 		STORE_JWT_SECRET: string;
-		VENDOR_JWT_SECRET: string;
+		SHOP_JWT_SECRET: string;
 		ACCESS_TOKEN_EXPIRE_TIME: string;
 		REFRESH_TOKEN_EXPIRE_TIME: string;
 	}

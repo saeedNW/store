@@ -20,17 +20,17 @@ import { getEnvVariable } from '@common/utilities/functions';
 
 		//? Load Modules
 		AuthModule.register({
-			jwtSecret: getEnvVariable('VENDOR_JWT_SECRET'),
+			jwtSecret: getEnvVariable('SHOP_JWT_SECRET'),
 			accessTokenExpiresIn: getEnvVariable('ACCESS_TOKEN_EXPIRE_TIME'),
 			refreshTokenExpiresIn: getEnvVariable('REFRESH_TOKEN_EXPIRE_TIME'),
 			redisConfig: {
 				host: getEnvVariable('REDIS_HOST'),
 				port: parseInt(getEnvVariable('REDIS_PORT'), 10),
 				password: getEnvVariable('REDIS_PASSWORD'),
-				keyPrefix: 'vendor:',
+				keyPrefix: 'shop:',
 			},
-			issuer: 'vendor-app',
-			audience: 'vendor-users',
+			issuer: 'shop-app',
+			audience: 'shop-users',
 		}),
 	],
 })
