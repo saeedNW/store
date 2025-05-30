@@ -24,8 +24,25 @@ namespace NodeJS {
 		MONGO_URI: string;
 		MONGO_DB: string;
 
+		// Redis Environmental Variables
+		REDIS_HOST: string;
+		REDIS_PORT: string;
+		REDIS_PASSWORD: string;
+
 		//  SMS IR Environmental Variables
 		SMS_IR_API_KEY: string;
 		SMS_IR_SEND_URL: string;
+
+		// Email SMTP Environmental Variables
+		MAILTRAP_HOST: string;
+		MAILTRAP_USER: string;
+		MAILTRAP_PASS: string;
+
+		// JWT Environmental Variables
+		PANEL_JWT_SECRET: string;
+		STORE_JWT_SECRET: string;
+		VENDOR_JWT_SECRET: string;
+		ACCESS_TOKEN_EXPIRE_TIME: string;
+		REFRESH_TOKEN_EXPIRE_TIME: string;
 	}
 }
