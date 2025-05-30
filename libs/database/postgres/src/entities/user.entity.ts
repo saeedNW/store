@@ -1,5 +1,6 @@
 import { Entity, Column } from 'typeorm';
 import { BaseTimestampedEntity } from '../abstracts/base.entity';
+import { EUserApp } from '@common/enums';
 
 @Entity('users')
 export class UserEntity extends BaseTimestampedEntity {
@@ -8,4 +9,7 @@ export class UserEntity extends BaseTimestampedEntity {
 
 	@Column({ nullable: true, default: false })
 	verify_phone: boolean;
+
+	@Column({ type: 'simple-array', default: [EUserApp.STORE] }) // or JSONB if Postgres
+	allowedApps: EUserApp[];
 }
