@@ -10,6 +10,10 @@ export class LoggingInterceptor implements NestInterceptor {
 	constructor(private readonly logger: CustomLoggerService) {}
 
 	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+		if (process.env.NODE_ENV !== 'production') {
+			return next.handle();
+		}
+
 		const now = Date.now();
 		const ctx = context.switchToHttp();
 		const req = ctx.getRequest<Request & { user?: any }>();
