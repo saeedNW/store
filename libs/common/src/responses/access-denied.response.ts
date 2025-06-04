@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 /**
  * API process access denied swagger response
  */
-export class AccessDeniedResponse extends FailureApiBaseResponse {
+export class ForbiddenResponse extends FailureApiBaseResponse {
 	@ApiProperty({
 		description: 'Response status code',
 		example: 403,
