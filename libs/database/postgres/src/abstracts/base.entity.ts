@@ -11,7 +11,7 @@ import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'type
  */
 export class BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
-	id: number;
+	id: string;
 }
 
 /**
@@ -20,7 +20,7 @@ export class BaseEntity {
  */
 export class BaseTimestampedEntity {
 	@PrimaryGeneratedColumn('uuid')
-	id: number;
+	id: string;
 	@CreateDateColumn()
 	created_at: Date;
 	@UpdateDateColumn()
