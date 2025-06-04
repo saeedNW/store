@@ -1,13 +1,19 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import Redis from 'ioredis';
-import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
+
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
 import { AuthTokenService } from './token.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
+
 import { UserEntity } from '@database/postgres/entities';
 import { SmsModule } from '@modules/sms';
+
+import { PanelAuthHandler } from './strategy/panel-auth.handler';
+import { ShopAuthHandler } from './strategy/shop-auth.handler';
+import { StoreAuthHandler } from './strategy/store-auth.handler';
 
 @Module({})
 export class AuthModule {
@@ -26,15 +32,33 @@ export class AuthModule {
 			],
 			controllers: [AuthController],
 			providers: [
+				// Auth core
 				AuthService,
 				AuthTokenService,
 				JwtService,
-				{ provide: 'AUTH_OPTIONS', useValue: options },
+
+				// Strategy Handlers
+				PanelAuthHandler,
+				ShopAuthHandler,
+				StoreAuthHandler,
+
+				// Injected Config/Dependencies
+				{
+					provide: 'AUTH_OPTIONS',
+					useValue: options,
+				},
 				{
 					provide: 'REDIS_CONNECTION',
-					useFactory: (): Redis => {
-						return new Redis(options.redisConfig);
-					},
+					useFactory: (): Redis => new Redis(options.redisConfig),
+				},
+				{
+					provide: 'STRATEGY_HANDLERS',
+					useFactory: (panel: PanelAuthHandler, shop: ShopAuthHandler, store: StoreAuthHandler) => [
+						panel,
+						shop,
+						store,
+					],
+					inject: [PanelAuthHandler, ShopAuthHandler, StoreAuthHandler],
 				},
 			],
 			exports: [AuthService, JwtService, AuthTokenService, TypeOrmModule],
