@@ -17,7 +17,7 @@ async function bootstrap() {
 	// Create a new instance of the Nest application
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		bufferLogs: true,
-		logger,
+		logger: process.env.NODE_ENV === 'production' ? logger : undefined,
 	});
 	// Register custom logging interceptor
 	app.useGlobalInterceptors(new LoggingInterceptor(logger));
