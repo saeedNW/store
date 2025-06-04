@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { BaseAuthHandler } from './base-auth.handler';
 import { IStrategyHandler } from '../interfaces/strategy.interface';
 import { SendOtpDto } from '../dto/send-otp.dto';
 import { EUserApp } from '@common/enums';
+import { CheckOtpDto } from '../dto/check-otp.dto';
+import { getEnvVariable } from '@common/utilities/functions';
 
 /**
  * Authentication handler for the "STORE" user application.
@@ -10,6 +12,9 @@ import { EUserApp } from '@common/enums';
  */
 @Injectable()
 export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandler {
+	/** Defines the secret key used for JWT tokens. */
+	private readonly jwtSecret: string = getEnvVariable('STORE_JWT_SECRET');
+
 	/**
 	 * Determines whether this handler can process requests for the given phone number
 	 * within the context of the STORE application.
@@ -36,8 +41,8 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * @returns {Promise<string>} - A string containing the generated OTP code.
 	 */
 	async otpHandler(data: SendOtpDto): Promise<string> {
-		// Attempt to find user by phone
-		let user = await this.userRepository.findOneBy({ phone: data.phone });
+		// Find the user by phone and ensure STORE is one of their allowed apps
+		let user = await this.getUser(data.phone, EUserApp.STORE);
 
 		// If user doesn't exist, create a new one
 		if (!user) {
@@ -46,5 +51,39 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 
 		// Generate and return OTP
 		return this.generateAndStoreOtp(user.id);
+	}
+
+	/**
+	 * Handles OTP verification and token generation for a user.
+	 *
+	 * @param {CheckOtpDto} data - DTO containing the user's phone number and OTP code.
+	 * @returns {Promise<{ accessToken: string; refreshToken: string }>} - The access and refresh tokens upon successful verification.
+	 * @throws {UnauthorizedException} - If the user is not found or OTP verification fails.
+	 */
+	async checkOtpHandler(data: CheckOtpDto): Promise<{ accessToken: string; refreshToken: string }> {
+		// Retrieve the user associated with the given phone number in the STORE app context
+		const user = await this.getUser(data.phone, EUserApp.STORE);
+		// If user is not found, throw an unauthorized exception
+		if (!user) {
+			throw new UnauthorizedException('Invalid credentials');
+		}
+
+		// Verify the OTP for the retrieved user
+		await this.verifyOtp(user.id, data.otp);
+
+		// Generate JWT access and refresh tokens for the authenticated user
+		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
+			user.id,
+			this.authOptions.issuer,
+			this.jwtSecret,
+		);
+
+		// Mark the user's phone number as verified
+		user.verify_phone = true;
+		// Persist the updated user entity to the database
+		await this.userRepository.save(user);
+
+		// Return the generated tokens
+		return { accessToken, refreshToken };
 	}
 }

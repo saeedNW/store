@@ -9,6 +9,8 @@ import { RedisOptions } from 'ioredis';
  *   jwtSecret: process.env.PANEL_JWT_SECRET,
  *   accessTokenExpiresIn: '15m',
  *   refreshTokenExpiresIn: '7d',
+ *   accessTokenExpiresTimeStamp: 900,
+ *   refreshTokenExpiresTimeStamp: 604800,
  *   redisConfig: { host: 'localhost', port: 6379, password: 'password', keyPrefix: 'panel:' },
  *   issuer: 'panel-app',
  *   audience: 'panel-users',
@@ -24,6 +26,9 @@ export interface IAuthModuleOptions {
 
 	/** Expiry duration for the refresh token (e.g., '7d', '30d'). */
 	refreshTokenExpiresIn: string;
+
+	/** Expiry timestamp for the refresh token in seconds. */
+	refreshTokenTimeToLive: number;
 
 	/**
 	 * Configuration for Redis cache.

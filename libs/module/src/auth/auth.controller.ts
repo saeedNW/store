@@ -3,6 +3,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { SendOtpResponses } from './responses/responses.decorator';
+import { CheckOtpDto } from './dto/check-otp.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -18,5 +19,15 @@ export class AuthController {
 	@SendOtpResponses()
 	sendOtp(@Body() dto: SendOtpDto) {
 		return this.authService.sendOtp(dto);
+	}
+
+	/**
+	 * Endpoint: POST /auth/check-otp
+	 * Verifies the OTP (One-Time Password) provided by the user
+	 */
+	@Post('check-otp')
+	@ApiOperation({ summary: 'Verify OTP from user' })
+	checkOtp(@Body() dto: CheckOtpDto) {
+		return this.authService.checkOtp(dto);
 	}
 }

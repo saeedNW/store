@@ -1,4 +1,4 @@
-import { BadRequestException, Inject } from '@nestjs/common';
+import { BadRequestException, Inject, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Redis from 'ioredis';
@@ -6,6 +6,8 @@ import { randomInt } from 'crypto';
 import { UserEntity } from '@database/postgres/entities';
 import { IAuthModuleOptions } from '../interfaces/auth-module-options.interface';
 import { TOtpObject } from '../types/otp.type';
+import { EUserApp } from '@common/enums';
+import { AuthTokenService } from '../token.service';
 
 /**
  * Abstract base class for handling authentication-related logic.
@@ -18,11 +20,13 @@ export abstract class BaseAuthHandler {
 	 * @param userRepository - TypeORM repository for UserEntity.
 	 * @param authOptions - Configuration options for the authentication module.
 	 * @param redisService - Redis client instance used to store and retrieve OTPs.
+	 * @param authTokenService - Service for managing authentication tokens.
 	 */
 	constructor(
 		@InjectRepository(UserEntity) protected readonly userRepository: Repository<UserEntity>,
 		@Inject('AUTH_OPTIONS') protected readonly authOptions: IAuthModuleOptions,
 		@Inject('REDIS_CONNECTION') protected readonly redisService: Redis,
+		protected readonly authTokenService: AuthTokenService,
 	) {}
 
 	/**
@@ -69,5 +73,42 @@ export abstract class BaseAuthHandler {
 		// Store the new OTP in Redis with a 2-minute expiration
 		await this.redisService.set(`auth:otp:${userId}`, JSON.stringify(otp), 'EX', 2 * 60);
 		return otp.code;
+	}
+
+	/**
+	 * Verifies the provided OTP code for a given user.
+	 *
+	 * @param {string} userId - The ID of the user whose OTP is being verified.
+	 * @param {string} code - The OTP code provided by the user.
+	 * @returns {Promise<boolean>} - Returns true if the OTP is valid; otherwise, throws an UnauthorizedException.
+	 * @throws {UnauthorizedException} If no OTP exists for the user or the provided code does not match.
+	 */
+	protected async verifyOtp(userId: string, code: string): Promise<boolean> {
+		// Retrieve the existing OTP for the given user
+		const otp = await this.getExistingOtp(userId);
+
+		// If no OTP exists or the code does not match, deny access
+		if (!otp || otp.code !== code) {
+			throw new UnauthorizedException('Invalid credentials');
+		}
+
+		// OTP is valid
+		return true;
+	}
+
+	/**
+	 * Retrieves a user based on their phone number and application access.
+	 *
+	 * @param {string} phone - The user's phone number to search for.
+	 * @param {EUserApp} app - The application the user must have access to.
+	 * @returns {Promise<UserEntity | null>} - A promise that resolves to the user entity if found, or null if no matching user is found.
+	 */
+	protected async getUser(phone: string, app: EUserApp): Promise<UserEntity | null> {
+		// Query for a user that matches the given phone number and has required app access
+		return await this.userRepository
+			.createQueryBuilder('user')
+			.where('user.phone = :phone', { phone })
+			.andWhere(':app = ANY(user.allowedApps)', { app })
+			.getOne();
 	}
 }

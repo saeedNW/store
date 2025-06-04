@@ -2,6 +2,8 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { IStrategyHandler } from './interfaces/strategy.interface';
 import { SmsService } from '@modules/sms';
+import { CheckOtpDto } from './dto/check-otp.dto';
+import { plainToClass } from 'class-transformer';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -22,6 +24,11 @@ export class AuthService {
 	 * @throws BadRequestException if no handler is suitable for the phone number.
 	 */
 	async sendOtp(sendOtpDto: SendOtpDto): Promise<{ message: string; otp?: string }> {
+		// Ensure DTO is validated
+		sendOtpDto = plainToClass(SendOtpDto, sendOtpDto, {
+			excludeExtraneousValues: true,
+		});
+
 		// Get appropriate strategy for the phone number
 		const strategy = await this.getHandler(sendOtpDto.phone);
 
@@ -35,6 +42,35 @@ export class AuthService {
 		return {
 			message: 'OTP sent successfully',
 			otp: process.env.NODE_ENV !== 'production' ? otp : undefined,
+		};
+	}
+
+	/**
+	 * Verifies the OTP provided by the user and returns authentication tokens upon success.
+	 *
+	 * @param {CheckOtpDto} checkOtpDto - Data Transfer Object containing the phone number and OTP code.
+	 * @returns {Promise<{ message: string; accessToken: string; refreshToken: string }>}
+	 * A success message along with generated access and refresh tokens.
+	 */
+	async checkOtp(
+		checkOtpDto: CheckOtpDto,
+	): Promise<{ message: string; accessToken: string; refreshToken: string }> {
+		// Sanitize and transform the incoming DTO, removing any extraneous fields
+		checkOtpDto = plainToClass(CheckOtpDto, checkOtpDto, {
+			excludeExtraneousValues: true,
+		});
+
+		// Retrieve the appropriate OTP handler strategy based on the phone number
+		const strategy = await this.getHandler(checkOtpDto.phone);
+
+		// Delegate OTP verification and token generation to the strategy's handler
+		const { accessToken, refreshToken } = await strategy.handler.checkOtpHandler(checkOtpDto);
+
+		// Return a success message along with the generated tokens
+		return {
+			message: 'OTP verified successfully',
+			accessToken,
+			refreshToken,
 		};
 	}
 
