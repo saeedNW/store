@@ -19,6 +19,10 @@ export class SmsService {
 	 * @returns {Promise<void>} - A promise that resolves when the SMS is sent
 	 */
 	async sendOtp(phone: string, code: string): Promise<void> {
+		if (process.env.NODE_ENV !== 'production') {
+			return;
+		}
+
 		return this.smsStrategy.sendOtp(phone, code);
 	}
 }
