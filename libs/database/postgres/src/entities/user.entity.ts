@@ -10,6 +10,6 @@ export class UserEntity extends BaseTimestampedEntity {
 	@Column({ nullable: true, default: false })
 	verify_phone: boolean;
 
-	@Column({ type: 'simple-array', default: [EUserApp.STORE] }) // or JSONB if Postgres
+	@Column({ type: 'text', array: true, default: [EUserApp.STORE] })
 	allowedApps: EUserApp[];
 }
