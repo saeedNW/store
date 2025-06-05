@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { SendOtpResponses } from './responses/responses.decorator';
 import { CheckOtpDto } from './dto/check-otp.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -29,5 +30,11 @@ export class AuthController {
 	@ApiOperation({ summary: 'Verify OTP from user' })
 	checkOtp(@Body() dto: CheckOtpDto) {
 		return this.authService.checkOtp(dto);
+	}
+
+	@Post('refresh-token')
+	@ApiOperation({ summary: 'Refresh token' })
+	refreshToken(@Body() dto: RefreshTokenDto) {
+		return this.authService.refreshToken(dto);
 	}
 }

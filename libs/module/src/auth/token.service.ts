@@ -130,6 +130,18 @@ export class AuthTokenService {
 			throw new UnauthorizedException('Access token revoked');
 		}
 
+		// Check if a valid refresh session exists for the user and the given token identifier (jti).
+		// This ensures the access token is still linked to an active session and has not expired due
+		// to inactivity or revocation.
+		const hasMatchingRefreshSession = await this.redisService.exists(
+			this.getRefreshKey(payload.sub, payload.jti),
+		);
+
+		if (!hasMatchingRefreshSession) {
+			// A token with no active session should not grant access.
+			throw new UnauthorizedException('Access token expired');
+		}
+
 		// Token is valid and not revoked.
 		return { userId: payload.sub, app: payload.app };
 	}
@@ -147,19 +159,99 @@ export class AuthTokenService {
 	 * @throws {UnauthorizedException} If the token is invalid, malformed, or missing required fields.
 	 */
 	async verifyAccessToken(token: string, app: string): Promise<ITokenPayload> {
-		// Retrieve the JWT secret specific to the application from environment variables
-		const jwtSecret = getEnvVariable(`${app.toUpperCase()}_JWT_SECRET`);
+		// Decode and verify the access token using the app-specific secret
+		const payload = this.verifyToken(token, app);
 
-		let payload: ITokenPayload;
+		// Perform additional validation, such as checking for revocation or expiration
+		await this.validateAccessToken(payload);
+
+		// Return the validated payload
+		return payload;
+	}
+
+	/**
+	 * Verifies the validity of a refresh token for a given application.
+	 *
+	 * This method first decodes and verifies the refresh token using the application's secret.
+	 * It then checks Redis for the stored metadata associated with the token's subject (`sub`)
+	 * and unique identifier (`jti`). The provided token is compared against the stored hashed token.
+	 *
+	 * @param {string} token - The JWT refresh token to verify.
+	 * @param {string} app - The name of the application to determine which secret key to use.
+	 * @returns {Promise<ITokenPayload>} - A promise that resolves to the decoded token payload if verification succeeds.
+	 * @throws UnauthorizedException if the token is invalid, not found in Redis, or does not match the stored hash.
+	 */
+	async verifyRefreshToken(token: string, app: string): Promise<ITokenPayload> {
+		// Decode and verify the refresh token using the app-specific secret
+		const decoded = this.verifyToken(token, app);
+
+		// Construct the Redis key using the subject (user ID) and token identifier (jti)
+		const key = this.getRefreshKey(decoded.sub, decoded.jti);
+
+		// Retrieve the stored token metadata from Redis
+		const stored = await this.redisService.get(key);
+		if (!stored) {
+			// If no metadata is found, the token is considered invalid or expired
+			throw new UnauthorizedException('Invalid refresh token');
+		}
+
+		// Extract the hashed version of the refresh token from stored metadata
+		const { hashedToken } = JSON.parse(stored) as IRefreshTokenMeta;
+
+		// Compare the provided token with the stored hashed version
+		const isValid = await bcrypt.compare(token, hashedToken);
+		if (!isValid) {
+			// If the token does not match the hash, it is considered invalid
+			throw new UnauthorizedException('Invalid refresh token');
+		}
+
+		// If all checks pass, return the decoded token payload
+		return decoded;
+	}
+
+	/**
+	 * Revokes a specific refresh token by deleting it from Redis.
+	 *
+	 * This method removes:
+	 * 1. The refresh token metadata associated with the given user and token ID (`jti`).
+	 * 2. The token ID from the user's list of active refresh tokens.
+	 *
+	 * @param {string} userId - The ID of the user whose refresh token is being revoked.
+	 * @param {string} jti - The unique identifier (JWT ID) of the refresh token to revoke.
+	 * @returns {Promise<void>} - A promise that resolves when the token has been removed from Redis.
+	 */
+	async revokeRefreshToken(userId: string, jti: string): Promise<void> {
+		// Delete the specific refresh token metadata from Redis
+		await this.redisService.del(this.getRefreshKey(userId, jti));
+
+		// Remove the token ID from the user's list of active refresh tokens
+		await this.redisService.srem(this.getUserTokensKey(userId), jti);
+	}
+
+	/**
+	 * Verifies a JWT token using a secret key specific to the provided application.
+	 *
+	 * This method retrieves the appropriate JWT secret from the environment variables
+	 * based on the application name, then verifies the token. It ensures the decoded
+	 * payload is valid and contains the required fields: `sub` (subject) and `jti` (JWT ID).
+	 *
+	 * @param {string} token - The JWT token to verify.
+	 * @param {string} app - The name of the application, used to determine which secret key to use.
+	 * @returns {ITokenPayload} - The decoded token payload if verification is successful.
+	 * @throws UnauthorizedException if the token is invalid or verification fails.
+	 */
+	protected verifyToken(token: string, app: string): ITokenPayload {
+		// Retrieve the JWT secret specific to the application from environment variables
+		const secret = getEnvVariable(`${app.toUpperCase()}_JWT_SECRET`);
+
+		let decoded: ITokenPayload;
 
 		try {
 			// Attempt to verify the JWT using the provided secret
-			payload = this.jwtService.verify(token, {
-				secret: jwtSecret,
-			});
+			decoded = this.jwtService.verify(token, { secret });
 
-			// Ensure the payload is an object and contains the required fields: `sub` and `jti`
-			if (typeof payload !== 'object' || !('sub' in payload && 'jti' in payload)) {
+			// Ensure the decoded is an object and contains the required fields: `sub` and `jti`
+			if (typeof decoded !== 'object' || !('sub' in decoded && 'jti' in decoded)) {
 				throw new UnauthorizedException('Invalid access token');
 			}
 		} catch {
@@ -167,10 +259,6 @@ export class AuthTokenService {
 			throw new UnauthorizedException('Invalid access token');
 		}
 
-		// Perform additional validation, such as checking for revocation or expiration
-		await this.validateAccessToken(payload);
-
-		// Return the validated payload
-		return payload;
+		return decoded;
 	}
 }

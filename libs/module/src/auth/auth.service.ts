@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { IStrategyHandler } from './interfaces/strategy.interface';
 import { SmsService } from '@modules/sms';
@@ -9,6 +9,8 @@ import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@database/postgres/entities';
 import { Repository } from 'typeorm';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { getEnvVariable } from '@common/utilities/functions';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -101,19 +103,50 @@ export class AuthService {
 		);
 
 		// Query the user repository to ensure the user exists and is allowed to access the app
-		const user = await this.userRepository
-			.createQueryBuilder('user')
-			.where('user.id = :sub', { sub }) // Match by user ID
-			.andWhere(':app = ANY(user.allowedApps)', { app }) // Ensure the app is in the user's allowed apps
-			.getOne();
-
-		// If no matching user is found, the token is considered invalid
-		if (!user) {
-			throw new BadRequestException('Invalid access token');
-		}
+		await this.getUser(sub, app);
 
 		// Return the user ID (subject) from the token payload
 		return sub;
+	}
+
+	/**
+	 * Refreshes the access and refresh tokens using a valid refresh token.
+	 *
+	 * @param {RefreshTokenDto} param0 - An object containing the refresh token.
+	 * @returns A promise that resolves to an object containing a success message, a new access token, and a new refresh token.
+	 * @throws UnauthorizedException if the refresh token is invalid or user validation fails.
+	 */
+	async refreshToken({
+		refreshToken: token,
+	}: RefreshTokenDto): Promise<{ message: string; accessToken: string; refreshToken: string }> {
+		// Retrieve the JWT secret specific to the application from environment variables
+		const secret = getEnvVariable(`${this.authOptions.issuer.toUpperCase()}_JWT_SECRET`);
+
+		// Extract `sub` (user ID) and `app` (application name) from the token payload
+		const { sub, app, jti } = await this.authTokenService.verifyRefreshToken(
+			token,
+			this.authOptions.issuer, // Pass the expected issuer for additional token validation
+		);
+
+		// Query the user repository to ensure the user exists and is allowed to access the app
+		const user = await this.getUser(sub, app);
+
+		// Revoke the refresh token to invalidate it
+		await this.authTokenService.revokeRefreshToken(sub, jti);
+
+		// Generate new JWT access and refresh tokens for the authenticated user
+		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
+			user.id,
+			this.authOptions.issuer,
+			secret,
+		);
+
+		// Return a success message along with the generated tokens
+		return {
+			message: 'OTP verified successfully',
+			accessToken,
+			refreshToken,
+		};
 	}
 
 	/**
@@ -123,7 +156,7 @@ export class AuthService {
 	 * @returns {Promise<{ handler: IStrategyHandler; canHandle: boolean }>} - An object containing the handler and its eligibility status.
 	 * @throws BadRequestException if no handler can process the phone number.
 	 */
-	private async getHandler(
+	protected async getHandler(
 		phone: string,
 	): Promise<{ handler: IStrategyHandler; canHandle: boolean }> {
 		// Evaluate all handlers in parallel to see which can handle the phone
@@ -142,5 +175,33 @@ export class AuthService {
 		}
 
 		return strategy;
+	}
+
+	/**
+	 * Retrieves a user by ID and verifies that they are authorized to access the specified application.
+	 *
+	 * This method queries the user repository to ensure that:
+	 * - The user exists.
+	 * - The application is included in the user's list of allowed applications (`allowedApps`).
+	 *
+	 * @param {string} id - The unique identifier of the user.
+	 * @param {string} app - The application name to check access permission against.
+	 * @returns {Promise<UserEntity>} - A promise that resolves to the user entity if found and authorized.
+	 * @throws BadRequestException if the user does not exist or is not authorized for the application.
+	 */
+	protected async getUser(id: string, app: string): Promise<UserEntity> {
+		// Query the user repository to ensure the user exists and is allowed to access the app
+		const user = await this.userRepository
+			.createQueryBuilder('user')
+			.where('user.id = :id', { id }) // Match by user ID
+			.andWhere(':app = ANY(user.allowedApps)', { app }) // Ensure the app is in the user's allowed apps
+			.getOne();
+
+		// If no matching user is found, the token is considered invalid
+		if (!user) {
+			throw new UnauthorizedException('Invalid token');
+		}
+
+		return user;
 	}
 }
