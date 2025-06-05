@@ -4,6 +4,6 @@
     "declaration": false,
     "outDir": "../../dist/apps/panel"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../libs/common/src/definitions/express.d.ts"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }
