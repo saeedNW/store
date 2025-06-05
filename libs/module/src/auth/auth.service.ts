@@ -4,6 +4,11 @@ import { IStrategyHandler } from './interfaces/strategy.interface';
 import { SmsService } from '@modules/sms';
 import { CheckOtpDto } from './dto/check-otp.dto';
 import { plainToClass } from 'class-transformer';
+import { AuthTokenService } from './token.service';
+import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from '@database/postgres/entities';
+import { Repository } from 'typeorm';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -12,8 +17,11 @@ import { plainToClass } from 'class-transformer';
 @Injectable()
 export class AuthService {
 	constructor(
+		@InjectRepository(UserEntity) protected readonly userRepository: Repository<UserEntity>,
 		@Inject('STRATEGY_HANDLERS') private readonly handlers: IStrategyHandler[],
+		@Inject('AUTH_OPTIONS') protected readonly authOptions: IAuthModuleOptions,
 		private readonly smsService: SmsService,
+		private readonly authTokenService: AuthTokenService,
 	) {}
 
 	/**
@@ -72,6 +80,40 @@ export class AuthService {
 			accessToken,
 			refreshToken,
 		};
+	}
+
+	/**
+	 * Validates the given access token by verifying its claims and ensuring the associated user
+	 * has permission to access the specified application.
+	 *
+	 * This method checks that the token is valid and that the user it belongs to exists in the system
+	 * and is allowed to access the app identified in the token's payload.
+	 *
+	 * @param {string} token - The access token to validate.
+	 * @returns {Promise<string>} - A promise that resolves to the user ID (`sub`) if validation is successful.
+	 * @throws {BadRequestException} If the token is invalid or the user is not authorized for the app.
+	 */
+	async validateAccessToken(token: string): Promise<string> {
+		// Extract `sub` (user ID) and `app` (application name) from the token payload
+		const { sub, app } = await this.authTokenService.verifyAccessToken(
+			token,
+			this.authOptions.issuer, // Pass the expected issuer for additional token validation
+		);
+
+		// Query the user repository to ensure the user exists and is allowed to access the app
+		const user = await this.userRepository
+			.createQueryBuilder('user')
+			.where('user.id = :sub', { sub }) // Match by user ID
+			.andWhere(':app = ANY(user.allowedApps)', { app }) // Ensure the app is in the user's allowed apps
+			.getOne();
+
+		// If no matching user is found, the token is considered invalid
+		if (!user) {
+			throw new BadRequestException('Invalid access token');
+		}
+
+		// Return the user ID (subject) from the token payload
+		return sub;
 	}
 
 	/**

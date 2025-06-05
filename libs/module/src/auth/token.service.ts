@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
 import Redis from 'ioredis';
 import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { IRefreshTokenMeta, ITokenPayload } from './interfaces/tokens.interface';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { getEnvVariable } from '@common/utilities/functions';
 
 /**
  * AuthTokenService handles the creation and management of access and refresh tokens.
@@ -37,6 +38,15 @@ export class AuthTokenService {
 	 */
 	private getRefreshKey(userId: string, jti: string): string {
 		return `auth:token:${userId}:${jti}`;
+	}
+
+	/**
+	 * Constructs the Redis key for a specific access token using the JWT ID.
+	 * @param {string} jti - The JWT ID.
+	 * @returns {string} - A string Redis key.
+	 */
+	private getAccessKey(jti: string): string {
+		return `auth:access:${jti}`;
 	}
 
 	/**
@@ -101,5 +111,66 @@ export class AuthTokenService {
 
 		// Return the signed tokens to the caller
 		return { accessToken, refreshToken };
+	}
+
+	/**
+	 * Validates the provided access token payload by checking whether it has been revoked.
+	 *
+	 * @param {ITokenPayload} payload - The JWT payload containing token metadata.
+	 * @returns {Promise<{ userId: string; app: string }>} - An object containing the user ID and application if the token is valid.
+	 * @throws UnauthorizedException if the token has been marked as revoked in Redis.
+	 */
+	async validateAccessToken(payload: ITokenPayload): Promise<{ userId: string; app: string }> {
+		// Check Redis to see if the token's unique identifier (jti) exists in the revoked token store.
+		// Presence in Redis indicates the token was explicitly invalidated (e.g., user logout or admin revocation).
+		const isRevoked = await this.redisService.exists(this.getAccessKey(payload.jti));
+
+		if (isRevoked) {
+			// A revoked token should not grant access.
+			throw new UnauthorizedException('Access token revoked');
+		}
+
+		// Token is valid and not revoked.
+		return { userId: payload.sub, app: payload.app };
+	}
+
+	/**
+	 * Verifies the validity of a JWT access token and extracts the associated user ID.
+	 *
+	 * This method uses a secret key (specific to the app) to verify the token's authenticity.
+	 * It then validates the decoded payload to ensure required claims are present, and confirms
+	 * the token is still active (not revoked or expired) via `validateAccessToken`.
+	 *
+	 * @param {Promise<ITokenPayload>} token - The JWT access token to verify.
+	 * @param {Promise<ITokenPayload>} app - The name of the application (used to retrieve the appropriate JWT secret).
+	 * @returns {Promise<ITokenPayload>} - A promise that resolves to the user ID if the token is valid.
+	 * @throws {UnauthorizedException} If the token is invalid, malformed, or missing required fields.
+	 */
+	async verifyAccessToken(token: string, app: string): Promise<ITokenPayload> {
+		// Retrieve the JWT secret specific to the application from environment variables
+		const jwtSecret = getEnvVariable(`${app.toUpperCase()}_JWT_SECRET`);
+
+		let payload: ITokenPayload;
+
+		try {
+			// Attempt to verify the JWT using the provided secret
+			payload = this.jwtService.verify(token, {
+				secret: jwtSecret,
+			});
+
+			// Ensure the payload is an object and contains the required fields: `sub` and `jti`
+			if (typeof payload !== 'object' || !('sub' in payload && 'jti' in payload)) {
+				throw new UnauthorizedException('Invalid access token');
+			}
+		} catch {
+			// Catch verification errors and rethrow as an UnauthorizedException
+			throw new UnauthorizedException('Invalid access token');
+		}
+
+		// Perform additional validation, such as checking for revocation or expiration
+		await this.validateAccessToken(payload);
+
+		// Return the validated payload
+		return payload;
 	}
 }
