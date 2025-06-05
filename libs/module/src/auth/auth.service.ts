@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Inject,
+	Injectable,
+	Scope,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { IStrategyHandler } from './interfaces/strategy.interface';
 import { SmsService } from '@modules/sms';
@@ -10,17 +16,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@database/postgres/entities';
 import { Repository } from 'typeorm';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 /**
  * Core service responsible for handling OTP-based authentication.
  * Delegates logic to appropriate strategy handlers based on phone number and app context.
  */
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class AuthService {
 	constructor(
 		@InjectRepository(UserEntity) protected readonly userRepository: Repository<UserEntity>,
 		@Inject('STRATEGY_HANDLERS') private readonly handlers: IStrategyHandler[],
 		@Inject('AUTH_OPTIONS') protected readonly authOptions: IAuthModuleOptions,
+		@Inject(REQUEST) private readonly request: Request,
 		private readonly smsService: SmsService,
 		private readonly authTokenService: AuthTokenService,
 	) {}
@@ -131,6 +140,18 @@ export class AuthService {
 			accessToken,
 			refreshToken,
 		};
+	}
+
+	/**
+	 * Retrieves all active user sessions for the currently authenticated user.
+	 *
+	 * @returns A promise that resolves to an array of active session objects.
+	 */
+	async getUserSessions() {
+		// Call the authTokenService to get all active tokens for the current user
+		const sessions = await this.authTokenService.getAllActiveTokens(this.request.userId as string);
+
+		return { sessions };
 	}
 
 	/**

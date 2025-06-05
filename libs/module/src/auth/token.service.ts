@@ -229,6 +229,69 @@ export class AuthTokenService {
 	}
 
 	/**
+	 * Retrieves metadata for all active refresh tokens associated with a user,
+	 * excluding the sensitive `hashedToken` field for security reasons.
+	 *
+	 * @param {string} userId - The unique identifier of the user.
+	 * @returns {Promise<Array<{ jti: string; meta: Omit<IRefreshTokenMeta, 'hashedToken'> }>>}
+	 *   A list of token metadata objects with their JTI, excluding the hashed token.
+	 */
+	async getAllActiveTokens(
+		userId: string,
+	): Promise<Array<{ sessionId: string; meta: Omit<IRefreshTokenMeta, 'hashedToken'> }>> {
+		// Fetch all refresh token JTIs associated with this user from Redis set
+		const jtIs = await this.redisService.smembers(this.getUserTokensKey(userId));
+
+		// If the user has no active tokens, return an empty list
+		if (!jtIs.length) {
+			return [];
+		}
+
+		// Create a Redis pipeline to efficiently fetch all token metadata in a single round-trip
+		const pipeline = this.redisService.pipeline();
+		for (const jti of jtIs) {
+			const key = this.getRefreshKey(userId, jti);
+			pipeline.get(key); // Queue a GET operation for each token
+		}
+
+		// Execute the pipeline and get the results (array of [error, value] tuples)
+		const results = await pipeline.exec();
+
+		// If there's an error or no results, return an empty list
+		if (!results) return [];
+
+		// Parse the results, filtering out missing or invalid entries
+		const tokens = results
+			.map(([, result], index) => {
+				// If there's no value for a given JTI (possibly expired), skip it
+				if (typeof result !== 'string') return null;
+
+				try {
+					// Parse the stored token metadata JSON
+					// eslint-disable-next-line
+					const { hashedToken, ...rest } = JSON.parse(result) as IRefreshTokenMeta;
+
+					// Return the token's JTI and the metadata (without hashedToken)
+					return {
+						sessionId: jtIs[index],
+						meta: rest,
+					};
+				} catch {
+					// If parsing fails (e.g., corrupted entry), skip it
+					return null;
+				}
+			})
+			// Filter out null entries
+			.filter(
+				(entry): entry is { sessionId: string; meta: Omit<IRefreshTokenMeta, 'hashedToken'> } =>
+					entry !== null,
+			);
+
+		// Return the list of valid token metadata entries
+		return tokens;
+	}
+
+	/**
 	 * Verifies a JWT token using a secret key specific to the provided application.
 	 *
 	 * This method retrieves the appropriate JWT secret from the environment variables

@@ -3,10 +3,16 @@ import {
 	ApiCreatedResponse,
 	ApiForbiddenResponse,
 	ApiInternalServerErrorResponse,
+	ApiOkResponse,
 	ApiUnauthorizedResponse,
 	ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { CheckOtpSuccess, RefreshTokenSuccess, SendOtpSuccess } from './success.response';
+import {
+	CheckOtpSuccess,
+	GetActiveSessionsSuccess,
+	RefreshTokenSuccess,
+	SendOtpSuccess,
+} from './success.response';
 import {
 	BadRequestResponse,
 	InternalServerErrorResponse,
@@ -110,6 +116,29 @@ export function RefreshTokenResponses() {
 		ApiUnprocessableEntityResponse({
 			description: 'Unprocessable Entity Response',
 			type: UnprocessableEntityResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
+export function GetActiveSessionsResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiOkResponse({
+			description: 'Success Response',
+			type: GetActiveSessionsSuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
 		})(target, propertyKey, descriptor);
 
 		ApiInternalServerErrorResponse({

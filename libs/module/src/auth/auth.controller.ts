@@ -1,14 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import {
 	CheckOtpResponses,
+	GetActiveSessionsResponses,
 	RefreshTokenResponses,
 	SendOtpResponses,
 } from './responses/responses.decorator';
 import { CheckOtpDto } from './dto/check-otp.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AuthDecorator } from '@common/decorator/auth.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -46,5 +48,16 @@ export class AuthController {
 	@RefreshTokenResponses()
 	refreshToken(@Body() dto: RefreshTokenDto) {
 		return this.authService.refreshToken(dto);
+	}
+
+	@Get('sessions')
+	@ApiOperation({
+		summary: 'Get user sessions',
+		description: 'Each session will be revoked after 7 days from its creation automatically.',
+	})
+	@AuthDecorator()
+	@GetActiveSessionsResponses()
+	getUserSessions() {
+		return this.authService.getUserSessions();
 	}
 }
