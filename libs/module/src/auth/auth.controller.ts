@@ -2,7 +2,11 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
-import { CheckOtpResponses, SendOtpResponses } from './responses/responses.decorator';
+import {
+	CheckOtpResponses,
+	RefreshTokenResponses,
+	SendOtpResponses,
+} from './responses/responses.decorator';
 import { CheckOtpDto } from './dto/check-otp.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
@@ -39,6 +43,7 @@ export class AuthController {
 	 */
 	@Post('refresh-token')
 	@ApiOperation({ summary: 'Refresh token' })
+	@RefreshTokenResponses()
 	refreshToken(@Body() dto: RefreshTokenDto) {
 		return this.authService.refreshToken(dto);
 	}

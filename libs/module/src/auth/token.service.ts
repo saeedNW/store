@@ -252,11 +252,11 @@ export class AuthTokenService {
 
 			// Ensure the decoded is an object and contains the required fields: `sub` and `jti`
 			if (typeof decoded !== 'object' || !('sub' in decoded && 'jti' in decoded)) {
-				throw new UnauthorizedException('Invalid access token');
+				throw new UnauthorizedException('Invalid token');
 			}
 		} catch {
 			// Catch verification errors and rethrow as an UnauthorizedException
-			throw new UnauthorizedException('Invalid access token');
+			throw new UnauthorizedException('Invalid token');
 		}
 
 		return decoded;
