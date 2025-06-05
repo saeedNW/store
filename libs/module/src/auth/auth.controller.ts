@@ -50,6 +50,10 @@ export class AuthController {
 		return this.authService.refreshToken(dto);
 	}
 
+	/**
+	 * Endpoint: GET /auth/sessions
+	 * Retrieves the user's active sessions
+	 */
 	@Get('sessions')
 	@ApiOperation({
 		summary: 'Get user sessions',
@@ -61,6 +65,10 @@ export class AuthController {
 		return this.authService.getUserSessions();
 	}
 
+	/**
+	 * Endpoint: POST /auth/logout
+	 * Logs out the user and revokes the current session
+	 */
 	@Post('logout')
 	@ApiOperation({ summary: 'Logout user and revoke current session' })
 	@AuthDecorator()
