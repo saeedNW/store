@@ -93,7 +93,7 @@ export class AuthService {
 	 *
 	 * @param {string} token - The access token to validate.
 	 * @returns {Promise<string>} - A promise that resolves to the user ID (`sub`) if validation is successful.
-	 * @throws {BadRequestException} If the token is invalid or the user is not authorized for the app.
+	 * @throws {UnauthorizedException} If the token is invalid or the user is not authorized for the app.
 	 */
 	async validateAccessToken(token: string): Promise<string> {
 		// Extract `sub` (user ID) and `app` (application name) from the token payload
@@ -187,7 +187,7 @@ export class AuthService {
 	 * @param {string} id - The unique identifier of the user.
 	 * @param {string} app - The application name to check access permission against.
 	 * @returns {Promise<UserEntity>} - A promise that resolves to the user entity if found and authorized.
-	 * @throws BadRequestException if the user does not exist or is not authorized for the application.
+	 * @throws UnauthorizedException if the user does not exist or is not authorized for the application.
 	 */
 	protected async getUser(id: string, app: string): Promise<UserEntity> {
 		// Query the user repository to ensure the user exists and is allowed to access the app
