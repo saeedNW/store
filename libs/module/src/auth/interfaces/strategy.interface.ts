@@ -1,5 +1,6 @@
 export interface IStrategyHandler<T = any> {
-	canHandle(data: T): Promise<boolean>;
+	canHandle(data?: T, checkUserExistence?: boolean): Promise<boolean>;
 	sendOtpHandler(data: T): Promise<string>;
 	checkOtpHandler(data: T): Promise<{ accessToken: string; refreshToken: string }>;
+	refreshTokenHandler(data: T): Promise<{ accessToken: string; refreshToken: string }>;
 }

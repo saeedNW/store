@@ -5,6 +5,7 @@ import { SendOtpDto } from '../dto/send-otp.dto';
 import { EUserApp } from '@common/enums';
 import { CheckOtpDto } from '../dto/check-otp.dto';
 import { getEnvVariable } from '@common/utilities/functions';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
 
 /**
  * Authentication handler for the "STORE" user application.
@@ -19,12 +20,16 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * Determines whether this handler can process requests for the given phone number
 	 * within the context of the STORE application.
 	 *
-	 * @param {string} phone - The user's phone number.
+	 * @param {string} [phone] - The user's phone number.
+	 * @param {boolean} [checkUserExistence] - Whether to check if the user exists.
 	 * @returns {Promise<boolean>} - True if the user doesn't exist or is allowed to access STORE.
 	 */
-	async canHandle(phone: string): Promise<boolean> {
+	async canHandle(phone?: string, checkUserExistence: boolean = true): Promise<boolean> {
 		// Check if STORE is a configured issuer
 		if (!this.authOptions.issuer.includes(EUserApp.STORE)) return false;
+
+		// Skip user existence check if not required
+		if (!checkUserExistence) return true;
 
 		// Find user by phone
 		const user = await this.userRepository.findOne({ where: { phone } });
@@ -42,12 +47,10 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 */
 	async sendOtpHandler(data: SendOtpDto): Promise<string> {
 		// Find the user by phone and ensure STORE is one of their allowed apps
-		let user = await this.getUser(data.phone, EUserApp.STORE);
+		let user = await this.getUser({ phone: data.phone }, EUserApp.STORE);
 
 		// If user doesn't exist, create a new one
-		if (!user) {
-			user = await this.userRepository.save({ phone: data.phone });
-		}
+		if (!user) user = await this.userRepository.save({ phone: data.phone });
 
 		// Generate and return OTP
 		return this.generateAndStoreOtp(user.id);
@@ -62,11 +65,9 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 */
 	async checkOtpHandler(data: CheckOtpDto): Promise<{ accessToken: string; refreshToken: string }> {
 		// Retrieve the user associated with the given phone number in the STORE app context
-		const user = await this.getUser(data.phone, EUserApp.STORE);
+		const user = await this.getUser({ phone: data.phone }, EUserApp.STORE);
 		// If user is not found, throw an unauthorized exception
-		if (!user) {
-			throw new UnauthorizedException('Invalid credentials');
-		}
+		if (!user) throw new UnauthorizedException('Invalid credentials');
 
 		// Verify the OTP for the retrieved user
 		await this.verifyOtp(user.id, data.otp);
@@ -85,5 +86,43 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 
 		// Return the generated tokens
 		return { accessToken, refreshToken };
+	}
+
+	/**
+	 * Handles the refresh token process by verifying the provided token,
+	 * validating the associated user, revoking the old refresh token,
+	 * and issuing a new pair of access and refresh tokens.
+	 *
+	 * @param {RefreshTokenDto} param0 - An object containing the refresh token.
+	 * @param {string} param0.refreshToken - The refresh token to validate and exchange.
+	 * @returns {Promise<{ accessToken: string; refreshToken: string }>}
+	 * An object containing newly generated access and refresh tokens.
+	 *
+	 * @throws {UnauthorizedException} If the refresh token is invalid or the user is not found.
+	 */
+	async refreshTokenHandler({
+		refreshToken: token,
+	}: RefreshTokenDto): Promise<{ accessToken: string; refreshToken: string }> {
+		// Extract `sub` (user ID) and `app` (application name) from the token payload
+		const { sub, jti } = await this.authTokenService.verifyRefreshToken(
+			token,
+			this.authOptions.issuer, // Pass the expected issuer for additional token validation
+		);
+
+		// Query the user repository to ensure the user exists and is allowed to access the app
+		const user = await this.getUser({ id: sub }, EUserApp.STORE);
+
+		// If no matching user is found, the token is considered invalid
+		if (!user) throw new UnauthorizedException('Invalid token');
+
+		// Revoke the refresh token to invalidate it
+		await this.authTokenService.revokeRefreshToken(sub, jti);
+
+		// Generate new JWT access and refresh tokens for the authenticated user
+		return await this.authTokenService.generateTokens(
+			user.id,
+			this.authOptions.issuer,
+			this.jwtSecret,
+		);
 	}
 }

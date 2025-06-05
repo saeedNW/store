@@ -10,7 +10,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@database/postgres/entities';
 import { Repository } from 'typeorm';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { getEnvVariable } from '@common/utilities/functions';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -112,34 +111,19 @@ export class AuthService {
 	/**
 	 * Refreshes the access and refresh tokens using a valid refresh token.
 	 *
-	 * @param {RefreshTokenDto} param0 - An object containing the refresh token.
+	 * @param {RefreshTokenDto} refreshTokenDto - An object containing the refresh token.
 	 * @returns A promise that resolves to an object containing a success message, a new access token, and a new refresh token.
 	 * @throws UnauthorizedException if the refresh token is invalid or user validation fails.
 	 */
-	async refreshToken({
-		refreshToken: token,
-	}: RefreshTokenDto): Promise<{ message: string; accessToken: string; refreshToken: string }> {
-		// Retrieve the JWT secret specific to the application from environment variables
-		const secret = getEnvVariable(`${this.authOptions.issuer.toUpperCase()}_JWT_SECRET`);
+	async refreshToken(
+		refreshTokenDto: RefreshTokenDto,
+	): Promise<{ message: string; accessToken: string; refreshToken: string }> {
+		// Get appropriate strategy for the phone number
+		const strategy = await this.getHandler(undefined, false);
 
-		// Extract `sub` (user ID) and `app` (application name) from the token payload
-		const { sub, app, jti } = await this.authTokenService.verifyRefreshToken(
-			token,
-			this.authOptions.issuer, // Pass the expected issuer for additional token validation
-		);
-
-		// Query the user repository to ensure the user exists and is allowed to access the app
-		const user = await this.getUser(sub, app);
-
-		// Revoke the refresh token to invalidate it
-		await this.authTokenService.revokeRefreshToken(sub, jti);
-
-		// Generate new JWT access and refresh tokens for the authenticated user
-		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
-			user.id,
-			this.authOptions.issuer,
-			secret,
-		);
+		// Delegate OTP verification and token generation to the strategy's handler
+		const { accessToken, refreshToken } =
+			await strategy.handler.refreshTokenHandler(refreshTokenDto);
 
 		// Return a success message along with the generated tokens
 		return {
@@ -152,18 +136,20 @@ export class AuthService {
 	/**
 	 * Identifies which strategy handler can process the given phone number.
 	 *
-	 * @param {string} phone - The user's phone number.
+	 * @param {string} [phone] - The user's phone number
+	 * @param {boolean} [checkUserExistence] - Whether to check if the user exists.r.
 	 * @returns {Promise<{ handler: IStrategyHandler; canHandle: boolean }>} - An object containing the handler and its eligibility status.
 	 * @throws BadRequestException if no handler can process the phone number.
 	 */
 	protected async getHandler(
-		phone: string,
+		phone?: string,
+		checkUserExistence: boolean = true,
 	): Promise<{ handler: IStrategyHandler; canHandle: boolean }> {
 		// Evaluate all handlers in parallel to see which can handle the phone
 		const results = await Promise.all(
 			this.handlers.map(async (handler) => ({
 				handler,
-				canHandle: await handler.canHandle(phone),
+				canHandle: await handler.canHandle(phone, checkUserExistence),
 			})),
 		);
 

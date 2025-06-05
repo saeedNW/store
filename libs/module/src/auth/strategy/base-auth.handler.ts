@@ -97,18 +97,40 @@ export abstract class BaseAuthHandler {
 	}
 
 	/**
-	 * Retrieves a user based on their phone number and application access.
+	 * Retrieves a user based on dynamic filters (such as phone number or ID)
+	 * and ensures the user has access to the specified application.
 	 *
-	 * @param {string} phone - The user's phone number to search for.
-	 * @param {EUserApp} app - The application the user must have access to.
-	 * @returns {Promise<UserEntity | null>} - A promise that resolves to the user entity if found, or null if no matching user is found.
+	 * This method allows flexible querying by accepting partial user-identifying fields.
+	 * At least one of the supported filters (`id` or `phone`) must be provided.
+	 *
+	 * @param {Partial<Pick<UserEntity, 'id' | 'phone'>>} filters - A partial object containing user identifiers.
+	 *        Supported keys include:
+	 *        - `id`: The unique user ID.
+	 *        - `phone`: The user's phone number.
+	 * @param {EUserApp} app - The application the user must have access to (must be present in `user.allowedApps`).
+	 * @returns {Promise<UserEntity | null>} - A promise that resolves to the user entity if found, or `null` if no matching user exists.
 	 */
-	protected async getUser(phone: string, app: EUserApp): Promise<UserEntity | null> {
-		// Query for a user that matches the given phone number and has required app access
-		return await this.userRepository
+	protected async getUser(
+		filters: Partial<Pick<UserEntity, 'id' | 'phone'>>,
+		app: EUserApp,
+	): Promise<UserEntity | null> {
+		// Start building the query to fetch the user
+		const query = this.userRepository
 			.createQueryBuilder('user')
-			.where('user.phone = :phone', { phone })
-			.andWhere(':app = ANY(user.allowedApps)', { app })
-			.getOne();
+			// Filter users by app access using PostgreSQL's ANY clause
+			.andWhere(':app = ANY(user.allowedApps)', { app });
+
+		// Conditionally add filter for user ID
+		if (filters.id) {
+			query.andWhere('user.id = :id', { id: filters.id });
+		}
+
+		// Conditionally add filter for user phone number
+		if (filters.phone) {
+			query.andWhere('user.phone = :phone', { phone: filters.phone });
+		}
+
+		// Execute the query and return the matching user, or null if not found
+		return await query.getOne();
 	}
 }

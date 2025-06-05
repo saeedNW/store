@@ -33,6 +33,10 @@ export class AuthController {
 		return this.authService.checkOtp(dto);
 	}
 
+	/**
+	 * Endpoint: POST /auth/refresh-token
+	 * Refreshes the user's token
+	 */
 	@Post('refresh-token')
 	@ApiOperation({ summary: 'Refresh token' })
 	refreshToken(@Body() dto: RefreshTokenDto) {
