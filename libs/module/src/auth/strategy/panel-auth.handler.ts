@@ -46,7 +46,7 @@ export class PanelAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * @returns {Promise<string>} - The newly generated OTP code as a string.
 	 * @throws ForbiddenException if the user is not authorized for PANEL access.
 	 */
-	async otpHandler(data: SendOtpDto): Promise<string> {
+	async sendOtpHandler(data: SendOtpDto): Promise<string> {
 		// Find the user by phone and ensure PANEL is one of their allowed apps
 		const user = await this.getUser(data.phone, EUserApp.PANEL);
 

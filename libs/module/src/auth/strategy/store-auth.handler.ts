@@ -40,7 +40,7 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * @param {SendOtpDto} data - DTO containing the phone number.
 	 * @returns {Promise<string>} - A string containing the generated OTP code.
 	 */
-	async otpHandler(data: SendOtpDto): Promise<string> {
+	async sendOtpHandler(data: SendOtpDto): Promise<string> {
 		// Find the user by phone and ensure STORE is one of their allowed apps
 		let user = await this.getUser(data.phone, EUserApp.STORE);
 

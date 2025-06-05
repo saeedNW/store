@@ -33,7 +33,7 @@ export class AuthService {
 		const strategy = await this.getHandler(sendOtpDto.phone);
 
 		// Generate OTP via the selected handler
-		const otp = await strategy.handler.otpHandler(sendOtpDto);
+		const otp = await strategy.handler.sendOtpHandler(sendOtpDto);
 
 		// Send OTP via SMS
 		await this.smsService.sendOtp(sendOtpDto.phone, otp);

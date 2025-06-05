@@ -46,7 +46,7 @@ export class ShopAuthHandler extends BaseAuthHandler implements IStrategyHandler
 	 * @returns {Promise<string>} - A string representing the generated OTP code.
 	 * @throws ForbiddenException if the user is not authorized for SHOP access.
 	 */
-	async otpHandler(data: SendOtpDto): Promise<string> {
+	async sendOtpHandler(data: SendOtpDto): Promise<string> {
 		// Find the user by phone and ensure SHOP is one of their allowed apps
 		const user = await this.getUser(data.phone, EUserApp.SHOP);
 
