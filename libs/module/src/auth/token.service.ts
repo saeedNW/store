@@ -15,6 +15,13 @@ import { getEnvVariable } from '@common/utilities/functions';
  */
 @Injectable({ scope: Scope.REQUEST })
 export class AuthTokenService {
+	constructor(
+		@Inject('REDIS_CONNECTION') private readonly redisService: Redis,
+		@Inject('AUTH_OPTIONS') private readonly authOptions: IAuthModuleOptions,
+		@Inject(REQUEST) private request: Request,
+		private readonly jwtService: JwtService,
+	) {}
+
 	/**
 	 * Returns the TTL (Time To Live) in seconds for refresh tokens.
 	 * Defaults to 7 days if not specified in configuration.
@@ -23,12 +30,13 @@ export class AuthTokenService {
 		return this.authOptions.refreshTokenTimeToLive || 60 * 60 * 24 * 7;
 	}
 
-	constructor(
-		@Inject('REDIS_CONNECTION') private readonly redisService: Redis,
-		@Inject('AUTH_OPTIONS') private readonly authOptions: IAuthModuleOptions,
-		@Inject(REQUEST) private request: Request,
-		private readonly jwtService: JwtService,
-	) {}
+	/**
+	 * Returns the TTL (Time To Live) in seconds for access tokens.
+	 * Default to 15 minutes if not specified in configuration.
+	 */
+	private get ACCESS_TTL(): number {
+		return this.authOptions.accessTokenTimeToLive || 60 * 15;
+	}
 
 	/**
 	 * Constructs the Redis key for a specific refresh token using user ID and JWT ID.
@@ -226,6 +234,26 @@ export class AuthTokenService {
 
 		// Remove the token ID from the user's list of active refresh tokens
 		await this.redisService.srem(this.getUserTokensKey(userId), jti);
+	}
+
+	/**
+	 * Revokes an access token by storing a revocation marker in Redis.
+	 *
+	 * @param {string} jti - The unique JWT ID of the access token to revoke.
+	 * @returns {Promise<void>} A promise that resolves once the revocation marker is set.
+	 */
+	async revokeAccessToken(jti: string): Promise<void> {
+		await this.redisService.set(this.getAccessKey(jti), 'revoked', 'EX', this.ACCESS_TTL);
+	}
+
+	/**
+	 * Decodes a JWT token and returns the decoded payload.
+	 *
+	 * @param {string} token - The JWT access token to verify.
+	 * @returns {ITokenPayload} - The decoded token payload.
+	 */
+	decodeToken(token: string): ITokenPayload {
+		return this.jwtService.decode(token);
 	}
 
 	/**

@@ -10,7 +10,7 @@ import {
 } from './responses/responses.decorator';
 import { CheckOtpDto } from './dto/check-otp.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { AuthDecorator } from '@common/decorator/auth.decorator';
+import { AuthDecorator, Token } from '@common/decorators';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -59,5 +59,12 @@ export class AuthController {
 	@GetActiveSessionsResponses()
 	getUserSessions() {
 		return this.authService.getUserSessions();
+	}
+
+	@Post('logout')
+	@ApiOperation({ summary: 'Logout user and revoke current session' })
+	@AuthDecorator()
+	logout(@Token() token: string) {
+		return this.authService.logout(token);
 	}
 }

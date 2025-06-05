@@ -23,6 +23,7 @@ import * as path from 'path';
 			jwtSecret: getEnvVariable('PANEL_JWT_SECRET'),
 			accessTokenExpiresIn: getEnvVariable('ACCESS_TOKEN_EXPIRE_TIME'),
 			refreshTokenExpiresIn: getEnvVariable('REFRESH_TOKEN_EXPIRE_TIME'),
+			accessTokenTimeToLive: Number(getEnvVariable('ACCESS_TOKEN_TIME_TO_LIVE')),
 			refreshTokenTimeToLive: Number(getEnvVariable('REFRESH_TOKEN_TIME_TO_LIVE')),
 			redisConfig: {
 				host: getEnvVariable('REDIS_HOST'),

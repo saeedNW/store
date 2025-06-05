@@ -155,6 +155,30 @@ export class AuthService {
 	}
 
 	/**
+	 * Logs out a user by revoking their access and refresh tokens.
+	 *
+	 * This method decodes the provided JWT token to extract its unique identifier (`jti`)
+	 * and the subject (`sub`, typically the user ID). It then revokes both the access token
+	 * and the associated refresh token to effectively log the user out.
+	 *
+	 * @param {string} token - The JWT access token to be revoked.
+	 * @returns {Promise<string>} - A Promise that resolves once both tokens are revoked.
+	 */
+	async logout(token: string): Promise<string> {
+		// Decode the token to get the token ID (jti) and subject (sub)
+		const { jti, sub } = this.authTokenService.decodeToken(token);
+
+		// Revoke the access token using its unique identifier
+		await this.authTokenService.revokeAccessToken(jti);
+
+		// Revoke the refresh token associated with the subject and token ID
+		await this.authTokenService.revokeRefreshToken(sub, jti);
+
+		// Return a success message
+		return 'Logged out successfully';
+	}
+
+	/**
 	 * Identifies which strategy handler can process the given phone number.
 	 *
 	 * @param {string} [phone] - The user's phone number
