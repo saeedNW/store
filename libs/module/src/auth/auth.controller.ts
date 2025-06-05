@@ -5,12 +5,15 @@ import { SendOtpDto } from './dto/send-otp.dto';
 import {
 	CheckOtpResponses,
 	GetActiveSessionsResponses,
+	LogOutResponses,
 	RefreshTokenResponses,
+	RevokeSessionResponses,
 	SendOtpResponses,
 } from './responses/responses.decorator';
 import { CheckOtpDto } from './dto/check-otp.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthDecorator, Token } from '@common/decorators';
+import { RevokeSessionDto } from './dto/revoke-session.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -72,7 +75,20 @@ export class AuthController {
 	@Post('logout')
 	@ApiOperation({ summary: 'Logout user and revoke current session' })
 	@AuthDecorator()
+	@LogOutResponses()
 	logout(@Token() token: string) {
 		return this.authService.logout(token);
+	}
+
+	/**
+	 * Endpoint: POST /auth/revoke-session
+	 * Revokes a specific session
+	 */
+	@Post('revoke-session')
+	@ApiOperation({ summary: 'Revoke a token' })
+	@AuthDecorator()
+	@RevokeSessionResponses()
+	revokeSession(@Body() revokeSessionDto: RevokeSessionDto) {
+		return this.authService.revokeSession(revokeSessionDto);
 	}
 }

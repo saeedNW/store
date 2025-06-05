@@ -3,6 +3,7 @@ import {
 	ApiCreatedResponse,
 	ApiForbiddenResponse,
 	ApiInternalServerErrorResponse,
+	ApiNotFoundResponse,
 	ApiOkResponse,
 	ApiUnauthorizedResponse,
 	ApiUnprocessableEntityResponse,
@@ -10,7 +11,9 @@ import {
 import {
 	CheckOtpSuccess,
 	GetActiveSessionsSuccess,
+	LogOutSuccess,
 	RefreshTokenSuccess,
+	RevokeSessionSuccess,
 	SendOtpSuccess,
 } from './success.response';
 import {
@@ -19,6 +22,7 @@ import {
 	UnprocessableEntityResponse,
 	ForbiddenResponse,
 	UnauthorizedResponse,
+	NotFoundResponse,
 } from '@common/responses';
 
 export function SendOtpResponses() {
@@ -139,6 +143,62 @@ export function GetActiveSessionsResponses() {
 		ApiUnauthorizedResponse({
 			description: 'Unauthorized Response',
 			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
+export function LogOutResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiOkResponse({
+			description: 'Success Response',
+			type: LogOutSuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiNotFoundResponse({
+			description: 'Not Found Response',
+			type: NotFoundResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
+export function RevokeSessionResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiOkResponse({
+			description: 'Success Response',
+			type: RevokeSessionSuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiNotFoundResponse({
+			description: 'Not Found Response',
+			type: NotFoundResponse,
 		})(target, propertyKey, descriptor);
 
 		ApiInternalServerErrorResponse({

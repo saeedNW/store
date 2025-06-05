@@ -18,6 +18,7 @@ import { Repository } from 'typeorm';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { RevokeSessionDto } from './dto/revoke-session.dto';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -176,6 +177,23 @@ export class AuthService {
 
 		// Return a success message
 		return 'Logged out successfully';
+	}
+
+	/**
+	 * Revokes a specific user session by its session ID.
+	 *
+	 * @param {RevokeSessionDto} revokeSessionDto - Data transfer object containing the session ID to revoke.
+	 * @returns {Promise<string>} - A promise that resolves to a success message once the session is revoked.
+	 */
+	async revokeSession(revokeSessionDto: RevokeSessionDto): Promise<string> {
+		// Revoke the refresh token for the current user and specified session ID
+		await this.authTokenService.revokeRefreshToken(
+			this.request.userId as string, // The ID of the user making the request
+			revokeSessionDto.sessionId, // The session ID to revoke
+		);
+
+		// Return a confirmation message after successful revocation
+		return 'Session revoked successfully';
 	}
 
 	/**

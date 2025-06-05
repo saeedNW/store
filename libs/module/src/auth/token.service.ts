@@ -1,4 +1,10 @@
-import { Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
+import {
+	Inject,
+	Injectable,
+	NotFoundException,
+	Scope,
+	UnauthorizedException,
+} from '@nestjs/common';
 import Redis from 'ioredis';
 import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
 import { v4 as uuidv4 } from 'uuid';
@@ -227,8 +233,15 @@ export class AuthTokenService {
 	 * @param {string} userId - The ID of the user whose refresh token is being revoked.
 	 * @param {string} jti - The unique identifier (JWT ID) of the refresh token to revoke.
 	 * @returns {Promise<void>} - A promise that resolves when the token has been removed from Redis.
+	 * @throws {NotFoundException} If the refresh token is not found in Redis.
 	 */
 	async revokeRefreshToken(userId: string, jti: string): Promise<void> {
+		// Check if the refresh token metadata exists in Redis
+		const token = await this.redisService.exists(this.getRefreshKey(userId, jti));
+
+		// If the token is not found, throw an error
+		if (!token) throw new NotFoundException('Token not found');
+
 		// Delete the specific refresh token metadata from Redis
 		await this.redisService.del(this.getRefreshKey(userId, jti));
 
