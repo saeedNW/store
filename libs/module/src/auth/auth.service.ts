@@ -158,25 +158,43 @@ export class AuthService {
 	/**
 	 * Logs out a user by revoking their access and refresh tokens.
 	 *
-	 * This method decodes the provided JWT token to extract its unique identifier (`jti`)
-	 * and the subject (`sub`, typically the user ID). It then revokes both the access token
-	 * and the associated refresh token to effectively log the user out.
+	 * This method decodes the provided JWT token to extract its unique identifier (`jti`).
+	 * It then revokes both the access token and the associated refresh token to effectively
+	 * log the user out.
 	 *
 	 * @param {string} token - The JWT access token to be revoked.
 	 * @returns {Promise<string>} - A Promise that resolves once both tokens are revoked.
 	 */
 	async logout(token: string): Promise<string> {
-		// Decode the token to get the token ID (jti) and subject (sub)
-		const { jti, sub } = this.authTokenService.decodeToken(token);
+		// Decode the token to get the token ID (jti)
+		const { jti } = this.authTokenService.decodeToken(token);
 
 		// Revoke the access token using its unique identifier
 		await this.authTokenService.revokeAccessToken(jti);
 
 		// Revoke the refresh token associated with the subject and token ID
-		await this.authTokenService.revokeRefreshToken(sub, jti);
+		await this.authTokenService.revokeRefreshToken(this.request.userId as string, jti);
 
 		// Return a success message
 		return 'Logged out successfully';
+	}
+
+	/**
+	 * Revokes all refresh tokens for the currently authenticated user, except the current session token.
+	 *
+	 * Delegates the revocation logic to `authTokenService.revokeAllRefreshTokens`, which ensures that
+	 * only tokens older than 1 day can trigger a mass revocation.
+	 *
+	 * @param {string} token - The current refresh token (used to identify and preserve the active session).
+	 * @returns {Promise<string>} - A success message indicating that the tokens have been revoked.
+	 * @throws BadRequestException if the current token is not old enough to allow revocation.
+	 */
+	async revokeTokens(token: string): Promise<string> {
+		// Call the service to revoke all refresh tokens for the current user, except the current session
+		await this.authTokenService.revokeAllRefreshTokens(this.request.userId as string, token);
+
+		// Return a confirmation message
+		return 'Tokens revoked successfully';
 	}
 
 	/**

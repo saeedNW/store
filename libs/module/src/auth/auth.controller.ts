@@ -8,6 +8,7 @@ import {
 	LogOutResponses,
 	RefreshTokenResponses,
 	RevokeSessionResponses,
+	RevokeTokensResponses,
 	SendOtpResponses,
 } from './responses/responses.decorator';
 import { CheckOtpDto } from './dto/check-otp.dto';
@@ -78,6 +79,18 @@ export class AuthController {
 	@LogOutResponses()
 	logout(@Token() token: string) {
 		return this.authService.logout(token);
+	}
+
+	/**
+	 * Endpoint: POST /auth/revoke-tokens
+	 * Revokes all tokens
+	 */
+	@Post('revoke-tokens')
+	@ApiOperation({ summary: 'Revoke all tokens' })
+	@AuthDecorator()
+	@RevokeTokensResponses()
+	revokeTokens(@Token() token: string) {
+		return this.authService.revokeTokens(token);
 	}
 
 	/**

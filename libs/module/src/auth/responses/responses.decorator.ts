@@ -180,6 +180,39 @@ export function LogOutResponses() {
 	};
 }
 
+export function RevokeTokensResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiOkResponse({
+			description: 'Success Response',
+			type: RevokeSessionSuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiBadRequestResponse({
+			description: 'Bad Request Response',
+			type: BadRequestResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiNotFoundResponse({
+			description: 'Not Found Response',
+			type: NotFoundResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
 export function RevokeSessionResponses() {
 	return function (
 		target: Record<string, any>,

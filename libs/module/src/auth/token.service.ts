@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Inject,
 	Injectable,
 	NotFoundException,
@@ -260,6 +261,45 @@ export class AuthTokenService {
 	}
 
 	/**
+	 * Revokes all refresh tokens for a given user, except the one corresponding to the current session.
+	 *
+	 * This method ensures that the current token (session) is at least 1 day old before allowing revocation.
+	 * It then removes all other refresh tokens associated with the user from Redis.
+	 * After revoking the tokens, it resets the token set in Redis to include only the current token.
+	 *
+	 * @param {string} userId - The ID of the user whose tokens are being revoked.
+	 * @param {string} token - The current refresh token (JWT) used to validate and preserve the session.
+	 * @throws {Promise<void>} - BadRequestException if the current token is less than 1 day old (to prevent accidental mass revocation).
+	 */
+	async revokeAllRefreshTokens(userId: string, token: string): Promise<void> {
+		// Decode the provided token to extract its unique identifier (jti)
+		const { jti: currentJti } = this.decodeToken(token);
+
+		// Check if the current token is old enough to allow revocation of other tokens
+		const isOldEnough = await this.isTokenOlderThan(userId, currentJti);
+
+		if (!isOldEnough) {
+			throw new BadRequestException(
+				'Cannot revoke all tokens: current session is less than 1 day old',
+			);
+		}
+
+		// Get all stored token JTIs associated with the user
+		const jtis = await this.redisService.smembers(this.getUserTokensKey(userId));
+
+		// Iterate over all JTIs and remove each one from Redis, except the current session token
+		for (const jti of jtis) {
+			if (jti !== currentJti) {
+				await this.redisService.del(this.getRefreshKey(userId, jti));
+			}
+		}
+
+		// Reset the user's token set to include only the current session token
+		await this.redisService.del(this.getUserTokensKey(userId));
+		await this.redisService.sadd(this.getUserTokensKey(userId), currentJti);
+	}
+
+	/**
 	 * Decodes a JWT token and returns the decoded payload.
 	 *
 	 * @param {string} token - The JWT access token to verify.
@@ -364,5 +404,43 @@ export class AuthTokenService {
 		}
 
 		return decoded;
+	}
+	/**
+	 * Checks if a stored refresh token is older than a specified minimum age.
+	 *
+	 * This method retrieves the refresh token metadata from Redis using a unique key
+	 * based on the user's ID and the token's JTI (JWT ID). It then calculates the age
+	 * of the token and compares it against the provided `minAgeMs` threshold.
+	 *
+	 * @param {string} userId - The ID of the user associated with the token.
+	 * @param {string} jti - The unique identifier (JWT ID) of the token.
+	 * @param {number} minAgeMs - The minimum token age in milliseconds. Defaults to 24 hours.
+	 * @returns {Promise<boolean>} - A Promise that resolves to `true` if the token is older than the specified age, or `false` otherwise.
+	 * @throws NotFoundException if the token metadata is not found in Redis.
+	 */
+	protected async isTokenOlderThan(
+		userId: string,
+		jti: string,
+		minAgeMs: number = 24 * 60 * 60 * 1000, // 1 day in ms
+	): Promise<boolean> {
+		// Generate the Redis key for the refresh token metadata using user ID and JTI
+		const key = this.getRefreshKey(userId, jti);
+
+		// Retrieve the stored token metadata from Redis
+		const stored = await this.redisService.get(key);
+
+		// If no metadata is found, throw a NotFoundException
+		if (!stored) {
+			throw new NotFoundException('Token not found');
+		}
+
+		// Parse the stored metadata and extract the creation timestamp
+		const { createdAt } = JSON.parse(stored) as IRefreshTokenMeta;
+
+		// Calculate the token's age
+		const tokenAge = Date.now() - createdAt;
+
+		// Return true if the token's age is greater than or equal to the minimum age
+		return tokenAge >= minAgeMs;
 	}
 }
