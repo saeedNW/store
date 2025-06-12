@@ -22,7 +22,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	/**
-	 * Endpoint: POST /auth/send-otp
+	 * Endpoint: POST /api/auth/send-otp
 	 * Sends an OTP (One-Time Password) to the user
 	 */
 	@Post('send-otp')
@@ -33,7 +33,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /auth/check-otp
+	 * Endpoint: POST /api/auth/check-otp
 	 * Verifies the OTP (One-Time Password) provided by the user
 	 */
 	@Post('check-otp')
@@ -44,7 +44,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /auth/refresh-token
+	 * Endpoint: POST /api/auth/refresh-token
 	 * Refreshes the user's token
 	 */
 	@Post('refresh-token')
@@ -55,7 +55,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: GET /auth/sessions
+	 * Endpoint: GET /api/auth/sessions
 	 * Retrieves the user's active sessions
 	 */
 	@Get('sessions')
@@ -70,7 +70,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /auth/logout
+	 * Endpoint: POST /api/auth/logout
 	 * Logs out the user and revokes the current session
 	 */
 	@Post('logout')
@@ -82,7 +82,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /auth/revoke-tokens
+	 * Endpoint: POST /api/auth/revoke-tokens
 	 * Revokes all tokens
 	 */
 	@Post('revoke-tokens')
@@ -94,7 +94,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /auth/revoke-session
+	 * Endpoint: POST /api/auth/revoke-session
 	 * Revokes a specific session
 	 */
 	@Post('revoke-session')
