@@ -15,6 +15,8 @@
 
 1. Authentication
 2. User
+   1. User [PANEL]
+   2. Account [STORE]
 3. Profile
 4. Address
 5. Wallet
@@ -29,20 +31,21 @@
 14. blog Comment
 15. Author
 16. Shop
-17. Product
-18. Product Features
-19. Product QA
-20. Product Review and Rating
-21. Basket
-22. Order
-23. Discount
-24. Payment
-25. Logger
-26. Activity
-27. Notification
-28. Ticket
-29. Report
-30. Session
+17. Shop Staff
+18. Product
+19. Product Features
+20. Product QA
+21. Product Review and Rating
+22. Basket
+23. Order
+24. Discount
+25. Payment
+26. Logger
+27. Activity
+28. Notification
+29. Ticket
+30. Report
+31. Session
 
 ## Features by Database
 
@@ -77,17 +80,3 @@
 
 Access token => 15–30 minutes
 Refresh token => 7–15 days
-
-Token Data
-
-    ID
-    userId
-    deviceInfo
-    ipAddress
-    refreshTokenHash
-    accessTokenHash
-    createdAt
-    expiresAt
-    revoked
-
-Save tokens in postgres
