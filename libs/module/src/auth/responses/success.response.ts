@@ -1,8 +1,10 @@
 import { CreateApiBaseResponse, OkApiBaseResponse } from '@common/abstracts/base.response';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class LogOutSuccess extends OkApiBaseResponse {}
-export class RevokeSessionSuccess extends OkApiBaseResponse {}
+export class LogOutSuccess extends CreateApiBaseResponse {}
+export class RevokeSessionSuccess extends CreateApiBaseResponse {}
+export class ResetPassVerifySuccess extends CreateApiBaseResponse {}
+export class ResetPassSuccess extends CreateApiBaseResponse {}
 
 export class SendOtpSuccess extends CreateApiBaseResponse {
 	@ApiProperty({

@@ -13,6 +13,8 @@ import {
 	GetActiveSessionsSuccess,
 	LogOutSuccess,
 	RefreshTokenSuccess,
+	ResetPassSuccess,
+	ResetPassVerifySuccess,
 	RevokeSessionSuccess,
 	SendOtpSuccess,
 } from './success.response';
@@ -158,7 +160,7 @@ export function LogOutResponses() {
 		propertyKey: string,
 		descriptor: PropertyDescriptor,
 	) {
-		ApiOkResponse({
+		ApiCreatedResponse({
 			description: 'Success Response',
 			type: LogOutSuccess,
 		})(target, propertyKey, descriptor);
@@ -186,7 +188,7 @@ export function RevokeTokensResponses() {
 		propertyKey: string,
 		descriptor: PropertyDescriptor,
 	) {
-		ApiOkResponse({
+		ApiCreatedResponse({
 			description: 'Success Response',
 			type: RevokeSessionSuccess,
 		})(target, propertyKey, descriptor);
@@ -219,7 +221,7 @@ export function RevokeSessionResponses() {
 		propertyKey: string,
 		descriptor: PropertyDescriptor,
 	) {
-		ApiOkResponse({
+		ApiCreatedResponse({
 			description: 'Success Response',
 			type: RevokeSessionSuccess,
 		})(target, propertyKey, descriptor);
@@ -232,6 +234,72 @@ export function RevokeSessionResponses() {
 		ApiNotFoundResponse({
 			description: 'Not Found Response',
 			type: NotFoundResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
+export function ResetPassVerifyResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiCreatedResponse({
+			description: 'Success Response',
+			type: ResetPassVerifySuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiBadRequestResponse({
+			description: 'Bad Request Response',
+			type: BadRequestResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiUnprocessableEntityResponse({
+			description: 'Unprocessable Entity Response',
+			type: UnprocessableEntityResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
+export function ResetPassResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiCreatedResponse({
+			description: 'Success Response',
+			type: ResetPassSuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiBadRequestResponse({
+			description: 'Bad Request Response',
+			type: BadRequestResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiUnprocessableEntityResponse({
+			description: 'Unprocessable Entity Response',
+			type: UnprocessableEntityResponse,
 		})(target, propertyKey, descriptor);
 
 		ApiInternalServerErrorResponse({

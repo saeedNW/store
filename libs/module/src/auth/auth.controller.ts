@@ -7,6 +7,8 @@ import {
 	GetActiveSessionsResponses,
 	LogOutResponses,
 	RefreshTokenResponses,
+	ResetPassResponses,
+	ResetPassVerifyResponses,
 	RevokeSessionResponses,
 	RevokeTokensResponses,
 	SendOtpResponses,
@@ -52,6 +54,7 @@ export class AuthController {
 	 */
 	@Post('reset-request')
 	@ApiOperation({ summary: 'Reset password OTP request' })
+	@CheckOtpResponses()
 	resetReq(@Body() dto: ResetRequestOtpDto) {
 		return this.authService.resetReq(dto);
 	}
@@ -62,6 +65,7 @@ export class AuthController {
 	 */
 	@Post('reset-verify')
 	@ApiOperation({ summary: 'Reset password OTP verification' })
+	@ResetPassVerifyResponses()
 	resetVerify(@Body() dto: ResetVerifyOtpDto) {
 		return this.authService.resetVerify(dto);
 	}
@@ -72,6 +76,7 @@ export class AuthController {
 	 */
 	@Post('reset-password')
 	@ApiOperation({ summary: 'Reset password' })
+	@ResetPassResponses()
 	resetPassword(@Body() dto: ResetPasswordDto) {
 		return this.authService.resetPassword(dto);
 	}
