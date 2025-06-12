@@ -15,6 +15,9 @@ import { CheckOtpDto } from './dto/check-otp.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthDecorator, Token } from '@common/decorators';
 import { RevokeSessionDto } from './dto/revoke-session.dto';
+import { ResetRequestOtpDto } from './dto/reset-request.dto';
+import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -23,7 +26,7 @@ export class AuthController {
 
 	/**
 	 * Endpoint: POST /api/auth/send-otp
-	 * Sends an OTP (One-Time Password) to the user
+	 * Sends an OTP (One-Time Password) to the user for authentication.
 	 */
 	@Post('send-otp')
 	@ApiOperation({ summary: 'Send OTP to the user' })
@@ -41,6 +44,36 @@ export class AuthController {
 	@CheckOtpResponses()
 	checkOtp(@Body() dto: CheckOtpDto) {
 		return this.authService.checkOtp(dto);
+	}
+
+	/**
+	 * Endpoint: POST /api/auth/reset-request
+	 * Sends an OTP (One-Time Password) to the user for resetting the password.
+	 */
+	@Post('reset-request')
+	@ApiOperation({ summary: 'Reset password OTP request' })
+	resetReq(@Body() dto: ResetRequestOtpDto) {
+		return this.authService.resetReq(dto);
+	}
+
+	/**
+	 * Endpoint: POST /api/auth/reset-verify
+	 * Verifies the OTP (One-Time Password) provided by the user for resetting the password.
+	 */
+	@Post('reset-verify')
+	@ApiOperation({ summary: 'Reset password OTP verification' })
+	resetVerify(@Body() dto: ResetVerifyOtpDto) {
+		return this.authService.resetVerify(dto);
+	}
+
+	/**
+	 * Endpoint: POST /api/auth/reset-password
+	 * Resets the user's password using the provided OTP.
+	 */
+	@Post('reset-password')
+	@ApiOperation({ summary: 'Reset password' })
+	resetPassword(@Body() dto: ResetPasswordDto) {
+		return this.authService.resetPassword(dto);
 	}
 
 	/**

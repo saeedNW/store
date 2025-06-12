@@ -19,6 +19,10 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { RevokeSessionDto } from './dto/revoke-session.dto';
+import { ResetRequestOtpDto } from './dto/reset-request.dto';
+import { EOtpType } from './enum/otp-type.enum';
+import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -52,7 +56,7 @@ export class AuthService {
 		const strategy = await this.getHandler(sendOtpDto.phone);
 
 		// Generate OTP via the selected handler
-		const otp = await strategy.handler.sendOtpHandler(sendOtpDto);
+		const otp = await strategy.handler.sendOtpHandler(sendOtpDto, EOtpType.LOGIN);
 
 		// Send OTP via SMS
 		await this.smsService.sendOtp(sendOtpDto.phone, otp);
@@ -91,6 +95,76 @@ export class AuthService {
 			accessToken,
 			refreshToken,
 		};
+	}
+
+	/**
+	 * Handles the OTP reset request for password reset flow.
+	 *
+	 * @param {ResetRequestOtpDto} resetRequestOtpDto - DTO containing the phone number and other required info.
+	 * @returns {Promise<{ message: string; otp?: string }>} - A success message and optionally the OTP.
+	 * @throws BadRequestException if no handler is suitable for the phone number.
+	 */
+	async resetReq(
+		resetRequestOtpDto: ResetRequestOtpDto,
+	): Promise<{ message: string; otp?: string }> {
+		// Ensure DTO is validated
+		resetRequestOtpDto = plainToClass(ResetRequestOtpDto, resetRequestOtpDto, {
+			excludeExtraneousValues: true,
+		});
+
+		// Get appropriate strategy for the phone number
+		const strategy = await this.getHandler(resetRequestOtpDto.phone);
+
+		// Generate OTP via the selected handler
+		const otp = await strategy.handler.sendOtpHandler(resetRequestOtpDto, EOtpType.RESET_PASSWORD);
+
+		// Send OTP via SMS
+		await this.smsService.sendOtp(resetRequestOtpDto.phone, otp);
+
+		// Return message (and OTP in non-production for debugging/testing)
+		return {
+			message: 'OTP sent successfully',
+			otp: process.env.NODE_ENV !== 'production' ? otp : undefined,
+		};
+	}
+
+	/**
+	 * Verifies a user's OTP for a password reset.
+	 *
+	 * @param {ResetVerifyOtpDto} resetVerifyOtpDto - The data transfer object containing the OTP and phone number.
+	 * @returns {Promise<string>} A message indicating the OTP was successfully verified.
+	 */
+	async resetVerify(resetVerifyOtpDto: ResetVerifyOtpDto): Promise<string> {
+		// Sanitize and transform the input to match the expected DTO structure
+		resetVerifyOtpDto = plainToClass(ResetVerifyOtpDto, resetVerifyOtpDto, {
+			excludeExtraneousValues: true,
+		});
+
+		// Retrieve the appropriate OTP verification strategy based on the phone number
+		const strategy = await this.getHandler(resetVerifyOtpDto.phone);
+
+		// Call the strategy's resetVerify handler to validate the OTP
+		await strategy.handler.resetVerifyHandler(resetVerifyOtpDto);
+
+		// Return success message after successful OTP verification
+		return 'OTP verified successfully';
+	}
+
+	/**
+	 * Resets the user's password using an OTP-based strategy.
+	 *
+	 * @param {ResetPasswordDto} resetPasswordDto - The DTO containing the user's phone number and new password.
+	 * @returns {Promise<string>} A message indicating the password was reset successfully.
+	 */
+	async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
+		// Retrieve the appropriate OTP verification strategy based on the phone number
+		const strategy = await this.getHandler(resetPasswordDto.phone);
+
+		// Call the strategy's resetPassword handler to reset the user's password
+		await strategy.handler.resetPasswordHandler(resetPasswordDto);
+
+		// Return success message after successful password reset
+		return 'Password reset successfully';
 	}
 
 	/**

@@ -8,6 +8,7 @@ import { IAuthModuleOptions } from '../interfaces/auth-module-options.interface'
 import { TOtpObject } from '../types/otp.type';
 import { EUserApp } from '@common/enums';
 import { AuthTokenService } from '../token.service';
+import { EOtpType } from '../enum/otp-type.enum';
 
 /**
  * Abstract base class for handling authentication-related logic.
@@ -30,32 +31,48 @@ export abstract class BaseAuthHandler {
 	) {}
 
 	/**
-	 * Retrieves an existing OTP object for a given user from Redis.
+	 * Constructs a Redis key used for storing OTPs associated with a user and OTP type.
 	 *
-	 * @param {string} userId - The ID of the user whose OTP is being retrieved.
-	 * @returns {Promise<TOtpObject | null>} - The OTP object if found, or null otherwise.
+	 * @param {string} userId - The ID of the user for whom the OTP is generated.
+	 * @param {EOtpType} otpType - The type of OTP being generated (e.g., RESET_PASSWORD).
+	 * @returns {string} A namespaced Redis key for storing/retrieving the OTP.
 	 */
-	protected async getExistingOtp(userId: string): Promise<TOtpObject | null> {
-		const otpString = await this.redisService.get(`auth:otp:${userId}`);
+	private getOtpKey(userId: string, otpType: EOtpType): string {
+		return `auth:otp:${otpType}:${userId}`;
+	}
+
+	/**
+	 * Retrieves an existing OTP object from Redis using the provided key.
+	 *
+	 * @param {string} otpKey - The Redis key associated with the OTP object.
+	 * @returns {Promise<TOtpObject | null>} A promise that resolves to the OTP object if found, or null if not found.
+	 */
+	protected async getExistingOtp(otpKey: string): Promise<TOtpObject | null> {
+		const otpString = await this.redisService.get(otpKey);
 		return otpString ? (JSON.parse(otpString) as TOtpObject) : null;
 	}
 
 	/**
-	 * Generates a new OTP code and stores it in Redis for a specific user.
+	 * Generates a new OTP code and stores it in Redis for a specific user and OTP type.
 	 * Prevents OTP generation if a recent one already exists within a 2-minute window.
 	 *
 	 * @param {string} userId - The ID of the user for whom the OTP is being generated.
-	 * @returns {Promise<string>} - The generated OTP code.
-	 * @throws BadRequestException if a valid OTP was recently generated and is still active.
+	 * @param {EOtpType} otpType - The type/category of OTP (e.g., login, register, verify).
+	 * @returns {Promise<string>} - The newly generated OTP code.
+	 * @throws {BadRequestException} If a valid OTP was recently generated and is still active.
 	 */
-	protected async generateAndStoreOtp(userId: string): Promise<string> {
+	protected async generateAndStoreOtp(userId: string, otpType: EOtpType): Promise<string> {
 		const otp: TOtpObject = {
 			code: randomInt(10000, 99999).toString(), // Generate a 5-digit random OTP
 			created_at: Date.now(),
 			userId,
 		};
 
-		const existingOtp = await this.getExistingOtp(userId);
+		// Generate Redis key for storing the OTP
+		const otpKey = this.getOtpKey(userId, otpType);
+
+		// Check if there's an existing OTP stored in Redis
+		const existingOtp = await this.getExistingOtp(otpKey);
 
 		if (existingOtp) {
 			const now = Date.now();
@@ -71,7 +88,7 @@ export abstract class BaseAuthHandler {
 		}
 
 		// Store the new OTP in Redis with a 2-minute expiration
-		await this.redisService.set(`auth:otp:${userId}`, JSON.stringify(otp), 'EX', 2 * 60);
+		await this.redisService.set(otpKey, JSON.stringify(otp), 'EX', 2 * 60);
 		return otp.code;
 	}
 
@@ -80,19 +97,59 @@ export abstract class BaseAuthHandler {
 	 *
 	 * @param {string} userId - The ID of the user whose OTP is being verified.
 	 * @param {string} code - The OTP code provided by the user.
+	 * @param {EOtpType} [otpType] - The type/category of OTP (e.g., login, register, verify).
 	 * @returns {Promise<boolean>} - Returns true if the OTP is valid; otherwise, throws an UnauthorizedException.
 	 * @throws {UnauthorizedException} If no OTP exists for the user or the provided code does not match.
 	 */
-	protected async verifyOtp(userId: string, code: string): Promise<boolean> {
+	protected async verifyOtp(
+		userId: string,
+		code: string,
+		otpType: EOtpType = EOtpType.LOGIN,
+	): Promise<boolean> {
+		// Generate Redis key for storing the OTP
+		const otpKey = this.getOtpKey(userId, otpType);
 		// Retrieve the existing OTP for the given user
-		const otp = await this.getExistingOtp(userId);
+		const otp = await this.getExistingOtp(otpKey);
 
 		// If no OTP exists or the code does not match, deny access
 		if (!otp || otp.code !== code) {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
+		// Delete the OTP from Redis after successful verification
+		await this.redisService.del(otpKey);
+
+		// If the OTP type is RESET_PASSWORD, mark it as verified in Redis
+		if (otpType === EOtpType.RESET_PASSWORD) {
+			await this.redisService.set(otpKey, 'verified', 'EX', 5 * 60);
+		}
+
 		// OTP is valid
+		return true;
+	}
+
+	/**
+	 * Verifies whether the user is allowed to proceed with the password reset by checking the OTP status.
+	 *
+	 *
+	 * @param {string} userId - The ID of the user attempting to reset their password.
+	 * @param {EOtpType} otpType - The type of OTP used for verification (e.g., reset password).
+	 * @returns {Promise<boolean>} Returns `true` if the OTP is valid and not yet verified.
+	 * @throws {UnauthorizedException} If the OTP is missing or already verified.
+	 */
+	protected async verifyResetPassword(userId: string, otpType: EOtpType): Promise<boolean> {
+		// Generate the Redis key used to store/retrieve the OTP for the user and specified OTP type
+		const otpKey = this.getOtpKey(userId, otpType);
+
+		// Attempt to retrieve the OTP value from Redis
+		const otp = await this.redisService.get(otpKey);
+
+		// If no OTP is found or it has already been marked as verified, deny access
+		if (!otp || otp === 'verified') {
+			throw new UnauthorizedException('Invalid credentials');
+		}
+
+		// OTP is valid and has not yet been used
 		return true;
 	}
 

@@ -6,6 +6,10 @@ import { EUserApp } from '@common/enums';
 import { CheckOtpDto } from '../dto/check-otp.dto';
 import { getEnvVariable } from '@common/utilities/functions';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { EOtpType } from '../enum/otp-type.enum';
+import { ResetVerifyOtpDto } from '../dto/reset-verify.dto.ts';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { genSaltSync, hashSync } from 'bcrypt';
 
 /**
  * Authentication handler for the "STORE" user application.
@@ -40,20 +44,32 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 
 	/**
 	 * Handles OTP generation for STORE users.
-	 * Automatically creates a user if one does not already exist.
 	 *
-	 * @param {SendOtpDto} data - DTO containing the phone number.
-	 * @returns {Promise<string>} - A string containing the generated OTP code.
+	 * - If the user exists and is associated with the STORE app, the OTP is generated.
+	 * - If the user does not exist and the OTP type is `RESET_PASSWORD`, an error is thrown.
+	 * - If the user does not exist and the OTP type is for other purposes (e.g., registration), a new user is created.
+	 *
+	 * @param {SendOtpDto} data - Data Transfer Object containing the user's phone number.
+	 * @param {EOtpType} otpType - The type of OTP operation (e.g., RESET_PASSWORD, LOGIN, REGISTER).
+	 * @returns {Promise<string>} - A promise that resolves to the generated OTP code.
+	 * @throws {UnauthorizedException} - If the user is not found and the OTP type is RESET_PASSWORD.
 	 */
-	async sendOtpHandler(data: SendOtpDto): Promise<string> {
-		// Find the user by phone and ensure STORE is one of their allowed apps
+	async sendOtpHandler(data: SendOtpDto, otpType: EOtpType): Promise<string> {
+		// Attempt to retrieve an existing user associated with the STORE app
 		let user = await this.getUser({ phone: data.phone }, EUserApp.STORE);
 
-		// If user doesn't exist, create a new one
-		if (!user) user = await this.userRepository.save({ phone: data.phone });
+		// If the user does not exist and the OTP type is RESET_PASSWORD, throw an error
+		if (!user && otpType === EOtpType.RESET_PASSWORD) {
+			throw new UnauthorizedException('User not found.');
+		}
 
-		// Generate and return OTP
-		return this.generateAndStoreOtp(user.id);
+		// If the user doesn't exist and it's not a RESET_PASSWORD OTP, create a new user
+		if (!user) {
+			user = await this.userRepository.save({ phone: data.phone });
+		}
+
+		// Generate an OTP and associate it with the user's ID
+		return this.generateAndStoreOtp(user.id, otpType);
 	}
 
 	/**
@@ -86,6 +102,48 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 
 		// Return the generated tokens
 		return { accessToken, refreshToken };
+	}
+
+	/**
+	 * Verifies the OTP for a password reset in the STORE application context.
+	 *
+	 * @param {ResetVerifyOtpDto} data - DTO containing the phone number and OTP to verify.
+	 * @throws {UnauthorizedException} If the user is not found or credentials are invalid.
+	 * @returns {Promise<void>} Resolves if the OTP is successfully verified; otherwise, throws an error.
+	 */
+	async resetVerifyHandler(data: ResetVerifyOtpDto): Promise<void> {
+		// Retrieve the user associated with the given phone number in the STORE app context
+		const user = await this.getUser({ phone: data.phone }, EUserApp.STORE);
+		// If user is not found, throw an unauthorized exception
+		if (!user) throw new UnauthorizedException('Invalid credentials');
+
+		// Verify the OTP for the retrieved user
+		await this.verifyOtp(user.id, data.otp, EOtpType.RESET_PASSWORD);
+	}
+
+	/**
+	 * Handles the password reset logic for a user in the STORE application context.
+	 *
+	 * @param {ResetPasswordDto} data - DTO containing the phone number and new password.
+	 * @returns {Promise<void>} Resolves if the password reset is successful; throws otherwise.
+	 * @throws {UnauthorizedException} If the user is not found or the OTP is invalid.
+	 */
+	async resetPasswordHandler(data: ResetPasswordDto): Promise<void> {
+		// Retrieve the user associated with the given phone number in the STORE app context
+		const user = await this.getUser({ phone: data.phone }, EUserApp.STORE);
+		// If user is not found, throw an unauthorized exception
+		if (!user) throw new UnauthorizedException('Invalid credentials');
+
+		// Verify the OTP for the retrieved user
+		await this.verifyResetPassword(user.id, EOtpType.RESET_PASSWORD);
+
+		// Generate a new password hash using bcrypt
+		const hashedPassword = hashSync(data.newPassword, genSaltSync(10));
+
+		// Update the user's password in the database
+		await this.userRepository.update(user.id, {
+			password: hashedPassword,
+		});
 	}
 
 	/**

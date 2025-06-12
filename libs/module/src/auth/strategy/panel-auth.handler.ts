@@ -6,6 +6,10 @@ import { EUserApp } from '@common/enums';
 import { CheckOtpDto } from '../dto/check-otp.dto';
 import { getEnvVariable } from '@common/utilities/functions';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { EOtpType } from '../enum/otp-type.enum';
+import { ResetVerifyOtpDto } from '../dto/reset-verify.dto.ts';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { genSaltSync, hashSync } from 'bcrypt';
 
 /**
  * Authentication handler for the "PANEL" user application.
@@ -44,13 +48,17 @@ export class PanelAuthHandler extends BaseAuthHandler implements IStrategyHandle
 
 	/**
 	 * Handles OTP generation for a user trying to authenticate via the PANEL app.
-	 * Verifies user existence and access rights before generating a new OTP.
 	 *
-	 * @param {SendOtpDto} data - Data transfer object containing the phone number.
-	 * @returns {Promise<string>} - The newly generated OTP code as a string.
-	 * @throws ForbiddenException if the user is not authorized for PANEL access.
+	 * - Validates that the user exists and has access to the PANEL app.
+	 * - If the user is unauthorized or not found, access is denied.
+	 * - If validation passes, generates and returns a new OTP.
+	 *
+	 * @param {SendOtpDto} data - DTO containing the user's phone number.
+	 * @param {EOtpType} otpType - The type of OTP to generate (e.g., LOGIN, RESET_PASSWORD).
+	 * @returns {Promise<string>} - A promise that resolves to the generated OTP code.
+	 * @throws {ForbiddenException} - If the user does not exist or lacks PANEL access permissions.
 	 */
-	async sendOtpHandler(data: SendOtpDto): Promise<string> {
+	async sendOtpHandler(data: SendOtpDto, otpType: EOtpType): Promise<string> {
 		// Find the user by phone and ensure PANEL is one of their allowed apps
 		const user = await this.getUser({ phone: data.phone }, EUserApp.PANEL);
 
@@ -60,7 +68,7 @@ export class PanelAuthHandler extends BaseAuthHandler implements IStrategyHandle
 		}
 
 		// Generate and store a new OTP for the user
-		return this.generateAndStoreOtp(user.id);
+		return this.generateAndStoreOtp(user.id, otpType);
 	}
 
 	/**
@@ -71,8 +79,8 @@ export class PanelAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * @throws {UnauthorizedException} - If the user is not found or OTP verification fails.
 	 */
 	async checkOtpHandler(data: CheckOtpDto): Promise<{ accessToken: string; refreshToken: string }> {
-		// Retrieve the user associated with the given phone number in the STORE app context
-		const user = await this.getUser({ phone: data.phone }, EUserApp.STORE);
+		// Retrieve the user associated with the given phone number in the PANEL app context
+		const user = await this.getUser({ phone: data.phone }, EUserApp.PANEL);
 		// If user is not found, throw an unauthorized exception
 		if (!user) throw new UnauthorizedException('Invalid credentials');
 
@@ -93,6 +101,48 @@ export class PanelAuthHandler extends BaseAuthHandler implements IStrategyHandle
 
 		// Return the generated tokens
 		return { accessToken, refreshToken };
+	}
+
+	/**
+	 * Verifies the OTP for a password reset in the PANEL application context.
+	 *
+	 * @param {ResetVerifyOtpDto} data - DTO containing the phone number and OTP to verify.
+	 * @throws {UnauthorizedException} If the user is not found or credentials are invalid.
+	 * @returns {Promise<void>} Resolves if the OTP is successfully verified; otherwise, throws an error.
+	 */
+	async resetVerifyHandler(data: ResetVerifyOtpDto): Promise<void> {
+		// Retrieve the user associated with the given phone number in the PANEL app context
+		const user = await this.getUser({ phone: data.phone }, EUserApp.PANEL);
+		// If user is not found, throw an unauthorized exception
+		if (!user) throw new UnauthorizedException('Invalid credentials');
+
+		// Verify the OTP for the retrieved user
+		await this.verifyOtp(user.id, data.otp, EOtpType.RESET_PASSWORD);
+	}
+
+	/**
+	 * Handles the password reset logic for a user in the PANEL application context.
+	 *
+	 * @param {ResetPasswordDto} data - DTO containing the phone number and new password.
+	 * @returns {Promise<void>} Resolves if the password reset is successful; throws otherwise.
+	 * @throws {UnauthorizedException} If the user is not found or the OTP is invalid.
+	 */
+	async resetPasswordHandler(data: ResetPasswordDto): Promise<void> {
+		// Retrieve the user associated with the given phone number in the PANEL app context
+		const user = await this.getUser({ phone: data.phone }, EUserApp.PANEL);
+		// If user is not found, throw an unauthorized exception
+		if (!user) throw new UnauthorizedException('Invalid credentials');
+
+		// Verify the OTP for the retrieved user
+		await this.verifyResetPassword(user.id, EOtpType.RESET_PASSWORD);
+
+		// Generate a new password hash using bcrypt
+		const hashedPassword = hashSync(data.newPassword, genSaltSync(10));
+
+		// Update the user's password in the database
+		await this.userRepository.update(user.id, {
+			password: hashedPassword,
+		});
 	}
 
 	/**
