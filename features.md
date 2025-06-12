@@ -13,7 +13,16 @@
 
 ## Features
 
-1. Authentication
+1. Authentication [General]
+   1. Send OTP
+   2. Verify OTP
+   3. Login
+   4. Reset Password
+   5. Refresh Token
+   6. Logout
+   7. Active Sessions
+   8. Revoke Token
+   9. Revoke All Tokens Except Current
 2. User
    1. User [PANEL]
    2. Account [STORE]
