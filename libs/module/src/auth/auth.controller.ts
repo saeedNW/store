@@ -20,6 +20,7 @@ import { RevokeSessionDto } from './dto/revoke-session.dto';
 import { ResetRequestOtpDto } from './dto/reset-request.dto';
 import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -46,6 +47,17 @@ export class AuthController {
 	@CheckOtpResponses()
 	checkOtp(@Body() dto: CheckOtpDto) {
 		return this.authService.checkOtp(dto);
+	}
+
+	/**
+	 * Endpoint: POST /api/auth/login
+	 * Logs in the user with the provided credentials.
+	 */
+	@Post('login')
+	@ApiOperation({ summary: 'Login user' })
+	@CheckOtpResponses()
+	login(@Body() dto: LoginDto) {
+		return this.authService.login(dto);
 	}
 
 	/**

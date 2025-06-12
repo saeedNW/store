@@ -145,9 +145,12 @@ export abstract class BaseAuthHandler {
 		const otp = await this.redisService.get(otpKey);
 
 		// If no OTP is found or it has already been marked as verified, deny access
-		if (!otp || otp === 'verified') {
+		if (!otp || otp !== 'verified') {
 			throw new UnauthorizedException('Invalid credentials');
 		}
+
+		// Delete the OTP from Redis after successful verification
+		await this.redisService.del(otpKey);
 
 		// OTP is valid and has not yet been used
 		return true;

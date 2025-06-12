@@ -9,7 +9,8 @@ import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { EOtpType } from '../enum/otp-type.enum';
 import { ResetVerifyOtpDto } from '../dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
-import { genSaltSync, hashSync } from 'bcrypt';
+import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import { LoginDto } from '../dto/login.dto';
 
 /**
  * Authentication handler for the "SHOP" user application.
@@ -98,6 +99,43 @@ export class ShopAuthHandler extends BaseAuthHandler implements IStrategyHandler
 		user.verify_phone = true;
 		// Persist the updated user entity to the database
 		await this.userRepository.save(user);
+
+		// Return the generated tokens
+		return { accessToken, refreshToken };
+	}
+
+	/**
+	 * Verifies user credentials and generates JWT access and refresh tokens for the SHOP app.
+	 *
+	 * @param {LoginDto} data - The login data including phone number and password.
+	 * @returns {Promise<{ accessToken: string; refreshToken: string }>}
+	 * An object containing the generated access and refresh tokens.
+	 *
+	 * @throws {UnauthorizedException} If the user is not found, has not verified their phone,
+	 * lacks a password, or provides invalid credentials.
+	 */
+	async loginHandler(data: LoginDto): Promise<{ accessToken: string; refreshToken: string }> {
+		// Retrieve the user associated with the given phone number in the SHOP app context
+		const user = await this.getUser({ phone: data.phone }, EUserApp.SHOP);
+		// If user is not found or doesn't have phone verification, throw an unauthorized exception
+		if (!user || !user.verify_phone) throw new UnauthorizedException('Invalid credentials');
+
+		// If the user doesn't have a password, throw an unauthorized exception
+		if (!user.password) {
+			throw new UnauthorizedException('Invalid credentials');
+		}
+
+		// If the provided password doesn't match the user's stored password, throw an unauthorized exception
+		if (!compareSync(data.password, user.password)) {
+			throw new UnauthorizedException('Invalid credentials');
+		}
+
+		// Generate JWT access and refresh tokens for the authenticated user
+		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
+			user.id,
+			this.authOptions.issuer,
+			this.jwtSecret,
+		);
 
 		// Return the generated tokens
 		return { accessToken, refreshToken };

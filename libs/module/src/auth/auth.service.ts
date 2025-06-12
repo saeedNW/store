@@ -23,6 +23,7 @@ import { ResetRequestOtpDto } from './dto/reset-request.dto';
 import { EOtpType } from './enum/otp-type.enum';
 import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { LoginDto } from './dto/login.dto';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -92,6 +93,35 @@ export class AuthService {
 		// Return a success message along with the generated tokens
 		return {
 			message: 'OTP verified successfully',
+			accessToken,
+			refreshToken,
+		};
+	}
+
+	/**
+	 * Handles the login process by verifying the user's credentials.
+	 *
+	 * @param {LoginDto} loginDto - The login data transfer object containing the user's phone number and credentials.
+	 * @returns {Promise<{ message: string; accessToken: string; refreshToken: string }>}
+	 * An object containing a success message and the generated access and refresh tokens.
+	 */
+	async login(
+		loginDto: LoginDto,
+	): Promise<{ message: string; accessToken: string; refreshToken: string }> {
+		// Sanitize and transform the incoming DTO, removing any extraneous fields
+		loginDto = plainToClass(LoginDto, loginDto, {
+			excludeExtraneousValues: true,
+		});
+
+		// Retrieve the appropriate OTP handler strategy based on the phone number
+		const strategy = await this.getHandler(loginDto.phone);
+
+		// Login credentials verification and token generation
+		const { accessToken, refreshToken } = await strategy.handler.loginHandler(loginDto);
+
+		// Return a success message along with the generated tokens
+		return {
+			message: 'Login successful',
 			accessToken,
 			refreshToken,
 		};
