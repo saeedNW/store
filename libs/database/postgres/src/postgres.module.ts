@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
 	imports: [
@@ -18,9 +19,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 				password: config.get<string>('DB_PASSWORD'),
 				database: config.get<string>('DB_NAME'),
 				autoLoadEntities: true,
-				synchronize: config.get<string>('NODE_ENV') !== 'prod',
+				synchronize: config.get<string>('NODE_ENV') !== 'production',
 			}),
 		}),
+
+		SeederModule,
 	],
 })
 export class PostgresModule {}

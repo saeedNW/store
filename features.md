@@ -65,14 +65,24 @@
       4. Update Address
       5. Delete Address
       6. Set Default Address
-8. Permissions [PANEL]
-   1. Get Permissions List
-9. Roles [PANEL]
-   1. Get Roles List
-   2. Get Single Role
-   3. Create Role
-   4. Update Role
-   5. Delete Role
+8. Permissions
+   1. [PANEL]
+      1. Get Permissions List
+   2. [SHOP]
+      1. Get Shop Permissions list
+9. Roles
+   1. [PANEL]
+      1. Get Roles List
+      2. Get Single Role
+      3. Create Role
+      4. Update Role
+      5. Delete Role
+   2. [SHOP]
+      1. Get Roles List for the Shop
+      2. Get Single Role for the Shop
+      3. Create Role for the Shop
+      4. Update Shop Role
+      5. Delete Shop Role
 10. Wallet
 11. Storage (File Uploader)
 12. File Manager (Manage uploaded files)
