@@ -1,10 +1,9 @@
-import { getEnvVariable } from '@common/utilities/functions';
 import { MongoModule } from '@database/mongo';
 import { PostgresModule } from '@database/postgres';
-import { AuthModule } from '@modules/auth';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as path from 'path';
+import { PanelAuthModule } from './module/auth/panel-auth.module';
 
 @Module({
 	imports: [
@@ -19,21 +18,7 @@ import * as path from 'path';
 		MongoModule,
 
 		//? Load Modules
-		AuthModule.register({
-			jwtSecret: getEnvVariable('PANEL_JWT_SECRET'),
-			accessTokenExpiresIn: getEnvVariable('ACCESS_TOKEN_EXPIRE_TIME'),
-			refreshTokenExpiresIn: getEnvVariable('REFRESH_TOKEN_EXPIRE_TIME'),
-			accessTokenTimeToLive: Number(getEnvVariable('ACCESS_TOKEN_TIME_TO_LIVE')),
-			refreshTokenTimeToLive: Number(getEnvVariable('REFRESH_TOKEN_TIME_TO_LIVE')),
-			redisConfig: {
-				host: getEnvVariable('REDIS_HOST'),
-				port: parseInt(getEnvVariable('REDIS_PORT'), 10),
-				password: getEnvVariable('REDIS_PASSWORD'),
-				keyPrefix: 'panel:',
-			},
-			issuer: 'panel',
-			audience: 'panel-users',
-		}),
+		PanelAuthModule,
 	],
 })
 export class AppModule {}

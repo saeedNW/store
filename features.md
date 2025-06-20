@@ -30,7 +30,7 @@
 5. User
    1. User [PANEL]
       1. Create user
-      2. Get User full Information
+      2. Get User full Information [Account + Profile]
       3. Update user information
          1. Password
          2. Phone Number
@@ -135,6 +135,8 @@
    6. Notifications
 
 ## Token
+
+Add security key to JWT tokens
 
 Access token => 15–30 minutes
 Refresh token => 7–15 days

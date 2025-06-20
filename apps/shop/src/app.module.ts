@@ -3,8 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as path from 'path';
 import { PostgresModule } from '@database/postgres';
 import { MongoModule } from '@database/mongo';
-import { AuthModule } from '@modules/auth';
-import { getEnvVariable } from '@common/utilities/functions';
+import { ShopAuthModule } from './module/auth/shop-auth.module';
 
 @Module({
 	imports: [
@@ -19,21 +18,7 @@ import { getEnvVariable } from '@common/utilities/functions';
 		MongoModule,
 
 		//? Load Modules
-		AuthModule.register({
-			jwtSecret: getEnvVariable('SHOP_JWT_SECRET'),
-			accessTokenExpiresIn: getEnvVariable('ACCESS_TOKEN_EXPIRE_TIME'),
-			refreshTokenExpiresIn: getEnvVariable('REFRESH_TOKEN_EXPIRE_TIME'),
-			accessTokenTimeToLive: Number(getEnvVariable('ACCESS_TOKEN_TIME_TO_LIVE')),
-			refreshTokenTimeToLive: Number(getEnvVariable('REFRESH_TOKEN_TIME_TO_LIVE')),
-			redisConfig: {
-				host: getEnvVariable('REDIS_HOST'),
-				port: parseInt(getEnvVariable('REDIS_PORT'), 10),
-				password: getEnvVariable('REDIS_PASSWORD'),
-				keyPrefix: 'shop:',
-			},
-			issuer: 'shop',
-			audience: 'shop-users',
-		}),
+		ShopAuthModule,
 	],
 })
 export class AppModule {}

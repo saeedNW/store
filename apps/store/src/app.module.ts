@@ -1,10 +1,10 @@
-import { getEnvVariable } from '@common/utilities/functions';
 import { MongoModule } from '@database/mongo';
 import { PostgresModule } from '@database/postgres';
-import { AuthModule } from '@modules/auth';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './module/user/user.module';
 import * as path from 'path';
+import { StoreAuthModule } from './module/auth/store-auth.module';
 
 @Module({
 	imports: [
@@ -19,21 +19,7 @@ import * as path from 'path';
 		MongoModule,
 
 		//? Load Modules
-		AuthModule.register({
-			jwtSecret: getEnvVariable('STORE_JWT_SECRET'),
-			accessTokenExpiresIn: getEnvVariable('ACCESS_TOKEN_EXPIRE_TIME'),
-			refreshTokenExpiresIn: getEnvVariable('REFRESH_TOKEN_EXPIRE_TIME'),
-			accessTokenTimeToLive: Number(getEnvVariable('ACCESS_TOKEN_TIME_TO_LIVE')),
-			refreshTokenTimeToLive: Number(getEnvVariable('REFRESH_TOKEN_TIME_TO_LIVE')),
-			redisConfig: {
-				host: getEnvVariable('REDIS_HOST'),
-				port: parseInt(getEnvVariable('REDIS_PORT'), 10),
-				password: getEnvVariable('REDIS_PASSWORD'),
-				keyPrefix: 'store:',
-			},
-			issuer: 'store',
-			audience: 'store-users',
-		}),
+		StoreAuthModule,
 	],
 	controllers: [],
 	providers: [],
