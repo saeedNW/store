@@ -1,9 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { BaseAuthHandler } from './base-auth.handler';
 import { IStrategyHandler } from '../interfaces/strategy.interface';
-import { SendOtpDto } from '../dto/send-otp.dto';
 import { EUserApp } from '@common/enums';
-import { CheckOtpDto } from '../dto/check-otp.dto';
 import { getEnvVariable } from '@common/utilities/functions';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { EOtpType } from '../enum/otp-type.enum';
@@ -11,6 +9,7 @@ import { ResetVerifyOtpDto } from '../dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import { LoginDto } from '../dto/login.dto';
+import { CheckOtpDto, SendOtpDto } from '@common/dto';
 
 /**
  * Authentication handler for the "STORE" user application.

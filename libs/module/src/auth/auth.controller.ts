@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { SendOtpDto } from './dto/send-otp.dto';
 import {
 	CheckOtpResponses,
 	GetActiveSessionsResponses,
@@ -13,7 +12,6 @@ import {
 	RevokeTokensResponses,
 	SendOtpResponses,
 } from './responses/responses.decorator';
-import { CheckOtpDto } from './dto/check-otp.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthDecorator, Token } from '@common/decorators';
 import { RevokeSessionDto } from './dto/revoke-session.dto';
@@ -21,6 +19,7 @@ import { ResetRequestOtpDto } from './dto/reset-request.dto';
 import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LoginDto } from './dto/login.dto';
+import { CheckOtpDto, SendOtpDto } from '@common/dto';
 
 @Controller('auth')
 @ApiTags('Auth')

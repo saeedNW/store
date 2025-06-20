@@ -5,10 +5,8 @@ import {
 	Scope,
 	UnauthorizedException,
 } from '@nestjs/common';
-import { SendOtpDto } from './dto/send-otp.dto';
 import { IStrategyHandler } from './interfaces/strategy.interface';
 import { SmsService } from '@modules/sms';
-import { CheckOtpDto } from './dto/check-otp.dto';
 import { plainToClass } from 'class-transformer';
 import { AuthTokenService } from './token.service';
 import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
@@ -24,6 +22,7 @@ import { EOtpType } from './enum/otp-type.enum';
 import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LoginDto } from './dto/login.dto';
+import { CheckOtpDto, SendOtpDto } from '@common/dto';
 
 /**
  * Core service responsible for handling OTP-based authentication.

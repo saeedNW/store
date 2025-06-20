@@ -8,8 +8,8 @@ export class SendOtpDto {
 		description: 'User phone number',
 		example: '09121234567',
 	})
-	@IsPhoneNumber('IR', { message: 'Invalid phone number' })
 	@Transform(({ value }: { value: string }) => fixNumbers(value))
+	@IsPhoneNumber('IR', { message: 'Invalid phone number' })
 	@Expose()
 	phone: string;
 }
