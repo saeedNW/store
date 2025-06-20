@@ -6,7 +6,7 @@ export class CustomLoggerService implements LoggerService {
 	private readonly pid = process.pid;
 	private readonly logLevels: LogLevel[];
 
-	constructor(logLevels: LogLevel[] = ['log', 'error', 'warn', 'debug', 'verbose']) {
+	constructor(logLevels: LogLevel[] = ['log', 'error', 'warn', 'debug']) {
 		this.logLevels = logLevels;
 	}
 
@@ -35,25 +35,9 @@ export class CustomLoggerService implements LoggerService {
 	private write(level: LogLevel, message: any, context?: string, trace?: string) {
 		if (!this.logLevels.includes(level)) return;
 
-		const formatted = this.formatLog(level, message, context, trace);
+		const jsonFormatLog = this.formatLog(level, message, context, trace);
 
-		switch (level) {
-			case 'error':
-				console.error(formatted);
-				break;
-			case 'warn':
-				console.warn(formatted);
-				break;
-			case 'log':
-				console.log(formatted);
-				break;
-			case 'debug':
-				console.debug(formatted);
-				break;
-			case 'verbose':
-				console.info(formatted);
-				break;
-		}
+		process.stdout.write(jsonFormatLog + '\n');
 	}
 
 	log(message: any, context?: string) {
@@ -70,9 +54,5 @@ export class CustomLoggerService implements LoggerService {
 
 	debug(message: any, context?: string) {
 		this.write('debug', message, context);
-	}
-
-	verbose(message: any, context?: string) {
-		this.write('verbose', message, context);
 	}
 }
