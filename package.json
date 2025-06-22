@@ -103,6 +103,7 @@
 			"^@common(|/.*)$": "<rootDir>/libs/common/src/$1",
 			"^@database/mongo(|/.*)$": "<rootDir>/libs/database/mongo/src/$1",
 			"^@database/postgres(|/.*)$": "<rootDir>/libs/database/postgres/src/$1",
+			"^@database/redis(|/.*)$": "<rootDir>/libs/database/redis/src/$1",
 			"^@modules(|/.*)$": "<rootDir>/libs/module/src/$1",
 			"^@security(|/.*)$": "<rootDir>/libs/security/src/$1"
 		}

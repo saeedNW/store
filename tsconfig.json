@@ -36,6 +36,12 @@
       "@database/postgres/*": [
         "libs/database/postgres/src/*"
       ],
+      "@database/redis": [
+        "libs/database/redis/src"
+      ],
+      "@database/redis/*": [
+        "libs/database/redis/src/*"
+      ],
       "@modules": [
         "libs/module/src"
       ],

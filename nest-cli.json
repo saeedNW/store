@@ -33,6 +33,15 @@
         "tsConfigPath": "libs/database/postgres/tsconfig.lib.json"
       }
     },
+    "database/redis": {
+      "type": "library",
+      "root": "libs/database/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/redis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/redis/tsconfig.lib.json"
+      }
+    },
     "module": {
       "type": "library",
       "root": "libs/module",
@@ -69,15 +78,6 @@
         "tsConfigPath": "libs/security/tsconfig.lib.json"
       }
     },
-    "store": {
-      "type": "application",
-      "root": "apps/store",
-      "entryFile": "main",
-      "sourceRoot": "apps/store/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/store/tsconfig.app.json"
-      }
-    },
     "shop": {
       "type": "application",
       "root": "apps/shop",
@@ -85,6 +85,15 @@
       "sourceRoot": "apps/shop/src",
       "compilerOptions": {
         "tsConfigPath": "apps/shop/tsconfig.app.json"
+      }
+    },
+    "store": {
+      "type": "application",
+      "root": "apps/store",
+      "entryFile": "main",
+      "sourceRoot": "apps/store/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/store/tsconfig.app.json"
       }
     }
   }
