@@ -35,9 +35,11 @@ export class RedisModule {
 		return {
 			module: RedisModule,
 
-			// Provides a namespaced Redis connection instance per app using the given options.
 			providers: [
+				RedisService,
+
 				{
+					// Provides a namespaced Redis connection instance per app using the given options.
 					provide: 'REDIS_CONNECTION',
 					useFactory: (): Redis => new Redis(options),
 				},
