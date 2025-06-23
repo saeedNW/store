@@ -4,6 +4,7 @@ import * as path from 'path';
 import { PostgresModule } from '@database/postgres';
 import { MongoModule } from '@database/mongo';
 import { ShopAuthModule } from './module/auth/shop-auth.module';
+import { ShopAccountModule } from './module/account/account.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { ShopAuthModule } from './module/auth/shop-auth.module';
 
 		//? Load Modules
 		ShopAuthModule,
+		ShopAccountModule,
 	],
 })
 export class AppModule {}

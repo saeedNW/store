@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as path from 'path';
 import { StoreAuthModule } from './module/auth/store-auth.module';
+import { StoreAccountModule } from './module/account/account.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { StoreAuthModule } from './module/auth/store-auth.module';
 
 		//? Load Modules
 		StoreAuthModule,
+		StoreAccountModule,
 	],
 	controllers: [],
 	providers: [],

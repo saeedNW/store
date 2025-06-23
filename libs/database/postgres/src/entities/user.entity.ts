@@ -11,6 +11,9 @@ export class UserEntity extends BaseTimestampedEntity {
 	verify_phone: boolean;
 
 	@Column({ nullable: true })
+	new_phone: string;
+
+	@Column({ nullable: true })
 	password: string;
 
 	@Column({ type: 'text', array: true, default: [EUserApp.STORE] })
