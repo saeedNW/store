@@ -65,7 +65,7 @@ export class AuthController {
 	 */
 	@Post('reset-request')
 	@ApiOperation({ summary: 'Reset password OTP request' })
-	@CheckOtpResponses()
+	@SendOtpResponses()
 	resetReq(@Body() dto: ResetRequestOtpDto) {
 		return this.authService.resetReq(dto);
 	}

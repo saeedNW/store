@@ -17,7 +17,7 @@
 1. SMS [GENERAL]
 2. Email [GENERAL]
 3. Logger [GENERAL]
-4. Authentication [General]
+4. Authentication [GENERAL]
    1. Send OTP
    2. Verify OTP
    3. Login
@@ -27,19 +27,18 @@
    7. Active Sessions
    8. Revoke Token
    9. Revoke All Tokens Except Current
-5. User
-   1. User [PANEL]
+5. Account [GENERAL]
+   1. Get Account Information
+   2. Update Phone Number
+   3. Update Password
+6. User [PANEL]
       1. Create user
       2. Get User full Information [Account + Profile]
       3. Update user information
          1. Password
          2. Phone Number
       4. Update user role
-   2. Account [STORE]
-      1. Get Account Information
-      2. Update Phone Number
-      3. Update Password
-6. Profile
+7. Profile
    1. [PANEL]
       1. Get user Profile Information
       2. Update Profile Information
@@ -51,7 +50,7 @@
       3. Update Email Address
       4. Update Profile Picture
       5. Remove Profile Picture
-7. Address
+8. Address
    1. [PANEL]
       1. Get User Address List
       2. Get Single Address
@@ -65,45 +64,45 @@
       4. Update Address
       5. Delete Address
       6. Set Default Address
-8. Permissions
+9. Permissions
    1. [PANEL]
       1. Get Permissions List
    2. [SHOP]
       1. Get Shop Permissions list
-9. Roles
-   1. [PANEL]
-      1. Get Roles List
-      2. Get Single Role
-      3. Create Role
-      4. Update Role
-      5. Delete Role
-   2. [SHOP]
-      1. Get Roles List for the Shop
-      2. Get Single Role for the Shop
-      3. Create Role for the Shop
-      4. Update Shop Role
-      5. Delete Shop Role
-10. Wallet
-11. Storage (File Uploader)
-12. File Manager (Manage uploaded files)
-13. Category
-14. Blog
-15. blog Comment
-16. Author
-17. Shop
-18. Shop Staff
-19. Product
-20. Product Features
-21. Product QA
-22. Product Review and Rating
-23. Basket
-24. Order
-25. Discount
-26. Payment
-27. Audit
-28. Notification
-29. Ticket
-30. Report
+10. Roles
+11. [PANEL]
+    1. Get Roles List
+    2. Get Single Role
+    3. Create Role
+    4. Update Role
+    5. Delete Role
+12. [SHOP]
+    1. Get Roles List for the Shop
+    2. Get Single Role for the Shop
+    3. Create Role for the Shop
+    4. Update Shop Role
+    5. Delete Shop Role
+13. Wallet
+14. Storage (File Uploader)
+15. File Manager (Manage uploaded files)
+16. Category
+17. Blog
+18. blog Comment
+19. Author
+20. Shop
+21. Shop Staff
+22. Product
+23. Product Features
+24. Product QA
+25. Product Review and Rating
+26. Basket
+27. Order
+28. Discount
+29. Payment
+30. Audit
+31. Notification
+32. Ticket
+33. Report
 
 ## Features by Database
 
