@@ -59,7 +59,7 @@ export class LoggingInterceptor implements NestInterceptor {
 							type: 'HTTP Error',
 							method,
 							url,
-							statusCode: res?.statusCode ?? err?.status ?? 500,
+							statusCode: err?.status ?? 500,
 							responseTime: `${Date.now() - now}ms`,
 							ip,
 							userAgent,
@@ -78,7 +78,7 @@ export class LoggingInterceptor implements NestInterceptor {
 						type: 'HTTP Error',
 						method,
 						url,
-						statusCode: res?.statusCode ?? err?.status ?? 500,
+						statusCode: err?.status ?? 500,
 						responseTime: `${Date.now() - now}ms`,
 						stack: err.stack,
 					});

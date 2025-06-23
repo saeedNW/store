@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ExceptionFilter, NestInterceptor, ValidationPipe } from '@nestjs/common';
 import { ResponseTransformerInterceptor } from '@common/interceptor';
-import { HttpExceptionFilter } from '@common/filters';
+import { AllExceptionFilter } from '@common/filters';
 import { UnprocessableEntityPipe } from '@common/pipe';
 import { customHeadersMiddleware } from '@common/middlewares';
 import { swaggerConfiguration } from '@common/config';
@@ -34,7 +34,7 @@ async function bootstrap() {
 	// Initialize custom response interceptor
 	app.useGlobalInterceptors(new ResponseTransformerInterceptor() as NestInterceptor);
 	// Initialize custom exception filter
-	app.useGlobalFilters(new HttpExceptionFilter() as ExceptionFilter);
+	app.useGlobalFilters(new AllExceptionFilter() as ExceptionFilter);
 	// Initialize custom validation pipe
 	app.useGlobalPipes(new UnprocessableEntityPipe() as ValidationPipe);
 	// Starting server
