@@ -24,10 +24,10 @@ export abstract class BaseAuthHandler {
 	 * @param authTokenService - Service for managing authentication tokens.
 	 */
 	constructor(
-		@InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
-		@Inject('AUTH_OPTIONS') private readonly authOptions: IAuthModuleOptions,
-		@Inject('REDIS_CONNECTION') private readonly redisService: Redis,
-		private readonly authTokenService: AuthTokenService,
+		@InjectRepository(UserEntity) protected readonly userRepository: Repository<UserEntity>,
+		@Inject('AUTH_OPTIONS') protected readonly authOptions: IAuthModuleOptions,
+		@Inject('REDIS_CONNECTION') protected readonly redisService: Redis,
+		protected readonly authTokenService: AuthTokenService,
 	) {}
 
 	/**
@@ -47,7 +47,7 @@ export abstract class BaseAuthHandler {
 	 * @param {string} otpKey - The Redis key associated with the OTP object.
 	 * @returns {Promise<TOtpObject | null>} A promise that resolves to the OTP object if found, or null if not found.
 	 */
-	private async getExistingOtp(otpKey: string): Promise<TOtpObject | null> {
+	protected async getExistingOtp(otpKey: string): Promise<TOtpObject | null> {
 		const otpString = await this.redisService.get(otpKey);
 		return otpString ? (JSON.parse(otpString) as TOtpObject) : null;
 	}
@@ -61,7 +61,7 @@ export abstract class BaseAuthHandler {
 	 * @returns {Promise<string>} - The newly generated OTP code.
 	 * @throws {BadRequestException} If a valid OTP was recently generated and is still active.
 	 */
-	private async generateAndStoreOtp(userId: string, otpType: EOtpType): Promise<string> {
+	protected async generateAndStoreOtp(userId: string, otpType: EOtpType): Promise<string> {
 		const otp: TOtpObject = {
 			code: randomInt(10000, 99999).toString(), // Generate a 5-digit random OTP
 			created_at: Date.now(),
@@ -101,7 +101,7 @@ export abstract class BaseAuthHandler {
 	 * @returns {Promise<boolean>} - Returns true if the OTP is valid; otherwise, throws an UnauthorizedException.
 	 * @throws {UnauthorizedException} If no OTP exists for the user or the provided code does not match.
 	 */
-	private async verifyOtp(
+	protected async verifyOtp(
 		userId: string,
 		code: string,
 		otpType: EOtpType = EOtpType.LOGIN,
@@ -137,7 +137,7 @@ export abstract class BaseAuthHandler {
 	 * @returns {Promise<boolean>} Returns `true` if the OTP is valid and not yet verified.
 	 * @throws {UnauthorizedException} If the OTP is missing or already verified.
 	 */
-	private async verifyResetPassword(userId: string, otpType: EOtpType): Promise<boolean> {
+	protected async verifyResetPassword(userId: string, otpType: EOtpType): Promise<boolean> {
 		// Generate the Redis key used to store/retrieve the OTP for the user and specified OTP type
 		const otpKey = this.getOtpKey(userId, otpType);
 
@@ -170,7 +170,7 @@ export abstract class BaseAuthHandler {
 	 * @param {EUserApp} app - The application the user must have access to (must be present in `user.allowedApps`).
 	 * @returns {Promise<UserEntity | null>} - A promise that resolves to the user entity if found, or `null` if no matching user exists.
 	 */
-	private async getUser(
+	protected async getUser(
 		filters: Partial<Pick<UserEntity, 'id' | 'phone'>>,
 		app: EUserApp,
 	): Promise<UserEntity | null> {
