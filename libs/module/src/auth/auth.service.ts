@@ -31,9 +31,9 @@ import { CheckOtpDto, SendOtpDto } from '@common/dto';
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
 	constructor(
-		@InjectRepository(UserEntity) protected readonly userRepository: Repository<UserEntity>,
+		@InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
 		@Inject('STRATEGY_HANDLERS') private readonly handlers: IStrategyHandler[],
-		@Inject('AUTH_OPTIONS') protected readonly authOptions: IAuthModuleOptions,
+		@Inject('AUTH_OPTIONS') private readonly authOptions: IAuthModuleOptions,
 		@Inject(REQUEST) private readonly request: Request,
 		private readonly smsService: SmsService,
 		private readonly authTokenService: AuthTokenService,
@@ -325,7 +325,7 @@ export class AuthService {
 	 * @returns {Promise<{ handler: IStrategyHandler; canHandle: boolean }>} - An object containing the handler and its eligibility status.
 	 * @throws BadRequestException if no handler can process the phone number.
 	 */
-	protected async getHandler(
+	private async getHandler(
 		phone?: string,
 		checkUserExistence: boolean = true,
 	): Promise<{ handler: IStrategyHandler; canHandle: boolean }> {
@@ -359,7 +359,7 @@ export class AuthService {
 	 * @returns {Promise<UserEntity>} - A promise that resolves to the user entity if found and authorized.
 	 * @throws UnauthorizedException if the user does not exist or is not authorized for the application.
 	 */
-	protected async getUser(id: string, app: string): Promise<UserEntity> {
+	private async getUser(id: string, app: string): Promise<UserEntity> {
 		// Query the user repository to ensure the user exists and is allowed to access the app
 		const user = await this.userRepository
 			.createQueryBuilder('user')

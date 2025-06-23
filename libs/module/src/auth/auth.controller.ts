@@ -110,7 +110,8 @@ export class AuthController {
 	@Get('sessions')
 	@ApiOperation({
 		summary: 'Get user sessions',
-		description: 'Each session will be revoked after 7 days from its creation automatically.',
+		description:
+			'Each session will be revoked after 7 days from its creation automatically if not refreshed.',
 	})
 	@AuthDecorator()
 	@GetActiveSessionsResponses()

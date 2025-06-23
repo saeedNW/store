@@ -38,7 +38,7 @@ export class AuthGuard implements CanActivate {
 	 * @returns {string} - The extracted token as a string.
 	 * @throws {UnauthorizedException} If the header is missing, empty, or not a Bearer token.
 	 */
-	protected extractToken(request: Request): string {
+	private extractToken(request: Request): string {
 		const { authorization } = request.headers;
 
 		// Ensure the Authorization header exists and is not empty

@@ -384,7 +384,7 @@ export class AuthTokenService {
 	 * @returns {ITokenPayload} - The decoded token payload if verification is successful.
 	 * @throws UnauthorizedException if the token is invalid or verification fails.
 	 */
-	protected verifyToken(token: string, app: string): ITokenPayload {
+	private verifyToken(token: string, app: string): ITokenPayload {
 		// Retrieve the JWT secret specific to the application from environment variables
 		const secret = getEnvVariable(`${app.toUpperCase()}_JWT_SECRET`);
 
@@ -418,7 +418,7 @@ export class AuthTokenService {
 	 * @returns {Promise<boolean>} - A Promise that resolves to `true` if the token is older than the specified age, or `false` otherwise.
 	 * @throws NotFoundException if the token metadata is not found in Redis.
 	 */
-	protected async isTokenOlderThan(
+	private async isTokenOlderThan(
 		userId: string,
 		jti: string,
 		minAgeMs: number = 24 * 60 * 60 * 1000, // 1 day in ms
