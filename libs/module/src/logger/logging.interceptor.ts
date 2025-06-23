@@ -24,44 +24,65 @@ export class LoggingInterceptor implements NestInterceptor {
 
 		return next.handle().pipe(
 			tap(() => {
-				console.log(
-					{
+				if (process.env.NODE_ENV === 'production') {
+					console.log(
+						{
+							type: 'HTTP Request',
+							method,
+							url,
+							statusCode: res.statusCode,
+							responseTime: `${Date.now() - now}ms`,
+							ip,
+							authHeader,
+							userAgent,
+							query,
+							body,
+							params,
+							user: req.userId || 'guest',
+						},
+						'HTTP',
+					);
+				} else {
+					console.log({
 						type: 'HTTP Request',
 						method,
 						url,
 						statusCode: res.statusCode,
 						responseTime: `${Date.now() - now}ms`,
-						ip,
-						authHeader,
-						userAgent,
-						query,
-						body,
-						params,
-						user: req.userId || 'guest',
-					},
-					'HTTP',
-				);
+					});
+				}
 			}),
 			catchError((err) => {
-				console.error(
-					{
+				if (process.env.NODE_ENV === 'production') {
+					console.error(
+						{
+							type: 'HTTP Error',
+							method,
+							url,
+							statusCode: res?.statusCode ?? err?.status ?? 500,
+							responseTime: `${Date.now() - now}ms`,
+							ip,
+							userAgent,
+							authHeader,
+							query,
+							body,
+							params,
+							user: req.userId || 'guest',
+							errorMessage: err.message,
+							stack: err.stack,
+						},
+						'HTTP',
+					);
+				} else {
+					console.error({
 						type: 'HTTP Error',
 						method,
 						url,
 						statusCode: res?.statusCode ?? err?.status ?? 500,
 						responseTime: `${Date.now() - now}ms`,
-						ip,
-						userAgent,
-						authHeader,
-						query,
-						body,
-						params,
-						user: req.userId || 'guest',
-						errorMessage: err.message,
 						stack: err.stack,
-					},
-					'HTTP',
-				);
+					});
+				}
 				return throwError(() => err as Error);
 			}),
 		);
