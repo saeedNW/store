@@ -1,3 +1,4 @@
+import { EUserApp } from '@common/enums';
 import { RedisOptions } from 'ioredis';
 
 /**
@@ -6,21 +7,17 @@ import { RedisOptions } from 'ioredis';
  * @example
  * ```ts
  * {
- *   jwtSecret: process.env.PANEL_JWT_SECRET,
  *   accessTokenExpiresIn: '15m',
  *   refreshTokenExpiresIn: '7d',
  *   accessTokenTimeToLive: 900,
  *   refreshTokenTimeToLive: 604800,
  *   redisConfig: { host: 'localhost', port: 6379, password: 'password', keyPrefix: 'panel:' },
- *   issuer: 'panel-app',
+ *   issuer: 'panel',
  *   audience: 'panel-users',
  * }
  * ```
  */
 export interface IAuthModuleOptions {
-	/** Secret key used to sign JWTs. */
-	jwtSecret: string;
-
 	/** Expiry duration for the access token (e.g., '15m', '1h'). */
 	accessTokenExpiresIn: string;
 
@@ -40,8 +37,8 @@ export interface IAuthModuleOptions {
 	 */
 	redisConfig: RedisOptions;
 
-	/** The issuer of the JWT (e.g., 'panel-app'). */
-	issuer: string;
+	/** The issuer of the JWT (e.g., 'panel'). */
+	issuer: EUserApp;
 
 	/** The intended audience for the JWT (e.g., 'panel-users'). */
 	audience: string;

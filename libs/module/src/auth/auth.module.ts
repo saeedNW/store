@@ -1,6 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule, JwtService } from '@nestjs/jwt';
 import Redis from 'ioredis';
 
 import { AuthService } from './auth.service';
@@ -14,28 +13,20 @@ import { SmsModule } from '@modules/sms';
 import { PanelAuthHandler } from './strategy/panel-auth.handler';
 import { ShopAuthHandler } from './strategy/shop-auth.handler';
 import { StoreAuthHandler } from './strategy/store-auth.handler';
+import { Ed25519KeyService } from './keys.service';
 
 @Module({})
 export class AuthModule {
 	static register(options: IAuthModuleOptions): DynamicModule {
 		return {
 			module: AuthModule,
-			imports: [
-				TypeOrmModule.forFeature([UserEntity]),
-				SmsModule,
-				JwtModule.registerAsync({
-					useFactory: () => ({
-						secret: options.jwtSecret,
-						signOptions: { expiresIn: options.accessTokenExpiresIn },
-					}),
-				}),
-			],
+			imports: [TypeOrmModule.forFeature([UserEntity]), SmsModule],
 			controllers: [AuthController],
 			providers: [
 				// Auth core
 				AuthService,
 				AuthTokenService,
-				JwtService,
+				Ed25519KeyService,
 
 				// Strategy Handlers
 				PanelAuthHandler,
@@ -61,7 +52,7 @@ export class AuthModule {
 					inject: [PanelAuthHandler, ShopAuthHandler, StoreAuthHandler],
 				},
 			],
-			exports: [AuthService, JwtService, AuthTokenService, TypeOrmModule],
+			exports: [AuthService, AuthTokenService, TypeOrmModule],
 		};
 	}
 }

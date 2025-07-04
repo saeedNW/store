@@ -39,9 +39,7 @@ namespace NodeJS {
 		MAILTRAP_PASS: string;
 
 		// JWT Environmental Variables
-		PANEL_JWT_SECRET: string;
-		STORE_JWT_SECRET: string;
-		SHOP_JWT_SECRET: string;
+		JWT_KEYS_ALGORITHM: string;
 		ACCESS_TOKEN_EXPIRE_TIME: string;
 		REFRESH_TOKEN_EXPIRE_TIME: string;
 	}

@@ -36,10 +36,7 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # dotenv environment variable files
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
 
 # temp directory
 .temp
@@ -56,4 +53,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Uploads
 uploads
-temp
+
+# Secret keys
+keys

@@ -23,7 +23,7 @@ function multerDestination() {
 		}
 
 		// Define the upload path for storing files temporarily
-		const uploadPath: string = resolve('./assets/temp');
+		const uploadPath: string = resolve('./assets/.temp');
 
 		// Ensure the directory exists, creating it if necessary
 		mkdirSync(uploadPath, { recursive: true });

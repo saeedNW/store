@@ -23,6 +23,7 @@ import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { CheckOtpDto, SendOtpDto } from '@common/dto';
+import { Ed25519KeyService } from './keys.service';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -37,6 +38,7 @@ export class AuthService {
 		@Inject(REQUEST) private readonly request: Request,
 		private readonly smsService: SmsService,
 		private readonly authTokenService: AuthTokenService,
+		private readonly keysService: Ed25519KeyService,
 	) {}
 
 	/**
@@ -211,7 +213,7 @@ export class AuthService {
 		// Extract `sub` (user ID) and `app` (application name) from the token payload
 		const { sub, app } = await this.authTokenService.verifyAccessToken(
 			token,
-			this.authOptions.issuer, // Pass the expected issuer for additional token validation
+			await this.keysService.getPublicKey(this.authOptions.issuer), // Pass the public key for JWT verification
 		);
 
 		// Query the user repository to ensure the user exists and is allowed to access the app

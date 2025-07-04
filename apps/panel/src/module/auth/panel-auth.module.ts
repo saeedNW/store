@@ -1,3 +1,4 @@
+import { EUserApp } from '@common/enums';
 import { getEnvVariable } from '@common/utilities/functions';
 import { AuthModule } from '@modules/auth';
 import { Module } from '@nestjs/common';
@@ -14,7 +15,6 @@ import * as path from 'path';
 
 		//? Load Auth Module
 		AuthModule.register({
-			jwtSecret: getEnvVariable('PANEL_JWT_SECRET'),
 			accessTokenExpiresIn: getEnvVariable('ACCESS_TOKEN_EXPIRE_TIME'),
 			refreshTokenExpiresIn: getEnvVariable('REFRESH_TOKEN_EXPIRE_TIME'),
 			accessTokenTimeToLive: Number(getEnvVariable('ACCESS_TOKEN_TIME_TO_LIVE')),
@@ -25,7 +25,7 @@ import * as path from 'path';
 				password: getEnvVariable('REDIS_PASSWORD'),
 				keyPrefix: 'panel:',
 			},
-			issuer: 'panel',
+			issuer: EUserApp.PANEL,
 			audience: 'panel-users',
 		}),
 	],

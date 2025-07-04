@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { BaseAuthHandler } from './base-auth.handler';
 import { IStrategyHandler } from '../interfaces/strategy.interface';
 import { EUserApp } from '@common/enums';
-import { getEnvVariable } from '@common/utilities/functions';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { EOtpType } from '../enum/otp-type.enum';
 import { ResetVerifyOtpDto } from '../dto/reset-verify.dto.ts';
@@ -17,9 +16,6 @@ import { CheckOtpDto, SendOtpDto } from '@common/dto';
  */
 @Injectable()
 export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandler {
-	/** Defines the secret key used for JWT tokens. */
-	private readonly jwtSecret: string = getEnvVariable('STORE_JWT_SECRET');
-
 	/**
 	 * Determines whether this handler can process requests for the given phone number
 	 * within the context of the STORE application.
@@ -92,7 +88,7 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
 			user.id,
 			this.authOptions.issuer,
-			this.jwtSecret,
+			await this.keysService.getPrivateKey(EUserApp.STORE),
 		);
 
 		// Mark the user's phone number as verified
@@ -132,7 +128,7 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
 			user.id,
 			this.authOptions.issuer,
-			this.jwtSecret,
+			await this.keysService.getPrivateKey(EUserApp.STORE),
 		);
 
 		// Return the generated tokens
@@ -199,7 +195,7 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 		// Extract `sub` (user ID) and `app` (application name) from the token payload
 		const { sub, jti } = await this.authTokenService.verifyRefreshToken(
 			token,
-			this.authOptions.issuer, // Pass the expected issuer for additional token validation
+			await this.keysService.getPublicKey(this.authOptions.issuer), // Pass the public key for JWT verification
 		);
 
 		// Query the user repository to ensure the user exists and is allowed to access the app
@@ -215,7 +211,7 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 		return await this.authTokenService.generateTokens(
 			user.id,
 			this.authOptions.issuer,
-			this.jwtSecret,
+			await this.keysService.getPrivateKey(EUserApp.STORE),
 		);
 	}
 }

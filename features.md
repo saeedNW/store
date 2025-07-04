@@ -32,12 +32,12 @@
    2. Update Phone Number
    3. Update Password
 6. User [PANEL]
-      1. Create user
-      2. Get User full Information [Account + Profile]
-      3. Update user information
-         1. Password
-         2. Phone Number
-      4. Update user role
+   1. Create user
+   2. Get User full Information [Account + Profile]
+   3. Update user information
+      1. Password
+      2. Phone Number
+   4. Update user role
 7. Profile
    1. [PANEL]
       1. Get user Profile Information
@@ -135,7 +135,22 @@
 
 ## Token
 
-Add security key to JWT tokens
+### TTL
 
 Access token => 15–30 minutes
+
 Refresh token => 7–15 days
+
+### Add security key to JWT tokens
+
+#### Generate private key
+
+openssl genpkey -algorithm ed25519 -out ed25519_store_private.pem
+openssl genpkey -algorithm ed25519 -out ed25519_panel_private.pem
+openssl genpkey -algorithm ed25519 -out ed25519_shop_private.pem
+
+#### Extract public key
+
+openssl pkey -in ed25519_store_private.pem -pubout -out ed25519_store_public.pem
+openssl pkey -in ed25519_panel_private.pem -pubout -out ed25519_panel_public.pem
+openssl pkey -in ed25519_shop_private.pem -pubout -out ed25519_shop_public.pem
