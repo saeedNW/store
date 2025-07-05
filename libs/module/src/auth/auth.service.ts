@@ -211,10 +211,7 @@ export class AuthService {
 	 */
 	async validateAccessToken(token: string): Promise<string> {
 		// Extract `sub` (user ID) and `app` (application name) from the token payload
-		const { sub, app } = await this.authTokenService.verifyAccessToken(
-			token,
-			await this.keysService.getPublicKey(this.authOptions.issuer), // Pass the public key for JWT verification
-		);
+		const { sub, app } = await this.authTokenService.verifyAccessToken(token);
 
 		// Query the user repository to ensure the user exists and is allowed to access the app
 		await this.getUser(sub, app);

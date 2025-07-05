@@ -5,6 +5,10 @@ import { importPKCS8, importSPKI } from 'jose';
 import { EUserApp } from '@common/enums';
 import { getEnvVariable } from '@common/utilities/functions';
 
+type TokenType = 'access' | 'refresh';
+type AppKey = `${EUserApp}_${TokenType}`;
+type KeyMap = Record<AppKey, Promise<CryptoKey>>;
+
 /**
  * Service for loading and providing Ed25519 public/private keys for different application contexts.
  *
@@ -16,20 +20,12 @@ export class Ed25519KeyService {
 	/**
 	 * Stores a mapping of app identifiers to their corresponding private CryptoKey Promises.
 	 */
-	private readonly privateKey: {
-		store: Promise<CryptoKey>;
-		panel: Promise<CryptoKey>;
-		shop: Promise<CryptoKey>;
-	};
+	private readonly privateKey: KeyMap = {} as KeyMap;
 
 	/**
 	 * Stores a mapping of app identifiers to their corresponding public CryptoKey Promises.
 	 */
-	private readonly publicKey: {
-		store: Promise<CryptoKey>;
-		panel: Promise<CryptoKey>;
-		shop: Promise<CryptoKey>;
-	};
+	private readonly publicKey: KeyMap = {} as KeyMap;
 
 	/**
 	 * The algorithm used for signing and verifying JWTs.
@@ -37,47 +33,50 @@ export class Ed25519KeyService {
 	private readonly algorithm = getEnvVariable('TOKEN_SIGNING_ALGORITHM');
 
 	constructor() {
-		// Read PEM-encoded private and public keys for each application (store, panel, shop)
-		const storePrivatePem = readFileSync(resolve('./keys/ed25519_store_private.pem'), 'utf8');
-		const storePublicPem = readFileSync(resolve('./keys/ed25519_store_public.pem'), 'utf8');
+		for (const d of ['access', 'refresh']) {
+			// Read PEM-encoded private and public keys for each application (store, panel, shop)
+			const storePrivate = readFileSync(resolve(`./keys/${d}/ed25519_store_private.pem`), 'utf8');
+			const storePublic = readFileSync(resolve(`./keys/${d}/ed25519_store_public.pem`), 'utf8');
 
-		const panelPrivatePem = readFileSync(resolve('./keys/ed25519_panel_private.pem'), 'utf8');
-		const panelPublicPem = readFileSync(resolve('./keys/ed25519_panel_public.pem'), 'utf8');
+			const panelPrivate = readFileSync(resolve(`./keys/${d}/ed25519_panel_private.pem`), 'utf8');
+			const panelPublic = readFileSync(resolve(`./keys/${d}/ed25519_panel_public.pem`), 'utf8');
 
-		const shopPrivatePem = readFileSync(resolve('./keys/ed25519_shop_private.pem'), 'utf8');
-		const shopPublicPem = readFileSync(resolve('./keys/ed25519_shop_public.pem'), 'utf8');
+			const shopPrivate = readFileSync(resolve(`./keys/${d}/ed25519_shop_private.pem`), 'utf8');
+			const shopPublic = readFileSync(resolve(`./keys/${d}/ed25519_shop_public.pem`), 'utf8');
 
-		// Convert PEM strings to CryptoKey objects asynchronously using JOSE
-		this.privateKey = {
-			panel: importPKCS8(panelPrivatePem, this.algorithm),
-			store: importPKCS8(storePrivatePem, this.algorithm),
-			shop: importPKCS8(shopPrivatePem, this.algorithm),
-		};
+			// Convert PEM strings to CryptoKey objects asynchronously using JOSE
+			this.privateKey[`store_${d}`] = importPKCS8(storePrivate, this.algorithm);
+			this.publicKey[`store_${d}`] = importSPKI(storePublic, this.algorithm);
 
-		this.publicKey = {
-			panel: importSPKI(panelPublicPem, this.algorithm),
-			store: importSPKI(storePublicPem, this.algorithm),
-			shop: importSPKI(shopPublicPem, this.algorithm),
-		};
+			this.privateKey[`panel_${d}`] = importPKCS8(panelPrivate, this.algorithm);
+			this.publicKey[`panel_${d}`] = importSPKI(panelPublic, this.algorithm);
+
+			this.privateKey[`shop_${d}`] = importPKCS8(shopPrivate, this.algorithm);
+			this.publicKey[`shop_${d}`] = importSPKI(shopPublic, this.algorithm);
+		}
 	}
 
 	/**
-	 * Returns the private CryptoKey for the given application.
+	 * Returns the private CryptoKey for the given application and token type.
 	 *
 	 * @param app - The application context (store, panel, or shop)
+	 * @param type - Token type: access or refresh
 	 * @returns A promise that resolves to the corresponding private CryptoKey
 	 */
-	async getPrivateKey(app: EUserApp): Promise<CryptoKey> {
-		return await this.privateKey[app];
+	async getPrivateKey(app: EUserApp, type: 'access' | 'refresh'): Promise<CryptoKey> {
+		const key = `${app}_${type}`;
+		return await this.privateKey[key as AppKey];
 	}
 
 	/**
-	 * Returns the public CryptoKey for the given application.
+	 * Returns the public CryptoKey for the given application and token type.
 	 *
 	 * @param app - The application context (store, panel, or shop)
+	 * @param type - Token type: access or refresh
 	 * @returns A promise that resolves to the corresponding public CryptoKey
 	 */
-	async getPublicKey(app: EUserApp): Promise<CryptoKey> {
-		return await this.publicKey[app];
+	async getPublicKey(app: EUserApp, type: 'access' | 'refresh'): Promise<CryptoKey> {
+		const key = `${app}_${type}`;
+		return await this.publicKey[key as AppKey];
 	}
 }

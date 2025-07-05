@@ -87,7 +87,6 @@ export class ShopAuthHandler extends BaseAuthHandler implements IStrategyHandler
 		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
 			user.id,
 			this.authOptions.issuer,
-			await this.keysService.getPrivateKey(EUserApp.SHOP),
 		);
 
 		// Mark the user's phone number as verified
@@ -129,7 +128,6 @@ export class ShopAuthHandler extends BaseAuthHandler implements IStrategyHandler
 		const { accessToken, refreshToken } = await this.authTokenService.generateTokens(
 			user.id,
 			this.authOptions.issuer,
-			await this.keysService.getPrivateKey(EUserApp.SHOP),
 		);
 
 		// Return the generated tokens
@@ -194,10 +192,7 @@ export class ShopAuthHandler extends BaseAuthHandler implements IStrategyHandler
 		refreshToken: token,
 	}: RefreshTokenDto): Promise<{ accessToken: string; refreshToken: string }> {
 		// Extract `sub` (user ID) and `app` (application name) from the token payload
-		const { sub, jti } = await this.authTokenService.verifyRefreshToken(
-			token,
-			await this.keysService.getPublicKey(this.authOptions.issuer), // Pass the public key for JWT verification
-		);
+		const { sub, jti } = await this.authTokenService.verifyRefreshToken(token);
 
 		// Query the user repository to ensure the user exists and is allowed to access the app
 		const user = await this.getUser({ id: sub }, EUserApp.SHOP);
@@ -209,10 +204,6 @@ export class ShopAuthHandler extends BaseAuthHandler implements IStrategyHandler
 		await this.authTokenService.revokeRefreshToken(sub, jti);
 
 		// Generate new JWT access and refresh tokens for the authenticated user
-		return await this.authTokenService.generateTokens(
-			user.id,
-			this.authOptions.issuer,
-			await this.keysService.getPrivateKey(EUserApp.SHOP),
-		);
+		return await this.authTokenService.generateTokens(user.id, this.authOptions.issuer);
 	}
 }

@@ -145,12 +145,21 @@ Refresh token => 7–15 days
 
 #### Generate private key
 
-openssl genpkey -algorithm ed25519 -out ed25519_store_private.pem
-openssl genpkey -algorithm ed25519 -out ed25519_panel_private.pem
-openssl genpkey -algorithm ed25519 -out ed25519_shop_private.pem
+mkdir -p keys/access
+mkdir -p keys/refresh
+
+openssl genpkey -algorithm ed25519 -out keys/access/ed25519_store_private.pem
+openssl genpkey -algorithm ed25519 -out keys/access/ed25519_panel_private.pem
+openssl genpkey -algorithm ed25519 -out keys/access/ed25519_shop_private.pem
+openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_store_private.pem
+openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_panel_private.pem
+openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_shop_private.pem
 
 #### Extract public key
 
-openssl pkey -in ed25519_store_private.pem -pubout -out ed25519_store_public.pem
-openssl pkey -in ed25519_panel_private.pem -pubout -out ed25519_panel_public.pem
-openssl pkey -in ed25519_shop_private.pem -pubout -out ed25519_shop_public.pem
+openssl pkey -in keys/access/ed25519_store_private.pem -pubout -out keys/access/ed25519_store_public.pem
+openssl pkey -in keys/access/ed25519_panel_private.pem -pubout -out keys/access/ed25519_panel_public.pem
+openssl pkey -in keys/access/ed25519_shop_private.pem -pubout -out keys/access/ed25519_shop_public.pem
+openssl pkey -in keys/refresh/ed25519_store_private.pem -pubout -out keys/refresh/ed25519_store_public.pem
+openssl pkey -in keys/refresh/ed25519_panel_private.pem -pubout -out keys/refresh/ed25519_panel_public.pem
+openssl pkey -in keys/refresh/ed25519_shop_private.pem -pubout -out keys/refresh/ed25519_shop_public.pem

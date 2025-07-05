@@ -17,6 +17,7 @@ import { getEnvVariable } from '@common/utilities/functions';
 import { jwtVerify, SignJWT, decodeJwt } from 'jose';
 import { EncryptionService } from '@modules/encryption';
 import { EUserApp } from '@common/enums';
+import { Ed25519KeyService } from './keys.service';
 
 /**
  * AuthTokenService handles the creation and management of access and refresh tokens.
@@ -29,6 +30,7 @@ export class AuthTokenService {
 		@Inject('AUTH_OPTIONS') private readonly authOptions: IAuthModuleOptions,
 		@Inject(REQUEST) private request: Request,
 		private readonly encryptionService: EncryptionService,
+		private readonly keysService: Ed25519KeyService,
 	) {}
 
 	/**
@@ -86,13 +88,11 @@ export class AuthTokenService {
 	 *
 	 * @param {string} userId - The ID of the user for whom the tokens are being generated.
 	 * @param {EUserApp} app - The app identifier (used as issuer or audience).
-	 * @param {CryptoKey} cryptoPrivateKey - The cryptographic private key used for signing.
 	 * @returns {Promise<{ accessToken: string; refreshToken: string }>} A promise resolving to an object containing the access and refresh tokens.
 	 */
 	async generateTokens(
 		userId: string,
 		app: EUserApp,
-		cryptoPrivateKey: CryptoKey,
 	): Promise<{ accessToken: string; refreshToken: string }> {
 		const jti = uuidv4(); // Unique token identifier
 
@@ -104,13 +104,13 @@ export class AuthTokenService {
 			.setProtectedHeader({ alg: this.algorithm })
 			.setIssuedAt()
 			.setExpirationTime(this.authOptions.accessTokenExpiresIn)
-			.sign(cryptoPrivateKey);
+			.sign(await this.keysService.getPrivateKey(app, 'access'));
 
 		let refreshToken = await new SignJWT({ ...payload })
 			.setProtectedHeader({ alg: this.algorithm })
 			.setIssuedAt()
 			.setExpirationTime(this.authOptions.refreshTokenExpiresIn)
-			.sign(cryptoPrivateKey);
+			.sign(await this.keysService.getPrivateKey(app, 'refresh'));
 
 		// Hash the refresh token for secure storage
 		const hashedToken = await bcrypt.hash(refreshToken, 10);
@@ -181,13 +181,15 @@ export class AuthTokenService {
 	 * the token is still active (not revoked or expired) via `validateAccessToken`.
 	 *
 	 * @param {ITokenPayload} token - The JWT access token to verify.
-	 * @param {CryptoKey} cryptoPublicKey - The public key used to verify the token's signature.
 	 * @returns {Promise<ITokenPayload>} - A promise that resolves to the user ID if the token is valid.
 	 * @throws {UnauthorizedException} If the token is invalid, malformed, or missing required fields.
 	 */
-	async verifyAccessToken(token: string, cryptoPublicKey: CryptoKey): Promise<ITokenPayload> {
+	async verifyAccessToken(token: string): Promise<ITokenPayload> {
 		// Decode and verify the access token using the app-specific secret
-		const { decoded: payload } = await this.verifyToken(token, cryptoPublicKey);
+		const { decoded: payload } = await this.verifyToken(
+			token,
+			await this.keysService.getPublicKey(this.authOptions.issuer, 'access'), // Pass the public key for JWT verification
+		);
 
 		// Perform additional validation, such as checking for revocation or expiration
 		await this.validateAccessToken(payload);
@@ -204,13 +206,15 @@ export class AuthTokenService {
 	 * and unique identifier (`jti`). The provided token is compared against the stored hashed token.
 	 *
 	 * @param {string} token - The JWT refresh token to verify.
-	 * @param {CryptoKey} cryptoPublicKey - The public key used to verify the token's signature.
 	 * @returns {Promise<ITokenPayload>} - A promise that resolves to the decoded token payload if verification succeeds.
 	 * @throws UnauthorizedException if the token is invalid, not found in Redis, or does not match the stored hash.
 	 */
-	async verifyRefreshToken(token: string, cryptoPublicKey: CryptoKey): Promise<ITokenPayload> {
+	async verifyRefreshToken(token: string): Promise<ITokenPayload> {
 		// Decode and verify the refresh token using the app-specific secret
-		const { decoded, decryptedToken } = await this.verifyToken(token, cryptoPublicKey);
+		const { decoded, decryptedToken } = await this.verifyToken(
+			token,
+			await this.keysService.getPublicKey(this.authOptions.issuer, 'refresh'),
+		);
 
 		// Construct the Redis key using the subject (user ID) and token identifier (jti)
 		const key = this.getRefreshKey(decoded.sub, decoded.jti);
