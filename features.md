@@ -4,6 +4,7 @@
 
 1. MongoDB
 2. PostgreSQL
+3. Redis
 
 ## Apps
 
@@ -14,10 +15,10 @@
 
 ## Features
 
-1. SMS [GENERAL]
-2. Email [GENERAL]
-3. Logger [GENERAL]
-4. Authentication [GENERAL]
+1. SMS [GENERAL] - **DONE**
+2. Email [GENERAL] - **DONE**
+3. Logger [GENERAL] - **DONE**
+4. Authentication [GENERAL] - **DONE**
    1. Send OTP
    2. Verify OTP
    3. Login
@@ -27,7 +28,7 @@
    7. Active Sessions
    8. Revoke Token
    9. Revoke All Tokens Except Current
-5. Account [GENERAL]
+5. Account [GENERAL] - **DONE**
    1. Get Account Information
    2. Update Phone Number
    3. Update Password
@@ -38,6 +39,7 @@
       1. Password
       2. Phone Number
    4. Update user role
+   5. Make user the shop staff
 7. Profile
    1. [PANEL]
       1. Get user Profile Information
@@ -70,39 +72,67 @@
    2. [SHOP]
       1. Get Shop Permissions list
 10. Roles
-11. [PANEL]
-    1. Get Roles List
-    2. Get Single Role
-    3. Create Role
-    4. Update Role
-    5. Delete Role
-12. [SHOP]
-    1. Get Roles List for the Shop
-    2. Get Single Role for the Shop
-    3. Create Role for the Shop
-    4. Update Shop Role
-    5. Delete Shop Role
-13. Wallet
-14. Storage (File Uploader)
-15. File Manager (Manage uploaded files)
-16. Category
-17. Blog
-18. blog Comment
-19. Author
-20. Shop
-21. Shop Staff
-22. Product
-23. Product Features
-24. Product QA
-25. Product Review and Rating
-26. Basket
-27. Order
-28. Discount
-29. Payment
-30. Audit
-31. Notification
-32. Ticket
-33. Report
+    1. [PANEL]
+       1. Get Roles List
+       2. Get Single Role
+       3. Create Role
+       4. Update Role
+       5. Delete Role
+    2. [SHOP]
+       1. Get Roles List for the Shop
+       2. Get Single Role for the Shop
+       3. Create Role for the Shop
+       4. Update Shop Role
+       5. Delete Shop Role
+11. Wallet
+12. Storage (File Uploader)
+13. File Manager (Manage uploaded files)
+14. Category
+15. Blog
+16. blog Comment
+17. Author
+18. Shop
+    1. [PANEL]
+       1. Get Shop List
+       2. Get Single Shop
+       3. Create Shop
+          1. Verify The Shop Creation Request
+       4. Update Shop
+       5. Delete Shop
+       6. Change Shop Owner
+       7. Change Shop Status [Active, Inactive]
+    2. [STORE]
+       1. Get Shop List
+       2. Get Single Shop
+       3. Send Shop Creation Request
+    3. [SHOP]
+       1. Get Shop Information
+       2. Update Shop Information
+          1. Update Shop Logo
+          2. Remove Shop Logo
+          3. Update Shop Description
+          4. Update Shop Address
+19. Shop Staff
+    1. [PANEL]
+       1. Get Shop Staff List
+       2. Get Single Shop Staff
+    2. [SHOP]
+       1. Get Shop Staff List
+       2. Get Single Shop Staff
+       3. Update Shop Staff role
+       4. Delete Shop Staff
+20. Product
+21. Product Features
+22. Product QA
+23. Product Review and Rating
+24. Basket
+25. Order
+26. Discount
+27. Payment
+28. Audit
+29. Notification
+30. Ticket
+31. Report
 
 ## Features by Database
 
@@ -132,6 +162,11 @@
    4. Author
    5. Activity
    6. Notifications
+3. Redis
+   1. Authentication
+      1. OTP
+      2. Token
+      3. Session
 
 ## Token
 
