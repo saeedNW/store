@@ -34,7 +34,7 @@ export class Ed25519KeyService {
 	/**
 	 * The algorithm used for signing and verifying JWTs.
 	 */
-	private readonly algorithm = getEnvVariable('JWT_KEYS_ALGORITHM');
+	private readonly algorithm = getEnvVariable('TOKEN_SIGNING_ALGORITHM');
 
 	constructor() {
 		// Read PEM-encoded private and public keys for each application (store, panel, shop)

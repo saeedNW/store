@@ -31,7 +31,7 @@ export class AuthTokenService {
 	/**
 	 * The algorithm used for signing and verifying JWT tokens.
 	 */
-	private readonly algorithm = getEnvVariable('JWT_KEYS_ALGORITHM');
+	private readonly algorithm = getEnvVariable('TOKEN_SIGNING_ALGORITHM');
 
 	/**
 	 * Returns the TTL (Time To Live) in seconds for refresh tokens.
