@@ -272,7 +272,7 @@ export class AuthService {
 	 */
 	async logout(token: string): Promise<string> {
 		// Decode the token to get the token ID (jti)
-		const { jti } = this.authTokenService.decodeToken(token);
+		const { jti } = this.authTokenService.decodeToken(token, this.authOptions.issuer);
 
 		// Revoke the access token using its unique identifier
 		await this.authTokenService.revokeAccessToken(jti);

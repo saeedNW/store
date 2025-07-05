@@ -5,22 +5,23 @@ import Redis from 'ioredis';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthTokenService } from './token.service';
+import { Ed25519KeyService } from './keys.service';
 import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
 
 import { UserEntity } from '@database/postgres/entities';
 import { SmsModule } from '@modules/sms';
+import { EncryptionModule } from '@modules/encryption';
 
 import { PanelAuthHandler } from './strategy/panel-auth.handler';
 import { ShopAuthHandler } from './strategy/shop-auth.handler';
 import { StoreAuthHandler } from './strategy/store-auth.handler';
-import { Ed25519KeyService } from './keys.service';
 
 @Module({})
 export class AuthModule {
 	static register(options: IAuthModuleOptions): DynamicModule {
 		return {
 			module: AuthModule,
-			imports: [TypeOrmModule.forFeature([UserEntity]), SmsModule],
+			imports: [TypeOrmModule.forFeature([UserEntity]), SmsModule, EncryptionModule],
 			controllers: [AuthController],
 			providers: [
 				// Auth core

@@ -15,6 +15,8 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { getEnvVariable } from '@common/utilities/functions';
 import { jwtVerify, SignJWT, decodeJwt } from 'jose';
+import { EncryptionService } from '@modules/encryption';
+import { EUserApp } from '@common/enums';
 
 /**
  * AuthTokenService handles the creation and management of access and refresh tokens.
@@ -26,6 +28,7 @@ export class AuthTokenService {
 		@Inject('REDIS_CONNECTION') private readonly redisService: Redis,
 		@Inject('AUTH_OPTIONS') private readonly authOptions: IAuthModuleOptions,
 		@Inject(REQUEST) private request: Request,
+		private readonly encryptionService: EncryptionService,
 	) {}
 
 	/**
@@ -82,13 +85,13 @@ export class AuthTokenService {
 	 * and stores its metadata in Redis for future validation and management.
 	 *
 	 * @param {string} userId - The ID of the user for whom the tokens are being generated.
-	 * @param {string} app - The app identifier (used as issuer or audience).
+	 * @param {EUserApp} app - The app identifier (used as issuer or audience).
 	 * @param {CryptoKey} cryptoPrivateKey - The cryptographic private key used for signing.
 	 * @returns {Promise<{ accessToken: string; refreshToken: string }>} A promise resolving to an object containing the access and refresh tokens.
 	 */
 	async generateTokens(
 		userId: string,
-		app: string,
+		app: EUserApp,
 		cryptoPrivateKey: CryptoKey,
 	): Promise<{ accessToken: string; refreshToken: string }> {
 		const jti = uuidv4(); // Unique token identifier
@@ -97,13 +100,13 @@ export class AuthTokenService {
 		const payload: ITokenPayload = { sub: userId, jti, app };
 
 		// Generate signed access token
-		const accessToken = await new SignJWT({ ...payload })
+		let accessToken = await new SignJWT({ ...payload })
 			.setProtectedHeader({ alg: this.algorithm })
 			.setIssuedAt()
 			.setExpirationTime(this.authOptions.accessTokenExpiresIn)
 			.sign(cryptoPrivateKey);
 
-		const refreshToken = await new SignJWT({ ...payload })
+		let refreshToken = await new SignJWT({ ...payload })
 			.setProtectedHeader({ alg: this.algorithm })
 			.setIssuedAt()
 			.setExpirationTime(this.authOptions.refreshTokenExpiresIn)
@@ -128,6 +131,10 @@ export class AuthTokenService {
 
 		// Add the token ID (jti) to a Redis set tracking all tokens for this user
 		await this.redisService.sadd(this.getUserTokensKey(userId), jti);
+
+		// Encrypt the tokens for secure transmission
+		accessToken = this.encryptionService.encrypt(accessToken, app);
+		refreshToken = this.encryptionService.encrypt(refreshToken, app);
 
 		// Return the signed tokens to the caller
 		return { accessToken, refreshToken };
@@ -180,7 +187,7 @@ export class AuthTokenService {
 	 */
 	async verifyAccessToken(token: string, cryptoPublicKey: CryptoKey): Promise<ITokenPayload> {
 		// Decode and verify the access token using the app-specific secret
-		const payload = await this.verifyToken(token, cryptoPublicKey);
+		const { decoded: payload } = await this.verifyToken(token, cryptoPublicKey);
 
 		// Perform additional validation, such as checking for revocation or expiration
 		await this.validateAccessToken(payload);
@@ -203,7 +210,7 @@ export class AuthTokenService {
 	 */
 	async verifyRefreshToken(token: string, cryptoPublicKey: CryptoKey): Promise<ITokenPayload> {
 		// Decode and verify the refresh token using the app-specific secret
-		const decoded = await this.verifyToken(token, cryptoPublicKey);
+		const { decoded, decryptedToken } = await this.verifyToken(token, cryptoPublicKey);
 
 		// Construct the Redis key using the subject (user ID) and token identifier (jti)
 		const key = this.getRefreshKey(decoded.sub, decoded.jti);
@@ -219,7 +226,7 @@ export class AuthTokenService {
 		const { hashedToken } = JSON.parse(stored) as IRefreshTokenMeta;
 
 		// Compare the provided token with the stored hashed version
-		const isValid = await bcrypt.compare(token, hashedToken);
+		const isValid = await bcrypt.compare(decryptedToken, hashedToken);
 		if (!isValid) {
 			// If the token does not match the hash, it is considered invalid
 			throw new UnauthorizedException('Invalid refresh token');
@@ -278,7 +285,7 @@ export class AuthTokenService {
 	 */
 	async revokeAllRefreshTokens(userId: string, token: string): Promise<void> {
 		// Decode the provided token to extract its unique identifier (jti)
-		const { jti: currentJti } = this.decodeToken(token);
+		const { jti: currentJti } = this.decodeToken(token, this.authOptions.issuer);
 
 		// Check if the current token is old enough to allow revocation of other tokens
 		const isOldEnough = await this.isTokenOlderThan(userId, currentJti);
@@ -308,9 +315,11 @@ export class AuthTokenService {
 	 * Decodes a JWT token and returns the decoded payload.
 	 *
 	 * @param {string} token - The JWT access token to verify.
+	 * @param {EUserApp} app - The app identifier (used as issuer or audience).
 	 * @returns {ITokenPayload} - The decoded token payload.
 	 */
-	decodeToken(token: string): ITokenPayload {
+	decodeToken(token: string, app: EUserApp): ITokenPayload {
+		token = this.encryptionService.decrypt(token, app);
 		return decodeJwt(token);
 	}
 
@@ -386,13 +395,19 @@ export class AuthTokenService {
 	 *
 	 * @param {string} token - The JWT token to verify.
 	 * @param {CryptoKey} cryptoPublicKey - The public key used to verify the token's signature.
-	 * @returns {ITokenPayload} - The decoded token payload if verification is successful.
+	 * @returns {{ decoded: ITokenPayload; decryptedToken: string }} - The decoded token payload if verification is successful and the decrypted token.
 	 * @throws UnauthorizedException if the token is invalid or verification fails.
 	 */
-	private async verifyToken(token: string, cryptoPublicKey: CryptoKey): Promise<ITokenPayload> {
+	private async verifyToken(
+		token: string,
+		cryptoPublicKey: CryptoKey,
+	): Promise<{ decoded: ITokenPayload; decryptedToken: string }> {
 		let decoded: ITokenPayload;
 
 		try {
+			// Decrypt the token using the provided secret
+			token = this.encryptionService.decrypt(token, this.authOptions.issuer);
+
 			// Attempt to verify and decode the JWT using the provided secret
 			await jwtVerify(token, cryptoPublicKey, {
 				algorithms: [this.algorithm],
@@ -408,8 +423,9 @@ export class AuthTokenService {
 			throw new UnauthorizedException('Invalid token');
 		}
 
-		return decoded;
+		return { decoded, decryptedToken: token };
 	}
+
 	/**
 	 * Checks if a stored refresh token is older than a specified minimum age.
 	 *
