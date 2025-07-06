@@ -192,7 +192,7 @@ openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_panel_private.pem
 openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_shop_private.pem
 ```
 
-#### Extract public key
+#### Generate public key
 
 ```shell
 openssl pkey -in keys/access/ed25519_store_private.pem -pubout -out keys/access/ed25519_store_public.pem
@@ -201,4 +201,12 @@ openssl pkey -in keys/access/ed25519_shop_private.pem -pubout -out keys/access/e
 openssl pkey -in keys/refresh/ed25519_store_private.pem -pubout -out keys/refresh/ed25519_store_public.pem
 openssl pkey -in keys/refresh/ed25519_panel_private.pem -pubout -out keys/refresh/ed25519_panel_public.pem
 openssl pkey -in keys/refresh/ed25519_shop_private.pem -pubout -out keys/refresh/ed25519_shop_public.pem
+```
+
+#### Generate Tokens encryption key
+
+Generate 3 different keys for each app and place them in the ENV file.
+
+```shell
+openssl rand -base64 32
 ```
