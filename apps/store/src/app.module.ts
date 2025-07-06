@@ -2,7 +2,6 @@ import { MongoModule } from '@database/mongo';
 import { PostgresModule } from '@database/postgres';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import * as path from 'path';
 import { StoreAuthModule } from './module/auth/store-auth.module';
 import { StoreAccountModule } from './module/account/account.module';
 
@@ -10,7 +9,7 @@ import { StoreAccountModule } from './module/account/account.module';
 	imports: [
 		//? Load ENVs
 		ConfigModule.forRoot({
-			envFilePath: path.resolve('.env'),
+			envFilePath: ['.env.development', '.env'],
 			isGlobal: true,
 		}),
 

@@ -3,13 +3,12 @@ import { getEnvVariable } from '@common/utilities/functions';
 import { AuthModule } from '@modules/auth';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import * as path from 'path';
 
 @Module({
 	imports: [
 		//? Load ENVs
 		ConfigModule.forRoot({
-			envFilePath: path.resolve('.env'),
+			envFilePath: ['.env.development', '.env'],
 			isGlobal: true,
 		}),
 
