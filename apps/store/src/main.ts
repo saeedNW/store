@@ -22,7 +22,7 @@ async function bootstrap() {
 	// Register assets folder as static files directory
 	app.useStaticAssets('assets');
 	// Apply CORS config
-	app.enableCors(getCorsConfig);
+	app.enableCors(getCorsConfig(['*']));
 	// Secure the app with Helmet
 	app.use(helmet(helmetConfig));
 	// Manually set custom headers for X-Powered-By and server
