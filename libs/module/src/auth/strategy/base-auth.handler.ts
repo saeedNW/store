@@ -9,6 +9,7 @@ import { TOtpObject } from '../types/otp.type';
 import { EUserApp } from '@common/enums';
 import { AuthTokenService } from '../token.service';
 import { EOtpType } from '../enum/otp-type.enum';
+import { ProfileService } from 'apps/store/src/module/profile/profile.service';
 
 /**
  * Abstract base class for handling authentication-related logic.
@@ -28,6 +29,7 @@ export abstract class BaseAuthHandler {
 		@Inject('AUTH_OPTIONS') protected readonly authOptions: IAuthModuleOptions,
 		@Inject('REDIS_CONNECTION') protected readonly redisService: Redis,
 		protected readonly authTokenService: AuthTokenService,
+		protected readonly profileService: ProfileService,
 	) {}
 
 	/**

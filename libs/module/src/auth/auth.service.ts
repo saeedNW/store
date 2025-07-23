@@ -23,7 +23,6 @@ import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { CheckOtpDto, SendOtpDto } from '@common/dto';
-import { Ed25519KeyService } from './keys.service';
 
 /**
  * Core service responsible for handling OTP-based authentication.
@@ -38,7 +37,6 @@ export class AuthService {
 		@Inject(REQUEST) private readonly request: Request,
 		private readonly smsService: SmsService,
 		private readonly authTokenService: AuthTokenService,
-		private readonly keysService: Ed25519KeyService,
 	) {}
 
 	/**

@@ -73,15 +73,13 @@ export class AccountService {
 			},
 		});
 
-		if (duplicate) {
-			throw new ConflictException('Phone number already exists');
-		}
+		if (duplicate) throw new ConflictException('Phone number already exists');
 
 		// Generate and store OTP for phone number update
 		const otp = await this.generateAndStoreOtp(userId);
 
 		// Send OTP via SMS
-		await this.smsService.sendOtp(sendOtpDto.phone, otp);
+		this.smsService.sendOtp(sendOtpDto.phone, otp).catch(() => {});
 
 		// Save the requested phone umber as user's new unverified phone number
 		await this.userRepository.update({ id: userId }, { new_phone: sendOtpDto.phone });
@@ -151,10 +149,12 @@ export class AccountService {
 			throw new BadRequestException('User not found.');
 		}
 
-		// Validate the current password
-		const isCurrentPasswordValid = compareSync(updatePasswordDto.currentPassword, user.password);
-		if (!isCurrentPasswordValid) {
-			throw new BadRequestException('The current password is incorrect.');
+		// Validate the current password if the user has a password (Skip for new users)
+		if (user.password) {
+			const isCurrentPasswordValid = compareSync(updatePasswordDto.currentPassword, user.password);
+			if (!isCurrentPasswordValid) {
+				throw new BadRequestException('The current password is incorrect.');
+			}
 		}
 
 		// Hash the new password and update it in the database

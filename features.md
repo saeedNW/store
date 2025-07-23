@@ -32,27 +32,20 @@
    1. Get Account Information
    2. Update Phone Number
    3. Update Password
-6. User [PANEL]
-   1. Create user
-   2. Get User full Information [Account + Profile]
-   3. Update user information
-      1. Password
-      2. Phone Number
-   4. Update user role
-   5. Make user the shop staff
-7. Profile
+6. Profile
    1. [PANEL]
       1. Get user Profile Information
       2. Update Profile Information
       3. Update Profile Picture
       4. Remove Profile Picture
    2. [STORE]
-      1. Get Profile Information
-      2. Update Profile Information
-      3. Update Email Address
-      4. Update Profile Picture
-      5. Remove Profile Picture
-8. Address
+      1. Create Profile
+      2. Get Profile Information
+      3. Update Profile Information
+      4. Update Email Address
+      5. Update Profile Picture
+      6. Remove Profile Picture
+7. Address
    1. [PANEL]
       1. Get User Address List
       2. Get Single Address
@@ -66,6 +59,14 @@
       4. Update Address
       5. Delete Address
       6. Set Default Address
+8. User [PANEL]
+   1. Create user
+   2. Get User full Information [Account + Profile]
+   3. Update user information
+      1. Password
+      2. Phone Number
+   4. Update user role
+   5. Make user the shop staff
 9. Permissions
    1. [PANEL]
       1. Get Permissions List
@@ -85,8 +86,8 @@
        4. Update Shop Role
        5. Delete Shop Role
 11. Wallet
-12. Storage (File Uploader)
-13. File Manager (Manage uploaded files)
+12. Gallery
+13. File Manager (File Uploader)
 14. Category
 15. Blog
 16. blog Comment
@@ -130,9 +131,10 @@
 26. Discount
 27. Payment
 28. Audit
-29. Notification
-30. Ticket
-31. Report
+29. Revision
+30. Notification
+31. Ticket
+32. Report
 
 ## Features by Database
 
@@ -210,3 +212,7 @@ Generate 3 different keys for each app and place them in the ENV file.
 ```shell
 openssl rand -base64 32
 ```
+
+## Application Dockerize
+
+To dockerize the application, create a `Dockerfile` in the project root with the necessary build instructions. Then, use `docker build` to create an image and `docker run` to start a container. Make sure to copy your environment files and configure any required ports or volumes as needed.
