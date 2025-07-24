@@ -11,7 +11,7 @@ import { getEnvVariable } from '@common/utilities/functions';
 export class SmsIrStrategy implements SmsStrategy {
 	/**
 	 * Constructor for SmsIrStrategy
-	 * @param httpService - The HttpService for making HTTP requests
+	 * @param {HttpService} httpService - The HttpService for making HTTP requests
 	 */
 	constructor(private readonly httpService: HttpService) {}
 
@@ -31,7 +31,8 @@ export class SmsIrStrategy implements SmsStrategy {
 	 * Sends an OTP code to the specified phone number using SMS.ir service
 	 * @param {string} phone - The recipient's phone number
 	 * @param {string} code - The OTP code to send
-	 * @returns A promise that resolves when the SMS is sent
+	 * @returns {Promise<void>} - A promise that resolves when the SMS is sent
+	 * @throws {InternalServerErrorException} - If the SMS fails to send
 	 */
 	async sendOtp(phone: string, code: string): Promise<void> {
 		try {

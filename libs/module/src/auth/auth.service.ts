@@ -44,7 +44,7 @@ export class AuthService {
 	 *
 	 * @param {SendOtpDto} sendOtpDto - Data transfer object containing the phone number.
 	 * @returns {Promise<{ message: string; otp?: string }>}  - A success message and the OTP (only in non-production environments).
-	 * @throws BadRequestException if no handler is suitable for the phone number.
+	 * @throws {BadRequestException} - If no handler is suitable for the phone number.
 	 */
 	async sendOtp(sendOtpDto: SendOtpDto): Promise<{ message: string; otp?: string }> {
 		// Ensure DTO is validated
@@ -131,7 +131,7 @@ export class AuthService {
 	 *
 	 * @param {ResetRequestOtpDto} resetRequestOtpDto - DTO containing the phone number and other required info.
 	 * @returns {Promise<{ message: string; otp?: string }>} - A success message and optionally the OTP.
-	 * @throws BadRequestException if no handler is suitable for the phone number.
+	 * @throws {BadRequestException} - If no handler is suitable for the phone number.
 	 */
 	async resetReq(
 		resetRequestOtpDto: ResetRequestOtpDto,
@@ -161,9 +161,9 @@ export class AuthService {
 	 * Verifies a user's OTP for a password reset.
 	 *
 	 * @param {ResetVerifyOtpDto} resetVerifyOtpDto - The data transfer object containing the OTP and phone number.
-	 * @returns {Promise<string>} A message indicating the OTP was successfully verified.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
 	 */
-	async resetVerify(resetVerifyOtpDto: ResetVerifyOtpDto): Promise<string> {
+	async resetVerify(resetVerifyOtpDto: ResetVerifyOtpDto): Promise<{ message: string }> {
 		// Sanitize and transform the input to match the expected DTO structure
 		resetVerifyOtpDto = plainToClass(ResetVerifyOtpDto, resetVerifyOtpDto, {
 			excludeExtraneousValues: true,
@@ -176,16 +176,16 @@ export class AuthService {
 		await strategy.handler.resetVerifyHandler(resetVerifyOtpDto);
 
 		// Return success message after successful OTP verification
-		return 'OTP verified successfully';
+		return { message: 'OTP verified successfully' };
 	}
 
 	/**
 	 * Resets the user's password using an OTP-based strategy.
 	 *
 	 * @param {ResetPasswordDto} resetPasswordDto - The DTO containing the user's phone number and new password.
-	 * @returns {Promise<string>} A message indicating the password was reset successfully.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
 	 */
-	async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
+	async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
 		// Retrieve the appropriate OTP verification strategy based on the phone number
 		const strategy = await this.getHandler(resetPasswordDto.phone);
 
@@ -193,7 +193,7 @@ export class AuthService {
 		await strategy.handler.resetPasswordHandler(resetPasswordDto);
 
 		// Return success message after successful password reset
-		return 'Password reset successfully';
+		return { message: 'Password reset successfully' };
 	}
 
 	/**
@@ -205,7 +205,7 @@ export class AuthService {
 	 *
 	 * @param {string} token - The access token to validate.
 	 * @returns {Promise<string>} - A promise that resolves to the user ID (`sub`) if validation is successful.
-	 * @throws {UnauthorizedException} If the token is invalid or the user is not authorized for the app.
+	 * @throws {UnauthorizedException} - If the token is invalid or the user is not authorized for the app.
 	 */
 	async validateAccessToken(token: string): Promise<string> {
 		// Extract `sub` (user ID) and `app` (application name) from the token payload
@@ -222,8 +222,9 @@ export class AuthService {
 	 * Refreshes the access and refresh tokens using a valid refresh token.
 	 *
 	 * @param {RefreshTokenDto} refreshTokenDto - An object containing the refresh token.
-	 * @returns A promise that resolves to an object containing a success message, a new access token, and a new refresh token.
-	 * @throws UnauthorizedException if the refresh token is invalid or user validation fails.
+	 * @returns {Promise<{ message: string; accessToken: string; refreshToken: string }>}
+	 * - An object containing a success message, a new access token, and a new refresh token.
+	 * @throws {UnauthorizedException} - If the refresh token is invalid or user validation fails.
 	 */
 	async refreshToken(
 		refreshTokenDto: RefreshTokenDto,
@@ -237,7 +238,7 @@ export class AuthService {
 
 		// Return a success message along with the generated tokens
 		return {
-			message: 'OTP verified successfully',
+			message: 'Token refreshed successfully',
 			accessToken,
 			refreshToken,
 		};
@@ -246,9 +247,9 @@ export class AuthService {
 	/**
 	 * Retrieves all active user sessions for the currently authenticated user.
 	 *
-	 * @returns A promise that resolves to an array of active session objects.
+	 * @returns {Promise<{ sessions: any[] }>} - An object containing an array of active session objects.
 	 */
-	async getUserSessions() {
+	async getUserSessions(): Promise<{ sessions: any[] }> {
 		// Call the authTokenService to get all active tokens for the current user
 		const sessions = await this.authTokenService.getAllActiveTokens(this.request.userId as string);
 
@@ -263,9 +264,9 @@ export class AuthService {
 	 * log the user out.
 	 *
 	 * @param {string} token - The JWT access token to be revoked.
-	 * @returns {Promise<string>} - A Promise that resolves once both tokens are revoked.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
 	 */
-	async logout(token: string): Promise<string> {
+	async logout(token: string): Promise<{ message: string }> {
 		// Decode the token to get the token ID (jti)
 		const { jti } = this.authTokenService.decodeToken(token, this.authOptions.issuer);
 
@@ -276,7 +277,7 @@ export class AuthService {
 		await this.authTokenService.revokeRefreshToken(this.request.userId as string, jti);
 
 		// Return a success message
-		return 'Logged out successfully';
+		return { message: 'Logged out successfully' };
 	}
 
 	/**
@@ -286,24 +287,24 @@ export class AuthService {
 	 * only tokens older than 1 day can trigger a mass revocation.
 	 *
 	 * @param {string} token - The current refresh token (used to identify and preserve the active session).
-	 * @returns {Promise<string>} - A success message indicating that the tokens have been revoked.
-	 * @throws BadRequestException if the current token is not old enough to allow revocation.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
+	 * @throws {BadRequestException} - If the current token is not old enough to allow revocation.
 	 */
-	async revokeTokens(token: string): Promise<string> {
+	async revokeTokens(token: string): Promise<{ message: string }> {
 		// Call the service to revoke all refresh tokens for the current user, except the current session
 		await this.authTokenService.revokeAllRefreshTokens(this.request.userId as string, token);
 
 		// Return a confirmation message
-		return 'Tokens revoked successfully';
+		return { message: 'Tokens revoked successfully' };
 	}
 
 	/**
 	 * Revokes a specific user session by its session ID.
 	 *
 	 * @param {RevokeSessionDto} revokeSessionDto - Data transfer object containing the session ID to revoke.
-	 * @returns {Promise<string>} - A promise that resolves to a success message once the session is revoked.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
 	 */
-	async revokeSession(revokeSessionDto: RevokeSessionDto): Promise<string> {
+	async revokeSession(revokeSessionDto: RevokeSessionDto): Promise<{ message: string }> {
 		// Revoke the refresh token for the current user and specified session ID
 		await this.authTokenService.revokeRefreshToken(
 			this.request.userId as string, // The ID of the user making the request
@@ -311,7 +312,7 @@ export class AuthService {
 		);
 
 		// Return a confirmation message after successful revocation
-		return 'Session revoked successfully';
+		return { message: 'Session revoked successfully' };
 	}
 
 	/**
@@ -320,7 +321,7 @@ export class AuthService {
 	 * @param {string} [phone] - The user's phone number
 	 * @param {boolean} [checkUserExistence] - Whether to check if the user exists.r.
 	 * @returns {Promise<{ handler: IStrategyHandler; canHandle: boolean }>} - An object containing the handler and its eligibility status.
-	 * @throws BadRequestException if no handler can process the phone number.
+	 * @throws {BadRequestException} - If no handler can process the phone number.
 	 */
 	private async getHandler(
 		phone?: string,
@@ -354,7 +355,7 @@ export class AuthService {
 	 * @param {string} id - The unique identifier of the user.
 	 * @param {string} app - The application name to check access permission against.
 	 * @returns {Promise<UserEntity>} - A promise that resolves to the user entity if found and authorized.
-	 * @throws UnauthorizedException if the user does not exist or is not authorized for the application.
+	 * @throws {UnauthorizedException} - If the user does not exist or is not authorized for the application.
 	 */
 	private async getUser(id: string, app: string): Promise<UserEntity> {
 		// Query the user repository to ensure the user exists and is allowed to access the app

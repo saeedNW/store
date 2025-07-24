@@ -22,7 +22,7 @@ export interface PaginationLinks {
 
 /**
  * Result of a paginated query.
- * @template T - The type of the items being paginated
+ * @template {T} - The type of the items being paginated
  */
 export interface PaginatedResult<T> {
 	items: T[]; // The list of items for the current page

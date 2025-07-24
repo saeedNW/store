@@ -46,7 +46,7 @@ export class ResponseTransformerInterceptor implements NestInterceptor {
 					statusCode,
 					success: true,
 					message,
-					data: Object.keys(data).length ? data : undefined,
+					data: Object.keys(data).length ? data : {},
 				};
 			}),
 		);

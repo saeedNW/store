@@ -9,14 +9,14 @@ import { Request } from 'express';
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
-	constructor(private authService: AuthService) {}
+	constructor(private readonly authService: AuthService) {}
 
 	/**
 	 * Determines whether the current request is authorized by validating the access token.
 	 *
 	 * @param {ExecutionContext} context - The execution context containing the HTTP request.
 	 * @returns {Promise<boolean>} - A promise that resolves to true if the token is valid; otherwise, throws an exception.
-	 * @throws {UnauthorizedException} If the token is missing, invalid, or verification fails.
+	 * @throws {UnauthorizedException} - If the token is missing, invalid, or verification fails.
 	 */
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const httpContext = context.switchToHttp();
@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
 	 *
 	 * @param {Request} request - The incoming HTTP request.
 	 * @returns {string} - The extracted token as a string.
-	 * @throws {UnauthorizedException} If the header is missing, empty, or not a Bearer token.
+	 * @throws {UnauthorizedException} - If the header is missing, empty, or not a Bearer token.
 	 */
 	private extractToken(request: Request): string {
 		const { authorization } = request.headers;

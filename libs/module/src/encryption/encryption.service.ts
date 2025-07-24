@@ -35,9 +35,10 @@ export class EncryptionService {
 	 * authentication tag, and returns a base64-encoded string containing:
 	 * IV (12 bytes) + Auth Tag (16 bytes) + Encrypted data.
 	 *
-	 * @param text - The plaintext string to encrypt.
-	 * @param app - The application context (store, panel, or shop).
-	 * @returns A base64-encoded string containing the IV, auth tag, and ciphertext.
+	 * @param {string} text - The plaintext string to encrypt.
+	 * @param {EUserApp} app - The application context (store, panel, or shop).
+	 * @returns {string} - A base64-encoded string containing the IV, auth tag, and ciphertext.
+	 * @throws {Error} - If the encryption fails.
 	 */
 	encrypt(text: string, app: EUserApp): string {
 		// Generate a random 12-byte IV (recommended for GCM mode)
@@ -62,9 +63,10 @@ export class EncryptionService {
 	 * The method expects the encoded string to contain the IV, auth tag, and ciphertext
 	 * in the following order: IV (12 bytes) + Auth Tag (16 bytes) + Encrypted data.
 	 *
-	 * @param encrypted - The base64-encoded string to decrypt.
-	 * @param app - The application context (store, panel, or shop).
-	 * @returns The decrypted plaintext string.
+	 * @param {string} encrypted - The base64-encoded string to decrypt.
+	 * @param {EUserApp} app - The application context (store, panel, or shop).
+	 * @returns {string} - The decrypted plaintext string.
+	 * @throws {Error} - If the decryption fails.
 	 */
 	decrypt(encrypted: string, app: EUserApp): string {
 		// Decode the base64-encoded input to a Buffer

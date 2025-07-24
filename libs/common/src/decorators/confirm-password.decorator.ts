@@ -28,8 +28,8 @@ export class ConfirmedPasswordConstraint implements ValidatorConstraintInterface
 	/**
 	 * Returns the error message when validation fails.
 	 *
-	 * @param args - Validation arguments.
-	 * @returns A user-friendly error message.
+	 * @param {ValidationArguments} args - Validation arguments.
+	 * @returns {string} - A user-friendly error message.
 	 */
 	defaultMessage(args: ValidationArguments): string {
 		const customMessage = args.constraints[1] as string;
@@ -41,10 +41,10 @@ export class ConfirmedPasswordConstraint implements ValidatorConstraintInterface
  * Decorator to validate that the decorated property matches another property on the same object.
  * Commonly used for confirming passwords.
  *
- * @param property - The name of the property to match (e.g., 'password').
- * @param message - Optional custom error message or a function to generate it dynamically.
- * @param validationOptions - Additional class-validator options.
- * @returns A property decorator.
+ * @param {string} property - The name of the property to match (e.g., 'password').
+ * @param {string | ((args: ValidationArguments) => string)} message - Optional custom error message or a function to generate it dynamically.
+ * @param {ValidationOptions} validationOptions - Additional class-validator options.
+ * @returns {PropertyDecorator} - A property decorator.
  *
  * @example
  * ```ts

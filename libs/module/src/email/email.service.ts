@@ -6,14 +6,16 @@ import { EmailStrategy } from './interfaces/strategy.interface';
 export class EmailService {
 	/**
 	 * Constructor for EmailService
-	 * @param emailStrategy - The email strategy to use for sending emails
+	 * @param {EmailStrategy} emailStrategy - The email strategy to use for sending emails
 	 */
 	constructor(@Inject('EmailStrategy') private readonly emailStrategy: EmailStrategy) {}
 
 	/**
 	 * Sends a verification email to the specified email address
-	 * @param to - The email address of the recipient
-	 * @param code - The verification code to send
+	 * @param {string} to - The email address of the recipient
+	 * @param {string} code - The verification code to send
+	 * @returns {Promise<void>} - A promise that resolves when the email is sent.
+	 * @throws {InternalServerErrorException} - If the email fails to send.
 	 */
 	async sendVerificationEmail(to: string, code: string): Promise<void> {
 		return this.emailStrategy.sendVerificationEmail(to, code);

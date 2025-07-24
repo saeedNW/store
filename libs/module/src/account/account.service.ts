@@ -52,12 +52,12 @@ export class AccountService {
 	 * Handles OTP (One-Time Password) request for phone number verification.
 	 * Ensures that the provided phone number is not already in use by another user.
 	 *
-	 * @param sendOtpDto - The DTO containing the phone number to send OTP to.
-	 * @returns The generated OTP code as a string.
-	 * @throws ConflictException if the phone number is already associated with another user.
-	 * @throws BadRequestException if an OTP was recently generated and is still within the cooldown period.
+	 * @param {SendOtpDto} sendOtpDto - The DTO containing the phone number to send OTP to.
+	 * @returns {Promise<{ message: string; otp?: string }>} - An object containing a success message and the generated OTP code.
+	 * @throws {ConflictException} - If the phone number is already associated with another user.
+	 * @throws {BadRequestException} - If an OTP was recently generated and is still within the cooldown period.
 	 */
-	async phoneOtpRequest(sendOtpDto: SendOtpDto) {
+	async phoneOtpRequest(sendOtpDto: SendOtpDto): Promise<{ message: string; otp?: string }> {
 		// Transform the incoming DTO to include only allowed properties
 		sendOtpDto = plainToClass(SendOtpDto, sendOtpDto, {
 			excludeExtraneousValues: true,
@@ -95,11 +95,11 @@ export class AccountService {
 	 * Verifies the OTP sent to a user's new phone number.
 	 * Ensures the OTP is valid and matches the user's pending phone update.
 	 *
-	 * @param checkOtpDto - The DTO containing the phone number and OTP code.
-	 * @returns A success message if OTP is verified successfully.
-	 * @throws BadRequestException if the phone number is invalid or OTP verification fails.
+	 * @param {CheckOtpDto} checkOtpDto - The DTO containing the phone number and OTP code.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
+	 * @throws {BadRequestException} - If the phone number is invalid or OTP verification fails.
 	 */
-	async phoneVerification(checkOtpDto: CheckOtpDto) {
+	async phoneVerification(checkOtpDto: CheckOtpDto): Promise<{ message: string }> {
 		// Sanitize and transform the DTO to ensure only valid properties are processed
 		checkOtpDto = plainToClass(CheckOtpDto, checkOtpDto, {
 			excludeExtraneousValues: true,
@@ -124,17 +124,17 @@ export class AccountService {
 			new_phone: () => 'NULL',
 		});
 
-		return 'Phone number updated successfully';
+		return { message: 'Phone number updated successfully' };
 	}
 
 	/**
 	 * Updates the password for the currently authenticated user.
 	 *
-	 * @param updatePasswordDto - Object containing current and new passwords.
-	 * @throws {BadRequestException} If the current password is incorrect or the user is not found.
-	 * @returns A confirmation message upon successful password update.
+	 * @param {UpdatePasswordDto} updatePasswordDto - Object containing current and new passwords.
+	 * @throws {BadRequestException} - If the current password is incorrect or the user is not found.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
 	 */
-	async updatePassword(updatePasswordDto: UpdatePasswordDto): Promise<string> {
+	async updatePassword(updatePasswordDto: UpdatePasswordDto): Promise<{ message: string }> {
 		// Sanitize and transform the incoming DTO to ensure only expected fields are used
 		updatePasswordDto = plainToClass(UpdatePasswordDto, updatePasswordDto, {
 			excludeExtraneousValues: true,
@@ -161,14 +161,14 @@ export class AccountService {
 		const hashedNewPassword = hashSync(updatePasswordDto.newPassword, genSaltSync(10));
 		await this.userRepository.update({ id: userId }, { password: hashedNewPassword });
 
-		return 'Password updated successfully';
+		return { message: 'Password updated successfully' };
 	}
 
 	/**
 	 * Constructs the Redis key used for storing OTP data for a specific user.
 	 *
-	 * @param userId - The ID of the user requesting the OTP.
-	 * @returns A namespaced Redis key string.
+	 * @param {string} userId - The ID of the user requesting the OTP.
+	 * @returns {string} - A namespaced Redis key string.
 	 */
 	private getOtpKey(userId: string): string {
 		return `otp:update_phone:${userId}`;
@@ -178,11 +178,11 @@ export class AccountService {
 	 * Generates a new OTP, checks for cooldown period, and stores it in Redis.
 	 * Prevents multiple OTPs from being sent within a short time window.
 	 *
-	 * @param userId - The ID of the user requesting the OTP.
-	 * @returns The newly generated OTP code.
-	 * @throws BadRequestException if the user must wait before requesting a new OTP.
+	 * @param {string} userId - The ID of the user requesting the OTP.
+	 * @returns {Promise<string>} - The newly generated OTP code.
+	 * @throws {BadRequestException} - If the user must wait before requesting a new OTP.
 	 */
-	private async generateAndStoreOtp(userId: string) {
+	private async generateAndStoreOtp(userId: string): Promise<string> {
 		// Create a new 5-digit OTP object
 		const otp: TOtpObject = {
 			code: randomInt(10000, 99999).toString(),
@@ -217,12 +217,12 @@ export class AccountService {
 	 * Verifies the OTP code provided by the user against the stored value in Redis.
 	 * Deletes the OTP after successful verification and sets a temporary 'verified' flag.
 	 *
-	 * @param userId - The ID of the user attempting to verify the OTP.
-	 * @param code - The OTP code entered by the user.
-	 * @returns `true` if the OTP is valid and verification is successful.
-	 * @throws BadRequestException if the OTP is missing or does not match the stored value.
+	 * @param {string} userId - The ID of the user attempting to verify the OTP.
+	 * @param {string} code - The OTP code entered by the user.
+	 * @returns {Promise<boolean>} - `true` if the OTP is valid and verification is successful.
+	 * @throws {BadRequestException} - If the OTP is missing or does not match the stored value.
 	 */
-	private async verifyOtp(userId: string, code: string) {
+	private async verifyOtp(userId: string, code: string): Promise<boolean> {
 		// Construct the Redis key used to store the OTP
 		const otpKey = this.getOtpKey(userId);
 

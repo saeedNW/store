@@ -11,7 +11,7 @@ import { PaginatedResult, PaginationLinks } from './pagination.interface';
  * @param {SelectQueryBuilder<T>} [queryBuilder] - Optional query builder for custom queries.
  * @param {string} [link] - The endpoint to which the data retrieved from.
  * @param {boolean} [distinct=false] - Whether to count distinct items only (useful for complex queries).
- * @returns {Promise<PaginatedResult<T>>} A promise that resolves to a paginated result object.
+ * @returns {Promise<PaginatedResult<T>>} - A promise that resolves to a paginated result object.
  */
 export async function TypeOrmPaginate<T extends ObjectLiteral>(
 	paginationDto: PaginationDto,
@@ -66,7 +66,7 @@ export async function TypeOrmPaginate<T extends ObjectLiteral>(
  * @param {PaginationDto} paginationDto - DTO containing pagination parameters (page, limit, etc.).
  * @param {number} totalItems - Total number of items across all pages.
  * @param {string} link - The endpoint to which the data retrieved from.
- * @returns {PaginationLinks} An object containing navigation links.
+ * @returns {PaginationLinks | undefined} - An object containing navigation links.
  */
 function getPaginationLinks(
 	paginationDto: PaginationDto,

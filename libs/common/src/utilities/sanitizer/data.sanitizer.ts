@@ -2,9 +2,9 @@ import validator from 'validator';
 
 /**
  * Escape and trim object properties, including nested arrays and objects
- * @param body - The object to sanitize (e.g., request body)
- * @param items - Specific fields to process (if empty, all fields are processed)
- * @param blackListFields - Fields to exclude from processing
+ * @param {Record<string, any>} body - The object to sanitize (e.g., request body)
+ * @param {string[]} items - Specific fields to process (if empty, all fields are processed)
+ * @param {string[]} blackListFields - Fields to exclude from processing
  */
 export function escapeAndTrim(
 	body: Record<string, any>,
@@ -27,8 +27,8 @@ export function escapeAndTrim(
 /**
  * Recursively sanitize values by escaping and trimming strings,
  * processing arrays and objects without converting them to strings
- * @param value - The value to sanitize
- * @returns The sanitized value
+ * @param {any} value - The value to sanitize
+ * @returns {any} - The sanitized value
  */
 function sanitizeValue(value: any): any {
 	if (typeof value === 'string') {

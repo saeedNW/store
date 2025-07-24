@@ -59,9 +59,9 @@ export class Ed25519KeyService {
 	/**
 	 * Returns the private CryptoKey for the given application and token type.
 	 *
-	 * @param app - The application context (store, panel, or shop)
-	 * @param type - Token type: access or refresh
-	 * @returns A promise that resolves to the corresponding private CryptoKey
+	 * @param {EUserApp} app - The application context (store, panel, or shop)
+	 * @param {TokenType} type - Token type: access or refresh
+	 * @returns {Promise<CryptoKey>} - A promise that resolves to the corresponding private CryptoKey
 	 */
 	async getPrivateKey(app: EUserApp, type: 'access' | 'refresh'): Promise<CryptoKey> {
 		const key = `${app}_${type}`;
@@ -71,9 +71,9 @@ export class Ed25519KeyService {
 	/**
 	 * Returns the public CryptoKey for the given application and token type.
 	 *
-	 * @param app - The application context (store, panel, or shop)
-	 * @param type - Token type: access or refresh
-	 * @returns A promise that resolves to the corresponding public CryptoKey
+	 * @param {EUserApp} app - The application context (store, panel, or shop)
+	 * @param {TokenType} type - Token type: access or refresh
+	 * @returns {Promise<CryptoKey>} - A promise that resolves to the corresponding public CryptoKey
 	 */
 	async getPublicKey(app: EUserApp, type: 'access' | 'refresh'): Promise<CryptoKey> {
 		const key = `${app}_${type}`;

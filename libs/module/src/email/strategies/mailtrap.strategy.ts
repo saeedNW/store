@@ -7,14 +7,16 @@ import { EmailStrategy } from '../interfaces/strategy.interface';
 export class MailtrapStrategy implements EmailStrategy {
 	/**
 	 * Constructor for MailtrapStrategy
-	 * @param mailerService - mailer module main service
+	 * @param {MailerService} mailerService - mailer module main service
 	 */
 	constructor(private readonly mailerService: MailerService) {}
 
 	/**
 	 * Sends an OTP code to the specified email address using Mailtrap service
-	 * @param to - email address of the recipient
-	 * @param code - verification code
+	 * @param {string} to - email address of the recipient
+	 * @param {string} code - verification code
+	 * @returns {Promise<void>} - A promise that resolves when the email is sent.
+	 * @throws {InternalServerErrorException} - If the email fails to send.
 	 */
 	async sendVerificationEmail(to: string, code: string): Promise<void> {
 		try {

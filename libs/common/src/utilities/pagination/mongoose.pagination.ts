@@ -11,7 +11,7 @@ import { PaginatedResult, PaginationLinks } from './pagination.interface';
  * @param {any} [queryOrPipeline] - Optional query object for find or aggregation pipeline.
  * @param {string} [link] - The endpoint to which the data retrieved from.
  * @param {boolean} [isAggregate=false] - Whether to use aggregate pipeline.
- * @returns {Promise<PaginatedResult<T>>} A promise that resolves to a paginated result object.
+ * @returns {Promise<PaginatedResult<T>>} - A promise that resolves to a paginated result object.
  */
 export async function MongoosePaginate<T extends Document>(
 	paginationDto: PaginationDto,
@@ -68,7 +68,7 @@ export async function MongoosePaginate<T extends Document>(
  * @param {string} link - The endpoint to which the data retrieved from.
  * @param {PaginationDto} paginationDto - DTO containing pagination parameters (page, limit, etc.).
  * @param {number} totalItems - Total number of items across all pages.
- * @returns {PaginationLinks} An object containing navigation links.
+ * @returns {PaginationLinks | undefined} - An object containing navigation links.
  */
 function getPaginationLinks(
 	link: string | undefined,

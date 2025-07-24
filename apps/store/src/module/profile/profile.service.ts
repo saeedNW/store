@@ -37,7 +37,7 @@ export class ProfileService {
 	 * Creates and saves a new user profile.
 	 *
 	 * @param {Partial<ProfileEntity>} data - The profile data to be saved.
-	 * @returns {Promise<ProfileEntity>} The newly created and saved profile entity.
+	 * @returns {Promise<ProfileEntity>} - The newly created and saved profile entity.
 	 */
 	async create(data: Partial<ProfileEntity>): Promise<ProfileEntity> {
 		// Save the provided profile data to the database using the repository.
@@ -47,7 +47,7 @@ export class ProfileService {
 	/**
 	 * Retrieves the profile associated with the currently authenticated user.
 	 *
-	 * @returns {Promise<{profile:ProfileEntity | null}>} The profile entity associated with the current user.
+	 * @returns {Promise<{profile:ProfileEntity | null}>} - The profile entity associated with the current user.
 	 */
 	async getProfile(): Promise<{ profile: ProfileEntity | null }> {
 		// Extract the user ID from the request context.
@@ -64,8 +64,9 @@ export class ProfileService {
 	 * Updates the authenticated user's profile with the provided data.
 	 *
 	 * @param {UpdateProfileDto} updateProfileDto - The data to update the user's profile with.
-	 * @returns {Promise<{ message: string; profile: ProfileEntity }>} An object containing a success message and the updated profile.
-	 * @throws {NotFoundException} If the user's profile is not found.
+	 * @returns {Promise<{ message: string; profile: ProfileEntity }>}
+	 *	 An object containing a success message and the updated profile.
+	 * @throws {NotFoundException} - If the user's profile is not found.
 	 */
 	async updateProfile(
 		updateProfileDto: UpdateProfileDto,
@@ -107,7 +108,8 @@ export class ProfileService {
 	 * Request to change email address (sends verification code)
 	 *
 	 * @param {RequestEmailChangeDto} requestEmailChangeDto - The data to request the email change with.
-	 * @returns {Promise<{ message: string; otp?: string }>} An object containing a success message and the OTP.
+	 * @returns {Promise<{ message: string; otp?: string }>}
+	 *	An object containing a success message and the OTP.
 	 */
 	async requestEmailChange(
 		requestEmailChangeDto: RequestEmailChangeDto,
@@ -151,7 +153,7 @@ export class ProfileService {
 	 * Verify email change: checks code, updates email, sets verified, clears pending fields
 	 *
 	 * @param {VerifyEmailChangeDto} verifyEmailChangeDto - The data to verify the email change with.
-	 * @returns {Promise<{ message: string }>} An object containing a success message.
+	 * @returns {Promise<{ message: string }>} - An object containing a success message.
 	 */
 	async verifyEmailChange(
 		verifyEmailChangeDto: VerifyEmailChangeDto,
@@ -187,7 +189,8 @@ export class ProfileService {
 	 * Update user avatar
 	 *
 	 * @param {TMulterFile} avatar - The avatar file to update
-	 * @returns {Promise<{ message: string; avatar: string }>} - An object containing a success message and the new avatar path
+	 * @returns {Promise<{ message: string; avatar: string }>}
+	 * 	An object containing a success message and the new avatar path
 	 */
 	async updateProfileAvatar(avatar: TMulterFile): Promise<{ message: string; avatar: string }> {
 		// Get the current user's profile
@@ -235,7 +238,7 @@ export class ProfileService {
 	 * Constructs the Redis key used for storing OTP data for a specific user.
 	 *
 	 * @param profileId - The ID of the profile requesting the OTP.
-	 * @returns A namespaced Redis key string.
+	 * @returns {string} - A namespaced Redis key string.
 	 */
 	private getOtpKey(profileId: string): string {
 		return `otp:update_email:${profileId}`;
@@ -246,10 +249,10 @@ export class ProfileService {
 	 * Prevents multiple OTPs from being sent within a short time window.
 	 *
 	 * @param profileId - The ID of the profile requesting the OTP.
-	 * @returns The newly generated OTP code.
-	 * @throws BadRequestException if the user must wait before requesting a new OTP.
+	 * @returns {Promise<string>} - The newly generated OTP code.
+	 * @throws {BadRequestException} - If the user must wait before requesting a new OTP.
 	 */
-	private async generateAndStoreOtp(profileId: string) {
+	private async generateAndStoreOtp(profileId: string): Promise<string> {
 		// Create a new OTP object
 		const otp: TOtpObject = {
 			code: randomBytes(3).toString('hex').slice(0, 6).toUpperCase(),
@@ -287,7 +290,7 @@ export class ProfileService {
 	 * @param {string} profileId - The ID of the profile attempting to verify the OTP.
 	 * @param {string} code - The OTP code entered by the user.
 	 * @returns {Promise<boolean>} `true` if the OTP is valid and verification is successful.
-	 * @throws BadRequestException if the OTP is missing or does not match the stored value.
+	 * @throws {BadRequestException} - If the OTP is missing or does not match the stored value.
 	 */
 	private async verifyOtp(profileId: string, code: string): Promise<boolean> {
 		// Construct the Redis key used to store the OTP

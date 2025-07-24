@@ -14,9 +14,9 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
  * }
  * ```
  *
- * @param data - Optional data passed to the decorator (not used here).
- * @param ctx - The execution context of the current request.
- * @returns The extracted token as a string if present and valid, otherwise null.
+ * @param {unknown} data - Optional data passed to the decorator (not used here).
+ * @param {ExecutionContext} ctx - The execution context of the current request.
+ * @returns {string | null} - The extracted token as a string if present and valid, otherwise null.
  */
 export const Token = createParamDecorator((data: unknown, ctx: ExecutionContext): string | null => {
 	// Get the HTTP request object from the execution context

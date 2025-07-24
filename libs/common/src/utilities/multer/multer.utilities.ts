@@ -34,8 +34,9 @@ export function removeUploadedFiles(files: TMulterFile, multiFile: boolean = fal
 /**
  * File remover
  * @param {string} filePath - File location path
+ * @returns {void} - Returns nothing.
  */
-export function fileRemoval(filePath: string) {
+export function fileRemoval(filePath: string): void {
 	if (!filePath) return;
 
 	// Convert file path to relative absolute path
@@ -50,7 +51,6 @@ export function fileRemoval(filePath: string) {
 /**
  * Finalizes the upload process by moving the uploaded file to its final directory. *
  * @param {TMulterFile} file - The file metadata provided by multer.
- * @param {number | undefined} userId - The ID of the user associated with the upload (optional).
  * @param {string} finalPath - The target directory (relative to the base upload directory).
  * @returns {Promise<string>} - The relative path to the finalized file .
  */

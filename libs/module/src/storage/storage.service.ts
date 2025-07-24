@@ -30,7 +30,7 @@ export class StorageService {
 
 	/**
 	 * Retrieves the appropriate storage strategy based on the given type.
-	 * @param {StorageType} type The type of storage ('local' or 'liara')
+	 * @param {StorageType} type - The type of storage ('local' or 'liara')
 	 * @returns {StorageStrategy} - The corresponding StorageStrategy implementation
 	 * @throws Error if the storage type is unsupported
 	 */
@@ -44,9 +44,9 @@ export class StorageService {
 
 	/**
 	 * Uploads a file to the specified directory using the selected storage type.
-	 * @param {TMulterFile} file The file object from Multer
-	 * @param {string} directory The destination directory/path for the file
-	 * @param {StorageType} type The type of storage to use ('local' or 'liara')
+	 * @param {TMulterFile} file - The file object from Multer
+	 * @param {string} directory - The destination directory/path for the file
+	 * @param {StorageType} type - The type of storage to use ('local' or 'liara')
 	 * @returns {Promise<string>} - The URL or path of the uploaded file
 	 */
 	async uploadFile(file: TMulterFile, directory: string, type: StorageType): Promise<string> {
@@ -56,8 +56,8 @@ export class StorageService {
 
 	/**
 	 * Removes a file from the storage using the selected strategy.
-	 * @param {string} filePath The full path or identifier of the file to remove
-	 * @param {StorageType} type The type of storage to use ('local' or 'liara')
+	 * @param {string} filePath - The full path or identifier of the file to remove
+	 * @param {StorageType} type - The type of storage to use ('local' or 'liara')
 	 * @returns {Promise<void>} - The promise that resolves when the file is removed
 	 */
 	async removeFile(filePath: string, type: StorageType): Promise<void> {

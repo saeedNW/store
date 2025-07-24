@@ -110,7 +110,7 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * @returns {Promise<{ accessToken: string; refreshToken: string }>}
 	 * An object containing the generated access and refresh tokens.
 	 *
-	 * @throws {UnauthorizedException} If the user is not found, has not verified their phone,
+	 * @throws {UnauthorizedException} - If the user is not found, has not verified their phone,
 	 * lacks a password, or provides invalid credentials.
 	 */
 	async loginHandler(data: LoginDto): Promise<{ accessToken: string; refreshToken: string }> {
@@ -141,8 +141,8 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * Verifies the OTP for a password reset in the STORE application context.
 	 *
 	 * @param {ResetVerifyOtpDto} data - DTO containing the phone number and OTP to verify.
-	 * @throws {UnauthorizedException} If the user is not found or credentials are invalid.
-	 * @returns {Promise<void>} Resolves if the OTP is successfully verified; otherwise, throws an error.
+	 * @throws {UnauthorizedException} - If the user is not found or credentials are invalid.
+	 * @returns {Promise<void>} - Resolves if the OTP is successfully verified; otherwise, throws an error.
 	 */
 	async resetVerifyHandler(data: ResetVerifyOtpDto): Promise<void> {
 		// Retrieve the user associated with the given phone number in the STORE app context
@@ -158,8 +158,8 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * Handles the password reset logic for a user in the STORE application context.
 	 *
 	 * @param {ResetPasswordDto} data - DTO containing the phone number and new password.
-	 * @returns {Promise<void>} Resolves if the password reset is successful; throws otherwise.
-	 * @throws {UnauthorizedException} If the user is not found or the OTP is invalid.
+	 * @returns {Promise<void>} - Resolves if the password reset is successful; throws otherwise.
+	 * @throws {UnauthorizedException} - If the user is not found or the OTP is invalid.
 	 */
 	async resetPasswordHandler(data: ResetPasswordDto): Promise<void> {
 		// Retrieve the user associated with the given phone number in the STORE app context
@@ -189,7 +189,7 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 	 * @returns {Promise<{ accessToken: string; refreshToken: string }>}
 	 * An object containing newly generated access and refresh tokens.
 	 *
-	 * @throws {UnauthorizedException} If the refresh token is invalid or the user is not found.
+	 * @throws {UnauthorizedException} - If the refresh token is invalid or the user is not found.
 	 */
 	async refreshTokenHandler({
 		refreshToken: token,

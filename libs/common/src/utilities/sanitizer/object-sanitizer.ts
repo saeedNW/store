@@ -3,7 +3,7 @@
  * @param {Record<string, any>} data - The object from which to delete properties.
  * @param {string[]} blackListFields - List of fields to be removed from the object.
  * @param {string[]} nullableFields - Fields that are allowed to be nullish or empty.
- * @returns {void} Modifies the input object directly.
+ * @returns {void} - Modifies the input object directly.
  */
 export function objectSanitizer(
 	data: Record<string, any> = {},
@@ -51,8 +51,8 @@ export function objectSanitizer(
 
 /**
  * Checks if a value is a nullish primitive.
- * @param value - The value to check.
- * @returns - True if the value is a nullish primitive, false otherwise.
+ * @param {unknown} value - The value to check.
+ * @returns {boolean} - True if the value is a nullish primitive, false otherwise.
  */
 function isNullishPrimitive(value: unknown): value is string | number | null | undefined {
 	return (
@@ -67,8 +67,8 @@ function isNullishPrimitive(value: unknown): value is string | number | null | u
 
 /**
  * Checks if a value is a record.
- * @param value - The value to check.
- * @returns - True if the value is a record, false otherwise.
+ * @param {unknown} value - The value to check.
+ * @returns {boolean} - True if the value is a record, false otherwise.
  */
 function isRecord(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);

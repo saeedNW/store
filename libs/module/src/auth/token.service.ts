@@ -41,6 +41,7 @@ export class AuthTokenService {
 	/**
 	 * Returns the TTL (Time To Live) in seconds for refresh tokens.
 	 * Defaults to 7 days if not specified in configuration.
+	 * @returns {number} - The TTL (Time To Live) in seconds for refresh tokens.
 	 */
 	private get REFRESH_TTL(): number {
 		return this.authOptions.refreshTokenTimeToLive || 60 * 60 * 24 * 7;
@@ -49,6 +50,7 @@ export class AuthTokenService {
 	/**
 	 * Returns the TTL (Time To Live) in seconds for access tokens.
 	 * Default to 15 minutes if not specified in configuration.
+	 * @returns {number} - The TTL (Time To Live) in seconds for access tokens.
 	 */
 	private get ACCESS_TTL(): number {
 		return this.authOptions.accessTokenTimeToLive || 60 * 15;
@@ -88,7 +90,8 @@ export class AuthTokenService {
 	 *
 	 * @param {string} userId - The ID of the user for whom the tokens are being generated.
 	 * @param {EUserApp} app - The app identifier (used as issuer or audience).
-	 * @returns {Promise<{ accessToken: string; refreshToken: string }>} A promise resolving to an object containing the access and refresh tokens.
+	 * @returns {Promise<{ accessToken: string; refreshToken: string }>}
+	 * A promise resolving to an object containing the access and refresh tokens.
 	 */
 	async generateTokens(
 		userId: string,
@@ -145,7 +148,7 @@ export class AuthTokenService {
 	 *
 	 * @param {ITokenPayload} payload - The JWT payload containing token metadata.
 	 * @returns {Promise<{ userId: string; app: string }>} - An object containing the user ID and application if the token is valid.
-	 * @throws UnauthorizedException if the token has been marked as revoked in Redis.
+	 * @throws {UnauthorizedException} - If the token has been marked as revoked in Redis.
 	 */
 	async validateAccessToken(payload: ITokenPayload): Promise<{ userId: string; app: string }> {
 		// Check Redis to see if the token's unique identifier (jti) exists in the revoked token store.
@@ -182,7 +185,7 @@ export class AuthTokenService {
 	 *
 	 * @param {ITokenPayload} token - The JWT access token to verify.
 	 * @returns {Promise<ITokenPayload>} - A promise that resolves to the user ID if the token is valid.
-	 * @throws {UnauthorizedException} If the token is invalid, malformed, or missing required fields.
+	 * @throws {UnauthorizedException} - If the token is invalid, malformed, or missing required fields.
 	 */
 	async verifyAccessToken(token: string): Promise<ITokenPayload> {
 		// Decode and verify the access token using the app-specific secret
@@ -207,7 +210,7 @@ export class AuthTokenService {
 	 *
 	 * @param {string} token - The JWT refresh token to verify.
 	 * @returns {Promise<ITokenPayload>} - A promise that resolves to the decoded token payload if verification succeeds.
-	 * @throws UnauthorizedException if the token is invalid, not found in Redis, or does not match the stored hash.
+	 * @throws {UnauthorizedException} - If the token is invalid, not found in Redis, or does not match the stored hash.
 	 */
 	async verifyRefreshToken(token: string): Promise<ITokenPayload> {
 		// Decode and verify the refresh token using the app-specific secret
@@ -250,7 +253,7 @@ export class AuthTokenService {
 	 * @param {string} userId - The ID of the user whose refresh token is being revoked.
 	 * @param {string} jti - The unique identifier (JWT ID) of the refresh token to revoke.
 	 * @returns {Promise<void>} - A promise that resolves when the token has been removed from Redis.
-	 * @throws {NotFoundException} If the refresh token is not found in Redis.
+	 * @throws {NotFoundException} - If the refresh token is not found in Redis.
 	 */
 	async revokeRefreshToken(userId: string, jti: string): Promise<void> {
 		// Check if the refresh token metadata exists in Redis
@@ -270,7 +273,7 @@ export class AuthTokenService {
 	 * Revokes an access token by storing a revocation marker in Redis.
 	 *
 	 * @param {string} jti - The unique JWT ID of the access token to revoke.
-	 * @returns {Promise<void>} A promise that resolves once the revocation marker is set.
+	 * @returns {Promise<void>} - A promise that resolves once the revocation marker is set.
 	 */
 	async revokeAccessToken(jti: string): Promise<void> {
 		await this.redisService.set(this.getAccessKey(jti), 'revoked', 'EX', this.ACCESS_TTL);
@@ -285,7 +288,8 @@ export class AuthTokenService {
 	 *
 	 * @param {string} userId - The ID of the user whose tokens are being revoked.
 	 * @param {string} token - The current refresh token (JWT) used to validate and preserve the session.
-	 * @throws {Promise<void>} - BadRequestException if the current token is less than 1 day old (to prevent accidental mass revocation).
+	 * @throws {Promise<void>} - BadRequestException if the current token is less than 1 day old
+	 * (to prevent accidental mass revocation).
 	 */
 	async revokeAllRefreshTokens(userId: string, token: string): Promise<void> {
 		// Decode the provided token to extract its unique identifier (jti)
@@ -400,7 +404,7 @@ export class AuthTokenService {
 	 * @param {string} token - The JWT token to verify.
 	 * @param {CryptoKey} cryptoPublicKey - The public key used to verify the token's signature.
 	 * @returns {{ decoded: ITokenPayload; decryptedToken: string }} - The decoded token payload if verification is successful and the decrypted token.
-	 * @throws UnauthorizedException if the token is invalid or verification fails.
+	 * @throws {UnauthorizedException} - If the token is invalid or verification fails.
 	 */
 	private async verifyToken(
 		token: string,
@@ -441,7 +445,7 @@ export class AuthTokenService {
 	 * @param {string} jti - The unique identifier (JWT ID) of the token.
 	 * @param {number} minAgeMs - The minimum token age in milliseconds. Defaults to 24 hours.
 	 * @returns {Promise<boolean>} - A Promise that resolves to `true` if the token is older than the specified age, or `false` otherwise.
-	 * @throws NotFoundException if the token metadata is not found in Redis.
+	 * @throws {NotFoundException} - If the token metadata is not found in Redis.
 	 */
 	private async isTokenOlderThan(
 		userId: string,

@@ -36,7 +36,7 @@ export class LiaraStorageStrategy implements StorageStrategy {
 	 *
 	 * @param {TMulterFile} file - The file to upload (provided by Multer).
 	 * @param {string} directory - Directory path within the bucket to store the file.
-	 * @returns The full path (bucket/key) of the uploaded file.
+	 * @returns {Promise<string>} - The full path (bucket/key) of the uploaded file.
 	 */
 	async uploadFile(file: TMulterFile, directory: string): Promise<string> {
 		const fileName = this.generateFileName(file.originalname);
@@ -56,7 +56,9 @@ export class LiaraStorageStrategy implements StorageStrategy {
 	/**
 	 * Removes a file from the S3 bucket using its full file path.
 	 *
-	 * @param filePath - Full file path in the format `${bucketName}/${key}`.
+	 * @param {string} filePath - Full file path in the format `${bucketName}/${key}`.
+	 * @returns {Promise<void>} - A promise that resolves when the file is removed.
+	 * @throws {Error} - If the file removal fails.
 	 */
 	async removeFile(filePath: string): Promise<void> {
 		const fileKey = this.extractFileKey(filePath);
@@ -72,8 +74,8 @@ export class LiaraStorageStrategy implements StorageStrategy {
 	/**
 	 * Generates a unique file name by appending a timestamp and cleaning the original name.
 	 *
-	 * @param originalName - Original file name.
-	 * @returns A timestamped and sanitized file name.
+	 * @param {string} originalName - Original file name.
+	 * @returns {string} - A timestamped and sanitized file name.
 	 */
 	private generateFileName(originalName: string): string {
 		const fileExt = extname(originalName).toLowerCase();
@@ -87,8 +89,8 @@ export class LiaraStorageStrategy implements StorageStrategy {
 	/**
 	 * Extracts the object key from a full S3 file path (removing the bucket name).
 	 *
-	 * @param filePath - Full file path (e.g., `bucket-name/folder/file.jpg`)
-	 * @returns The relative object key used by S3 (e.g., `folder/file.jpg`)
+	 * @param {string} filePath - Full file path (e.g., `bucket-name/folder/file.jpg`)
+	 * @returns {string} - The relative object key used by S3 (e.g., `folder/file.jpg`)
 	 */
 	private extractFileKey(filePath: string): string {
 		return filePath.replace(`${this.bucketName}/`, '');

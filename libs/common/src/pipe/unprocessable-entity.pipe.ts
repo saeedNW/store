@@ -12,9 +12,9 @@ import {
 export class UnprocessableEntityPipe extends ValidationPipe {
 	/**
 	 * Transform method to validate the input value.
-	 * @param value - Input value to be validated
-	 * @param metadata - Argument metadata
-	 * @returns Promise<any>
+	 * @param {any} value - Input value to be validated
+	 * @param {ArgumentMetadata} metadata - Argument metadata
+	 * @returns {Promise<any>} - The transformed value.
 	 */
 	public async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
 		try {
