@@ -18,61 +18,62 @@
 1. SMS [GENERAL] - **DONE**
 2. Email [GENERAL] - **DONE**
 3. Logger [GENERAL] - **DONE**
-4. Authentication [GENERAL] - **DONE**
-   1. Send OTP
-   2. Verify OTP
-   3. Login
-   4. Reset Password
-   5. Refresh Token
-   6. Logout
-   7. Active Sessions
-   8. Revoke Token
-   9. Revoke All Tokens Except Current
-5. Account [GENERAL] - **DONE**
-   1. Get Account Information
-   2. Update Phone Number
-   3. Update Password
-6. Profile
-   1. [PANEL]
-      1. Get user Profile Information
-      2. Update Profile Information
-      3. Update Profile Picture
-      4. Remove Profile Picture
-   2. [STORE]
-      1. Create Profile
-      2. Get Profile Information
-      3. Update Profile Information
-      4. Update Email Address
-      5. Update Profile Picture
-      6. Remove Profile Picture
-7. Address
-   1. [PANEL]
-      1. Get User Address List
-      2. Get Single Address
-      3. Create Address
-      4. Update Address
-      5. Delete Address
-   2. [STORE]
-      1. Get All Address
-      2. Get Single Address
-      3. Create Address
-      4. Update Address
-      5. Delete Address
-      6. Set Default Address
-8. User [PANEL]
-   1. Create user
-   2. Get User full Information [Account + Profile]
-   3. Update user information
-      1. Password
-      2. Phone Number
-   4. Update user role
-   5. Make user the shop staff
-9. Permissions
-   1. [PANEL]
-      1. Get Permissions List
-   2. [SHOP]
-      1. Get Shop Permissions list
-10. Roles
+4. Storage (File Uploader) - **DONE**
+5. Authentication [GENERAL] - **DONE**
+6. Send OTP
+7. Verify OTP
+8. Login
+9. Reset Password
+10. Refresh Token
+11. Logout
+12. Active Sessions
+13. Revoke Token
+14. Revoke All Tokens Except Current
+15. Account [GENERAL] - **DONE**
+16. Get Account Information
+17. Update Phone Number
+18. Update Password
+19. Profile
+20. [PANEL]
+    1. Get user Profile Information
+    2. Update Profile Information
+    3. Update Profile Picture
+    4. Remove Profile Picture
+21. [STORE]
+    1. Create Profile
+    2. Get Profile Information
+    3. Update Profile Information
+    4. Update Email Address
+    5. Update Profile Picture
+    6. Remove Profile Picture
+22. Address
+23. [PANEL]
+    1. Get User Address List
+    2. Get Single Address
+    3. Create Address
+    4. Update Address
+    5. Delete Address
+24. [STORE]
+    1. Get All Address
+    2. Get Single Address
+    3. Create Address
+    4. Update Address
+    5. Delete Address
+    6. Set Default Address
+25. User [PANEL]
+26. Create user
+27. Get User full Information [Account + Profile]
+28. Update user information
+    1. Password
+    2. Phone Number
+29. Update user role
+30. Make user the shop staff
+31. Permissions
+32. [PANEL]
+    1. Get Permissions List
+33. [SHOP]
+    1. Get Shop Permissions list
+34. Roles
     1. [PANEL]
        1. Get Roles List
        2. Get Single Role
@@ -85,14 +86,13 @@
        3. Create Role for the Shop
        4. Update Shop Role
        5. Delete Shop Role
-11. Wallet
-12. Gallery
-13. File Manager (File Uploader)
-14. Category
-15. Blog
-16. blog Comment
-17. Author
-18. Shop
+35. Wallet
+36. Gallery
+37. Category
+38. Blog
+39. blog Comment
+40. Author
+41. Shop
     1. [PANEL]
        1. Get Shop List
        2. Get Single Shop
@@ -113,7 +113,7 @@
           2. Remove Shop Logo
           3. Update Shop Description
           4. Update Shop Address
-19. Shop Staff
+42. Shop Staff
     1. [PANEL]
        1. Get Shop Staff List
        2. Get Single Shop Staff
@@ -122,19 +122,19 @@
        2. Get Single Shop Staff
        3. Update Shop Staff role
        4. Delete Shop Staff
-20. Product
-21. Product Features
-22. Product QA
-23. Product Review and Rating
-24. Basket
-25. Order
-26. Discount
-27. Payment
-28. Audit
-29. Revision
-30. Notification
-31. Ticket
-32. Report
+43. Product
+44. Product Features
+45. Product QA
+46. Product Review and Rating
+47. Basket
+48. Order
+49. Discount
+50. Payment
+51. Audit
+52. Revision
+53. Notification
+54. Ticket
+55. Report
 
 ## Features by Database
 

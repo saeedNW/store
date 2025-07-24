@@ -48,5 +48,11 @@ namespace NodeJS {
 		TOKEN_ENCRYPTION_KEY_STORE: string;
 		TOKEN_ENCRYPTION_KEY_PANEL: string;
 		TOKEN_ENCRYPTION_KEY_SHOP: string;
+
+		// Liara Cloud Storage Variables
+		LIARA_S3_SECRET_KEY: string;
+		LIARA_S3_ACCESS_KEY: string;
+		LIARA_S3_BUCKET_NAME: string;
+		LIARA_S3_ENDPOINT: string;
 	}
 }
