@@ -14,7 +14,7 @@ export class ProfileEntity extends BaseTimestampedEntity {
 	last_name: string;
 
 	@Column({ nullable: true })
-	profile_image: string;
+	avatar: string;
 
 	@Column({ nullable: true })
 	birthday: Date;

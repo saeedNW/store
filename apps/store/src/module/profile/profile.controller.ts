@@ -1,14 +1,33 @@
-import { Body, Controller, Get, Post, Put, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	Post,
+	Put,
+	HttpCode,
+	HttpStatus,
+	UseInterceptors,
+	Patch,
+	Delete,
+} from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthDecorator } from '@common/decorators';
-import { GetProfileResponses, UpdateProfileResponses } from './response/responses.decorator';
+import {
+	DeleteProfileAvatarResponses,
+	GetProfileResponses,
+	UpdateProfileAvatarResponses,
+	UpdateProfileResponses,
+} from './response/responses.decorator';
 import { UpdateProfileDto } from './dto/profile-update.dto';
 import { RequestEmailChangeDto, VerifyEmailChangeDto } from './dto/email-update.dto';
 import {
 	RequestEmailChangeResponses,
 	VerifyEmailChangeResponses,
 } from './response/responses.decorator';
+import { ImageUploader, S3SingleFile } from '@modules/storage';
+import { UpdateProfileAvatarDto } from './dto/profile-avatar-update.dto';
+import { TMulterFile } from '@common/utilities/multer';
 
 @Controller('profile')
 @ApiTags('Profile')
@@ -58,7 +77,34 @@ export class ProfileController {
 	@HttpCode(HttpStatus.OK) // Set the status code to 200
 	@ApiOperation({ summary: 'Verify email change with code' })
 	@VerifyEmailChangeResponses()
-	async verifyEmailChange(@Body() verifyEmailChangeDto: VerifyEmailChangeDto) {
+	verifyEmailChange(@Body() verifyEmailChangeDto: VerifyEmailChangeDto) {
 		return this.profileService.verifyEmailChange(verifyEmailChangeDto);
+	}
+
+	/**
+	 * Endpoint: PATCH /api/profile/avatar
+	 * Update user avatar
+	 */
+	@Patch('avatar')
+	@ApiOperation({ summary: 'Update user avatar' })
+	@UseInterceptors(S3SingleFile('avatar'))
+	@ApiConsumes('multipart/form-data')
+	@UpdateProfileAvatarResponses()
+	updateProfileAvatar(
+		@Body() updateProfileAvatarDto: UpdateProfileAvatarDto,
+		@ImageUploader() avatar: TMulterFile,
+	) {
+		return this.profileService.updateProfileAvatar(avatar);
+	}
+
+	/**
+	 * Endpoint: DELETE /api/profile/avatar
+	 * Delete user avatar
+	 */
+	@Delete('avatar')
+	@ApiOperation({ summary: 'Delete user avatar' })
+	@DeleteProfileAvatarResponses()
+	deleteProfileAvatar() {
+		return this.profileService.deleteProfileAvatar();
 	}
 }

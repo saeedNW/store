@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { LocalStorageStrategy } from './strategies/local.strategy';
 import { LiaraStorageStrategy } from './strategies/liara.strategy';
 import { StorageStrategy } from './interfaces/strategy.interface';
+import { TMulterFile } from '@common/utilities/multer';
 
 /**
  * Supported storage types
@@ -43,16 +44,12 @@ export class StorageService {
 
 	/**
 	 * Uploads a file to the specified directory using the selected storage type.
-	 * @param {Express.Multer.File} file The file object from Multer
+	 * @param {TMulterFile} file The file object from Multer
 	 * @param {string} directory The destination directory/path for the file
 	 * @param {StorageType} type The type of storage to use ('local' or 'liara')
 	 * @returns {Promise<string>} - The URL or path of the uploaded file
 	 */
-	async uploadFile(
-		file: Express.Multer.File,
-		directory: string,
-		type: StorageType,
-	): Promise<string> {
+	async uploadFile(file: TMulterFile, directory: string, type: StorageType): Promise<string> {
 		const strategy = this.getStrategy(type);
 		return strategy.uploadFile(file, directory);
 	}

@@ -10,6 +10,8 @@ import {
 import {
 	GetProfileSuccess,
 	RequestEmailChangeSuccess,
+	DeleteProfileAvatarSuccess,
+	UpdateProfileAvatarSuccess,
 	UpdateProfileSuccess,
 	VerifyEmailChangeSuccess,
 } from './success.response';
@@ -150,6 +152,72 @@ export function VerifyEmailChangeResponses() {
 		ApiUnprocessableEntityResponse({
 			description: 'Unprocessable Entity Response',
 			type: UnprocessableEntityResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
+export function UpdateProfileAvatarResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiOkResponse({
+			description: 'Avatar updated successfully',
+			type: UpdateProfileAvatarSuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiBadRequestResponse({
+			description: 'Bad Request Response',
+			type: BadRequestResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiNotFoundResponse({
+			description: 'Not found Response',
+			type: NotFoundResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiUnprocessableEntityResponse({
+			description: 'Unprocessable Entity Response',
+			type: UnprocessableEntityResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiInternalServerErrorResponse({
+			description: 'Internal Server Error',
+			type: InternalServerErrorResponse,
+		})(target, propertyKey, descriptor);
+	};
+}
+
+export function DeleteProfileAvatarResponses() {
+	return function (
+		target: Record<string, any>,
+		propertyKey: string,
+		descriptor: PropertyDescriptor,
+	) {
+		ApiOkResponse({
+			description: 'Avatar deleted successfully',
+			type: DeleteProfileAvatarSuccess,
+		})(target, propertyKey, descriptor);
+
+		ApiUnauthorizedResponse({
+			description: 'Unauthorized Response',
+			type: UnauthorizedResponse,
+		})(target, propertyKey, descriptor);
+
+		ApiNotFoundResponse({
+			description: 'Not found Response',
+			type: NotFoundResponse,
 		})(target, propertyKey, descriptor);
 
 		ApiInternalServerErrorResponse({

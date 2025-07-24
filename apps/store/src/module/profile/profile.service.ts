@@ -19,6 +19,8 @@ import { EmailService } from '@modules/email/email.service';
 import { randomBytes } from 'crypto';
 import { RedisService } from '@database/redis';
 import { TOtpObject } from '@modules/auth/types/otp.type';
+import { TMulterFile } from '@common/utilities/multer';
+import { StorageService } from '@modules/storage';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ProfileService {
@@ -28,6 +30,7 @@ export class ProfileService {
 		@Inject(REQUEST) private request: Request,
 		private readonly redisService: RedisService,
 		private readonly emailService: EmailService,
+		private readonly storageService: StorageService,
 	) {}
 
 	/**
@@ -178,6 +181,54 @@ export class ProfileService {
 		});
 
 		return { message: 'Email address updated and verified successfully' };
+	}
+
+	/**
+	 * Update user avatar
+	 *
+	 * @param {TMulterFile} avatar - The avatar file to update
+	 * @returns {Promise<{ message: string; avatar: string }>} - An object containing a success message and the new avatar path
+	 */
+	async updateProfileAvatar(avatar: TMulterFile): Promise<{ message: string; avatar: string }> {
+		// Get the current user's profile
+		const { profile } = await this.getProfile();
+		if (!profile) throw new NotFoundException('Profile not found');
+
+		// Get the user ID from the request
+		const userId = this.request.userId;
+
+		// Upload the avatar file to the storage
+		const avatarPath = await this.storageService.uploadFile(avatar, `avatars/${userId}`, 'liara');
+
+		// Update the profile with the new avatar path
+		this.profileRepository.update(profile.id, { avatar: avatarPath }).catch(() => {});
+
+		// Remove the old avatar file from the storage
+		this.storageService.removeFile(profile.avatar, 'liara').catch(() => {});
+
+		return { message: 'Avatar updated successfully', avatar: avatarPath };
+	}
+
+	/**
+	 * Delete user avatar
+	 *
+	 * @returns {Promise<{ message: string }>} - An object containing a success message
+	 */
+	async deleteProfileAvatar(): Promise<{ message: string }> {
+		// Get the current user's profile
+		const { profile } = await this.getProfile();
+		if (!profile) throw new NotFoundException('Profile not found');
+
+		// Check if the user has an avatar
+		if (!profile.avatar) throw new NotFoundException('Avatar not found');
+
+		// Remove the avatar file from the storage
+		this.storageService.removeFile(profile.avatar, 'liara').catch(() => {});
+
+		// Update the profile with the new avatar path
+		this.profileRepository.update(profile.id, { avatar: () => 'NULL' }).catch(() => {});
+
+		return { message: 'Avatar deleted successfully' };
 	}
 
 	/**

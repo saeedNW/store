@@ -3,6 +3,7 @@ import { StorageStrategy } from '../interfaces/strategy.interface';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getEnvVariable } from '@common/utilities/functions';
 import { basename, extname } from 'path';
+import { TMulterFile } from '@common/utilities/multer';
 
 /**
  * LiaraStorageStrategy is a concrete implementation of the StorageStrategy interface.
@@ -33,11 +34,11 @@ export class LiaraStorageStrategy implements StorageStrategy {
 	/**
 	 * Uploads a file to the S3 bucket under the specified directory.
 	 *
-	 * @param {Express.Multer.File} file - The file to upload (provided by Multer).
+	 * @param {TMulterFile} file - The file to upload (provided by Multer).
 	 * @param {string} directory - Directory path within the bucket to store the file.
 	 * @returns The full path (bucket/key) of the uploaded file.
 	 */
-	async uploadFile(file: Express.Multer.File, directory: string): Promise<string> {
+	async uploadFile(file: TMulterFile, directory: string): Promise<string> {
 		const fileName = this.generateFileName(file.originalname);
 		const fileKey = `${directory}/${fileName}`;
 

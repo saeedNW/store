@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { StorageStrategy } from '../interfaces/strategy.interface';
-import { fileRemoval, uploadFinalization } from '@common/utilities/multer';
+import { fileRemoval, TMulterFile, uploadFinalization } from '@common/utilities/multer';
 
 /**
  * LocalStorageStrategy is a concrete implementation of the StorageStrategy interface.
@@ -18,7 +18,7 @@ export class LocalStorageStrategy implements StorageStrategy {
 	 * @param directory - The relative or absolute path to the directory where the file should be saved.
 	 * @returns A Promise that resolves to the final file path or URL of the uploaded file.
 	 */
-	async uploadFile(file: Express.Multer.File, directory: string): Promise<string> {
+	async uploadFile(file: TMulterFile, directory: string): Promise<string> {
 		// Finalize and save the file using a utility function and return its location
 		return await uploadFinalization(file, directory);
 	}

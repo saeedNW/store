@@ -39,7 +39,7 @@
       2. Update Profile Information
       3. Update Profile Picture
       4. Remove Profile Picture
-   2. [STORE]
+   2. [STORE] - **DONE**
       1. Create Profile
       2. Get Profile Information
       3. Update Profile Information

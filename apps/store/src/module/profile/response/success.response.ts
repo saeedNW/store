@@ -3,6 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RequestEmailChangeSuccess extends OkApiBaseResponse {}
 export class VerifyEmailChangeSuccess extends OkApiBaseResponse {}
+export class DeleteProfileAvatarSuccess extends OkApiBaseResponse {}
+
 export class GetProfileSuccess extends OkApiBaseResponse {
 	@ApiProperty({
 		description: 'Response data',
@@ -34,6 +36,7 @@ export class GetProfileSuccess extends OkApiBaseResponse {
 		};
 	};
 }
+
 export class UpdateProfileSuccess extends OkApiBaseResponse {
 	@ApiProperty({
 		description: 'Response data',
@@ -63,5 +66,17 @@ export class UpdateProfileSuccess extends OkApiBaseResponse {
 			birthday: Date | null;
 			email: string | null;
 		};
+	};
+}
+
+export class UpdateProfileAvatarSuccess extends OkApiBaseResponse {
+	@ApiProperty({
+		description: 'Response data',
+		example: {
+			avatar: '/path/to/avatar.jpg',
+		},
+	})
+	data: {
+		avatar: string;
 	};
 }

@@ -6,6 +6,7 @@ import { ProfileEntity } from '@database/postgres/entities';
 import { StoreAuthModule } from '../auth/store-auth.module';
 import { EmailModule } from '@modules/email/email.module';
 import { StoreRedisModule } from '../redis/store-redis.module';
+import { StorageModule } from '@modules/storage';
 
 @Module({
 	imports: [
@@ -13,6 +14,7 @@ import { StoreRedisModule } from '../redis/store-redis.module';
 		forwardRef(() => StoreAuthModule),
 		EmailModule,
 		StoreRedisModule,
+		StorageModule,
 	],
 	controllers: [ProfileController],
 	providers: [ProfileService],
