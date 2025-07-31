@@ -135,6 +135,10 @@
 30. Notification
 31. Ticket
 32. Report
+    1. [PANEL]
+       1.
+    2. [SHOP]
+       1.
 
 ## Features by Database
 

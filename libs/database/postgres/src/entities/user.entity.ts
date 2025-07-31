@@ -1,7 +1,8 @@
-import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseTimestampedEntity } from '../abstracts/base.entity';
 import { EUserApp } from '@common/enums';
 import { ProfileEntity } from './profile.entity';
+import { AddressEntity } from './address.entity';
 
 @Entity('users')
 export class UserEntity extends BaseTimestampedEntity {
@@ -23,4 +24,7 @@ export class UserEntity extends BaseTimestampedEntity {
 	@OneToOne(() => ProfileEntity, (profile) => profile.user, { nullable: true })
 	@JoinColumn({ name: 'profileId' })
 	profile: ProfileEntity;
+
+	@OneToMany(() => AddressEntity, (address) => address.user)
+	addresses: AddressEntity[];
 }
