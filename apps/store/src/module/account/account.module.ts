@@ -9,5 +9,6 @@ import { AccountModule } from '@modules/account';
 @Module({
 	imports: [TypeOrmModule.forFeature([UserEntity]), StoreAuthModule, AccountModule],
 	controllers: [StoreAccountController],
+	exports: [TypeOrmModule],
 })
 export class StoreAccountModule {}

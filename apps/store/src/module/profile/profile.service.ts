@@ -1,4 +1,4 @@
-import { ProfileEntity } from '@database/postgres/entities';
+import { ProfileEntity, UserEntity } from '@database/postgres/entities';
 import {
 	BadRequestException,
 	ConflictException,
@@ -25,6 +25,8 @@ import { StorageService } from '@modules/storage';
 @Injectable({ scope: Scope.REQUEST })
 export class ProfileService {
 	constructor(
+		@InjectRepository(UserEntity)
+		private readonly userRepository: Repository<UserEntity>,
 		@InjectRepository(ProfileEntity)
 		private readonly profileRepository: Repository<ProfileEntity>,
 		@Inject(REQUEST) private request: Request,
@@ -32,17 +34,6 @@ export class ProfileService {
 		private readonly emailService: EmailService,
 		private readonly storageService: StorageService,
 	) {}
-
-	/**
-	 * Creates and saves a new user profile.
-	 *
-	 * @param {Partial<ProfileEntity>} data - The profile data to be saved.
-	 * @returns {Promise<ProfileEntity>} - The newly created and saved profile entity.
-	 */
-	async create(data: Partial<ProfileEntity>): Promise<ProfileEntity> {
-		// Save the provided profile data to the database using the repository.
-		return await this.profileRepository.save(data);
-	}
 
 	/**
 	 * Retrieves the profile associated with the currently authenticated user.
@@ -54,7 +45,12 @@ export class ProfileService {
 		const userId = this.request.userId;
 
 		// Query the profile repository for a profile linked to the specified user ID
-		const profile = await this.profileRepository.findOneBy({ user: { id: userId } });
+		let profile = await this.profileRepository.findOneBy({ user: { id: userId } });
+
+		// If no profile is found, create a new one
+		if (!profile) {
+			profile = await this.create(userId as string);
+		}
 
 		// Return the retrieved profile.
 		return { profile };
@@ -232,6 +228,31 @@ export class ProfileService {
 		this.profileRepository.update(profile.id, { avatar: () => 'NULL' }).catch(() => {});
 
 		return { message: 'Avatar deleted successfully' };
+	}
+
+	/**
+	 * Creates and saves a new user profile.
+	 *
+	 * @param {string} userId - The ID of the user to create the profile for.
+	 * @returns {Promise<ProfileEntity>} - The newly created and saved profile entity.
+	 */
+	private async create(userId: string): Promise<ProfileEntity> {
+		// Check if the user exists.
+		const user = await this.userRepository.findOneBy({ id: userId });
+		if (!user) throw new NotFoundException('User not found');
+
+		// Create a new profile for the user.
+		const profile = await this.profileRepository.save({
+			user,
+			username: user.phone,
+		});
+
+		// Update the user's profile reference.
+		user.profile = profile;
+		await this.userRepository.save(user);
+
+		// Return the newly created profile.
+		return profile;
 	}
 
 	/**

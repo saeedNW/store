@@ -9,7 +9,6 @@ import { TOtpObject } from '../types/otp.type';
 import { EUserApp } from '@common/enums';
 import { AuthTokenService } from '../token.service';
 import { EOtpType } from '../enum/otp-type.enum';
-import { ProfileService } from 'apps/store/src/module/profile/profile.service';
 
 /**
  * Abstract base class for handling authentication-related logic.
@@ -23,14 +22,12 @@ export abstract class BaseAuthHandler {
 	 * @param {IAuthModuleOptions} authOptions - Configuration options for the authentication module.
 	 * @param {Redis} redisService - Redis client instance used to store and retrieve OTPs.
 	 * @param {AuthTokenService} authTokenService - Service for managing authentication tokens.
-	 * @param {ProfileService} profileService - Service for managing profile data.
 	 */
 	constructor(
 		@InjectRepository(UserEntity) protected readonly userRepository: Repository<UserEntity>,
 		@Inject('AUTH_OPTIONS') protected readonly authOptions: IAuthModuleOptions,
 		@Inject('REDIS_CONNECTION') protected readonly redisService: Redis,
 		protected readonly authTokenService: AuthTokenService,
-		protected readonly profileService: ProfileService,
 	) {}
 
 	/**

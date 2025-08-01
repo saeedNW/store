@@ -1,4 +1,4 @@
-import { DynamicModule, forwardRef, Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Redis from 'ioredis';
 
@@ -11,7 +11,6 @@ import { IAuthModuleOptions } from './interfaces/auth-module-options.interface';
 import { UserEntity } from '@database/postgres/entities';
 import { SmsModule } from '@modules/sms';
 import { EncryptionModule } from '@modules/encryption';
-import { ProfileModule } from 'apps/store/src/module/profile/profile.module';
 
 import { PanelAuthHandler } from './strategy/panel-auth.handler';
 import { ShopAuthHandler } from './strategy/shop-auth.handler';
@@ -22,12 +21,7 @@ export class AuthModule {
 	static register(options: IAuthModuleOptions): DynamicModule {
 		return {
 			module: AuthModule,
-			imports: [
-				TypeOrmModule.forFeature([UserEntity]),
-				SmsModule,
-				EncryptionModule,
-				forwardRef(() => ProfileModule),
-			],
+			imports: [TypeOrmModule.forFeature([UserEntity]), SmsModule, EncryptionModule],
 			controllers: [AuthController],
 			providers: [
 				// Auth core

@@ -53,7 +53,7 @@
       3. Create Address
       4. Update Address
       5. Delete Address
-   2. [STORE]
+   2. [STORE] - **DONE**
       1. Get All Address
       2. Get Single Address
       3. Create Address
@@ -102,17 +102,16 @@
        5. Delete Shop
        6. Change Shop Owner
        7. Change Shop Status [Active, Inactive]
-    2. [STORE]
-       1. Get Shop List
-       2. Get Single Shop
-       3. Send Shop Creation Request
-    3. [SHOP]
-       1. Get Shop Information
-       2. Update Shop Information
+    2. [SHOP]
+       1. Register Shop
+       2. Get Shop Information
+       3. Check Registration Status
+       4. Update Shop Information
           1. Update Shop Logo
           2. Remove Shop Logo
           3. Update Shop Description
           4. Update Shop Address
+          5. Update Shop Activity Time
 19. Shop Staff
     1. [PANEL]
        1. Get Shop Staff List

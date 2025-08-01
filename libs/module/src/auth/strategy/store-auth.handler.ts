@@ -62,10 +62,6 @@ export class StoreAuthHandler extends BaseAuthHandler implements IStrategyHandle
 		// If the user doesn't exist and it's not a RESET_PASSWORD OTP, create a new user
 		if (!user) {
 			user = await this.userRepository.save({ phone: data.phone });
-			const profile = await this.profileService.create({ username: data.phone, user });
-
-			user.profile = profile;
-			await this.userRepository.save(user);
 		}
 
 		// Generate an OTP and associate it with the user's ID
