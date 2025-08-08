@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, Point } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, Point } from 'typeorm';
 import { BaseTimestampedEntity } from '../abstracts/base.entity';
 import { UserEntity } from './user.entity';
 
@@ -32,4 +32,7 @@ export class AddressEntity extends BaseTimestampedEntity {
 	@ManyToOne(() => UserEntity, (user) => user.addresses, { nullable: false })
 	@JoinColumn({ name: 'userId' })
 	user: UserEntity;
+
+	@DeleteDateColumn({ nullable: true })
+	deleted_at: Date;
 }

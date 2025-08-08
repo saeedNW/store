@@ -18,6 +18,9 @@ export class UserEntity extends BaseTimestampedEntity {
 	@Column({ nullable: true })
 	password: string;
 
+	@Column({ nullable: false, default: false })
+	is_suspended: boolean;
+
 	@Column({ type: 'text', array: true, default: [EUserApp.STORE] })
 	allowedApps: EUserApp[];
 
@@ -25,6 +28,6 @@ export class UserEntity extends BaseTimestampedEntity {
 	@JoinColumn({ name: 'profileId' })
 	profile: ProfileEntity;
 
-	@OneToMany(() => AddressEntity, (address) => address.user)
+	@OneToMany(() => AddressEntity, (address) => address.user, { nullable: true })
 	addresses: AddressEntity[];
 }

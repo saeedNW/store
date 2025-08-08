@@ -28,7 +28,7 @@ export class ProfileEntity extends BaseTimestampedEntity {
 	@Column({ default: false })
 	email_verified: boolean;
 
-	@OneToOne(() => UserEntity, (user) => user.profile, { onDelete: 'CASCADE', nullable: false })
+	@OneToOne(() => UserEntity, (user) => user.profile, { nullable: false })
 	@JoinColumn({ name: 'userId' })
 	user: UserEntity;
 }
