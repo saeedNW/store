@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SeederModule } from './seeder/seeder.module';
+import { AddressEntity, PermissionEntity, ProfileEntity, UserEntity } from './entities';
 
 @Module({
 	imports: [
@@ -18,8 +19,8 @@ import { SeederModule } from './seeder/seeder.module';
 				username: config.get<string>('DB_USERNAME'),
 				password: config.get<string>('DB_PASSWORD'),
 				database: config.get<string>('DB_NAME'),
-				autoLoadEntities: true,
 				synchronize: config.get<string>('NODE_ENV') !== 'production',
+				entities: [AddressEntity, PermissionEntity, ProfileEntity, UserEntity],
 			}),
 		}),
 
