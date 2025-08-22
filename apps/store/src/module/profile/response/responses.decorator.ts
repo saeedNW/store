@@ -210,6 +210,11 @@ export function DeleteProfileAvatarResponses() {
 			type: DeleteProfileAvatarSuccess,
 		})(target, propertyKey, descriptor);
 
+		ApiBadRequestResponse({
+			description: 'Bad Request Response',
+			type: BadRequestResponse,
+		})(target, propertyKey, descriptor);
+
 		ApiUnauthorizedResponse({
 			description: 'Unauthorized Response',
 			type: UnauthorizedResponse,

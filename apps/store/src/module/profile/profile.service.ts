@@ -85,7 +85,9 @@ export class ProfileService {
 		if (!profile) throw new NotFoundException('Profile not found');
 
 		// Convert the 'birthday' string to a Date object
-		updateProfileDto.birthday = new Date(updateProfileDto.birthday);
+		if (updateProfileDto.birthday) {
+			updateProfileDto.birthday = new Date(updateProfileDto.birthday);
+		}
 
 		// Merge the update data into the existing profile
 		Object.assign(profile, updateProfileDto);
@@ -219,12 +221,12 @@ export class ProfileService {
 		if (!profile) throw new NotFoundException('Profile not found');
 
 		// Check if the user has an avatar
-		if (!profile.avatar) throw new NotFoundException('Avatar not found');
+		if (!profile.avatar) throw new BadRequestException("profile doesn't have an avatar");
 
 		// Remove the avatar file from the storage
 		this.storageService.removeFile(profile.avatar, 'liara').catch(() => {});
 
-		// Update the profile with the new avatar path
+		// Remove the avatar data from the profile data
 		this.profileRepository.update(profile.id, { avatar: () => 'NULL' }).catch(() => {});
 
 		return { message: 'Avatar deleted successfully' };
