@@ -33,12 +33,11 @@
    1. Get Account Information
    2. Update Phone Number
    3. Update Password
-7. Profile
-   1. [PANEL]
+7. Profile - **DONE**
+   1. [PANEL] - **DONE**
       1. Get user Profile Information
       2. Update Profile Information
-      3. Update Profile Picture
-      4. Remove Profile Picture
+      3. Remove Profile Picture
    2. [STORE] - **DONE**
       1. Create Profile
       2. Get Profile Information

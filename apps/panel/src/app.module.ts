@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PanelAuthModule } from './module/auth/panel-auth.module';
 import { PanelAccountModule } from './module/account/account.module';
+import { ProfileModule } from './module/profile/profile.module';
 
 @Module({
 	imports: [
@@ -20,6 +21,7 @@ import { PanelAccountModule } from './module/account/account.module';
 		//? Load Modules
 		PanelAuthModule,
 		PanelAccountModule,
+		ProfileModule,
 	],
 })
 export class AppModule {}
