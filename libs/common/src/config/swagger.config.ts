@@ -21,6 +21,7 @@ export function swaggerConfiguration(app: INestApplication, title: string = 'Nes
 
 	// Setup Swagger UI with custom options
 	SwaggerModule.setup('/api-doc', app, swaggerDocument, {
+		swaggerOptions: { filter: true },
 		customCssUrl: '/swagger-ui/custom.css',
 		customJs: '/swagger-ui/custom.js',
 	});
