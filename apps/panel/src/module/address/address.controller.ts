@@ -1,16 +1,8 @@
 import { AuthDecorator } from '@common/decorators';
 import { AddressCreateDto, AddressUpdateDto } from '@common/dto';
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
-import {
-	CreateAddressResponses,
-	DeleteAddressResponses,
-	GetAddressesResponses,
-	GetAddressResponses,
-	SetDefaultAddressResponses,
-	UpdateAddressResponses,
-} from './response/responses.decorator';
 
 @Controller('address')
 @ApiTags('Address')
@@ -19,14 +11,13 @@ export class AddressController {
 	constructor(private readonly addressService: AddressService) {}
 
 	/**
-	 * Endpoint: GET /api/address
+	 * Endpoint: GET /api/address/user/:userId
 	 * Get user's addresses list
 	 */
-	@Get()
+	@Get('user/:userId')
 	@ApiOperation({ summary: "Get user's addresses list" })
-	@GetAddressesResponses()
-	findAll() {
-		return this.addressService.findAll();
+	findAll(@Param('userId') userId: string) {
+		return this.addressService.findAll(userId);
 	}
 
 	/**
@@ -35,20 +26,18 @@ export class AddressController {
 	 */
 	@Get(':id')
 	@ApiOperation({ summary: "Get user's single address by id" })
-	@GetAddressResponses()
 	findOne(@Param('id') id: string) {
 		return this.addressService.findOne(id);
 	}
 
 	/**
-	 * Endpoint: POST /api/address
-	 * Create address
+	 * Endpoint: Post /api/address/user/:userId
+	 * Create new address for specified user
 	 */
-	@Post()
-	@ApiOperation({ summary: 'Create address' })
-	@CreateAddressResponses()
-	create(@Body() addressCreateDto: AddressCreateDto) {
-		return this.addressService.create(addressCreateDto);
+	@Post('user/:userId')
+	@ApiOperation({ summary: 'Create new address for specified user' })
+	create(@Param('userId') userId: string, @Body() addressCreateDto: AddressCreateDto) {
+		return this.addressService.create(userId, addressCreateDto);
 	}
 
 	/**
@@ -57,7 +46,6 @@ export class AddressController {
 	 */
 	@Put(':id')
 	@ApiOperation({ summary: 'Update address' })
-	@UpdateAddressResponses()
 	update(@Param('id') id: string, @Body() addressUpdateDto: AddressUpdateDto) {
 		return this.addressService.update(id, addressUpdateDto);
 	}
@@ -68,19 +56,7 @@ export class AddressController {
 	 */
 	@Delete(':id')
 	@ApiOperation({ summary: 'Delete address' })
-	@DeleteAddressResponses()
 	delete(@Param('id') id: string) {
 		return this.addressService.delete(id);
-	}
-
-	/**
-	 * Endpoint: PATCH /api/address/:id
-	 * Set default address
-	 */
-	@Patch(':id')
-	@ApiOperation({ summary: 'Set default address' })
-	@SetDefaultAddressResponses()
-	setDefault(@Param('id') id: string) {
-		return this.addressService.setDefault(id);
 	}
 }

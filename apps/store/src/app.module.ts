@@ -2,10 +2,10 @@ import { MongoModule } from '@database/mongo';
 import { PostgresModule } from '@database/postgres';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { StoreAuthModule } from './module/auth/store-auth.module';
 import { StoreAccountModule } from './module/account/account.module';
-import { ProfileModule } from './module/profile/profile.module';
 import { AddressModule } from './module/address/address.module';
+import { StoreAuthModule } from './module/auth/store-auth.module';
+import { ProfileModule } from './module/profile/profile.module';
 
 @Module({
 	imports: [

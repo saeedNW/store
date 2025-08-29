@@ -2,8 +2,9 @@ import { MongoModule } from '@database/mongo';
 import { PostgresModule } from '@database/postgres';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PanelAuthModule } from './module/auth/panel-auth.module';
 import { PanelAccountModule } from './module/account/account.module';
+import { AddressModule } from './module/address/address.module';
+import { PanelAuthModule } from './module/auth/panel-auth.module';
 import { ProfileModule } from './module/profile/profile.module';
 
 @Module({
@@ -22,6 +23,7 @@ import { ProfileModule } from './module/profile/profile.module';
 		PanelAuthModule,
 		PanelAccountModule,
 		ProfileModule,
+		AddressModule,
 	],
 })
 export class AppModule {}

@@ -45,8 +45,8 @@
       4. Update Email Address
       5. Update Profile Picture
       6. Remove Profile Picture
-8. Address
-   1. [PANEL]
+8. Address - **DONE**
+   1. [PANEL] - **DONE**
       1. Get User Address List
       2. Get Single Address
       3. Create Address
@@ -59,20 +59,12 @@
       4. Update Address
       5. Delete Address
       6. Set Default Address
-9. User [PANEL]
-   1. Create user
-   2. Get User full Information [Account + Profile]
-   3. Update user information
-      1. Password
-      2. Phone Number
-   4. Update user role
-   5. Make user the shop staff
-10. Permissions
-    1. [PANEL]
-       1. Get Permissions List
-    2. [SHOP]
-       1. Get Shop Permissions list
-11. Roles
+9. Permissions
+   1. [PANEL]
+      1. Get Permissions List
+   2. [SHOP]
+      1. Get Shop Permissions list
+10. Roles
     1. [PANEL]
        1. Get Roles List
        2. Get Single Role
@@ -85,6 +77,14 @@
        3. Create Role for the Shop
        4. Update Shop Role
        5. Delete Shop Role
+11. User [PANEL]
+    1. Create user
+    2. Get User full Information [Account + Profile]
+    3. Update user information
+       1. Password
+       2. Phone Number
+    4. Update user role
+    5. Make user the shop staff
 12. Wallet
 13. Gallery
 14. Category
