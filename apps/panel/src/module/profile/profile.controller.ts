@@ -1,11 +1,13 @@
+import { PermissionsConst } from '@common/constants';
+import { AuthDecorator, Permissions } from '@common/decorators';
+import { EPermissionApps } from '@common/enums';
 import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
-import { ProfileService } from './profile.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AuthDecorator } from '@common/decorators';
 import { UpdateProfileDto } from './dto/profile-update.dto';
+import { ProfileService } from './profile.service';
 
 @Controller('profile')
-@ApiTags('Profile')
+@ApiTags(`Profile`)
 @AuthDecorator()
 export class ProfileController {
 	constructor(private readonly profileService: ProfileService) {}
@@ -15,7 +17,8 @@ export class ProfileController {
 	 * Retrieve user's profile
 	 */
 	@Get(':userId')
-	@ApiOperation({ summary: 'Get user profile' })
+	@Permissions([PermissionsConst.PROFILE_GET], EPermissionApps.PANEL)
+	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.PROFILE_GET}] - Get user profile` })
 	getProfile(@Param('userId') userId: string) {
 		return this.profileService.getProfile(userId);
 	}
@@ -25,7 +28,8 @@ export class ProfileController {
 	 * Update user's profile
 	 */
 	@Put('update/:userId')
-	@ApiOperation({ summary: 'Update user profile' })
+	@Permissions([PermissionsConst.PROFILE_UPDATE], EPermissionApps.PANEL)
+	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.PROFILE_UPDATE}] - Update user profile` })
 	updateProfile(@Body() updateProfileDto: UpdateProfileDto, @Param('userId') userId: string) {
 		return this.profileService.updateProfile(updateProfileDto, userId);
 	}
@@ -35,7 +39,10 @@ export class ProfileController {
 	 * Delete user's avatar
 	 */
 	@Delete('avatar/:userId')
-	@ApiOperation({ summary: 'Delete user avatar' })
+	@Permissions([PermissionsConst.PROFILE_REMOVE_AVATAR], EPermissionApps.PANEL)
+	@ApiOperation({
+		summary: `[RBAC: ${PermissionsConst.PROFILE_REMOVE_AVATAR}] - Delete user avatar`,
+	})
 	deleteProfileAvatar(@Param('userId') userId: string) {
 		return this.profileService.deleteProfileAvatar(userId);
 	}

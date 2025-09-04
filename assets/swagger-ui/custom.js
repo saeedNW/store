@@ -3,6 +3,9 @@ setTimeout(() => {
 	search();
 	timeIndicator();
 	navSidebar();
+
+	// Make the Schema section close by default
+	document.querySelector('.models-control').click();
 }, 10);
 
 function search() {

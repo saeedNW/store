@@ -1,5 +1,7 @@
-import { AuthDecorator } from '@common/decorators';
+import { PermissionsConst } from '@common/constants';
+import { AuthDecorator, Permissions } from '@common/decorators';
 import { AddressCreateDto, AddressUpdateDto } from '@common/dto';
+import { EPermissionApps } from '@common/enums';
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
@@ -15,7 +17,10 @@ export class AddressController {
 	 * Get user's addresses list
 	 */
 	@Get('user/:userId')
-	@ApiOperation({ summary: "Get user's addresses list" })
+	@Permissions([PermissionsConst.ADDRESS_GET_ALL], EPermissionApps.PANEL)
+	@ApiOperation({
+		summary: `[RBAC: ${PermissionsConst.ADDRESS_GET_ALL}] - Get user's addresses list`,
+	})
 	findAll(@Param('userId') userId: string) {
 		return this.addressService.findAll(userId);
 	}
@@ -25,7 +30,10 @@ export class AddressController {
 	 * Get user's single address by id
 	 */
 	@Get(':id')
-	@ApiOperation({ summary: "Get user's single address by id" })
+	@Permissions([PermissionsConst.ADDRESS_GET_ONE], EPermissionApps.PANEL)
+	@ApiOperation({
+		summary: `[RBAC: ${PermissionsConst.ADDRESS_GET_ONE}] - Get user's single address by id`,
+	})
 	findOne(@Param('id') id: string) {
 		return this.addressService.findOne(id);
 	}
@@ -35,7 +43,10 @@ export class AddressController {
 	 * Create new address for specified user
 	 */
 	@Post('user/:userId')
-	@ApiOperation({ summary: 'Create new address for specified user' })
+	@Permissions([PermissionsConst.ADDRESS_CREATE], EPermissionApps.PANEL)
+	@ApiOperation({
+		summary: `[RBAC: ${PermissionsConst.ADDRESS_CREATE}] - Create new address for specified user`,
+	})
 	create(@Param('userId') userId: string, @Body() addressCreateDto: AddressCreateDto) {
 		return this.addressService.create(userId, addressCreateDto);
 	}
@@ -45,7 +56,8 @@ export class AddressController {
 	 * Update address
 	 */
 	@Put(':id')
-	@ApiOperation({ summary: 'Update address' })
+	@Permissions([PermissionsConst.ADDRESS_UPDATE], EPermissionApps.PANEL)
+	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.ADDRESS_UPDATE}] - Update address` })
 	update(@Param('id') id: string, @Body() addressUpdateDto: AddressUpdateDto) {
 		return this.addressService.update(id, addressUpdateDto);
 	}
@@ -55,7 +67,8 @@ export class AddressController {
 	 * Delete address
 	 */
 	@Delete(':id')
-	@ApiOperation({ summary: 'Delete address' })
+	@Permissions([PermissionsConst.ADDRESS_DELETE], EPermissionApps.PANEL)
+	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.ADDRESS_DELETE}] - Delete address` })
 	delete(@Param('id') id: string) {
 		return this.addressService.delete(id);
 	}

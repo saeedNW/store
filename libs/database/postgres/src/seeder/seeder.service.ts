@@ -1,8 +1,8 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { permissionsSeed } from './seeds/permissions.seed';
-import { PermissionEntity } from '../entities';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { PermissionEntity } from '../entities';
+import { permissionsSeed } from './seeds/permissions.seed';
 
 /**
  * SeederService is responsible for seeding initial data into the database
@@ -24,20 +24,37 @@ export class SeederService implements OnApplicationBootstrap {
 
 	/**
 	 * Seeds the permissions into the database using a predefined list (permissionsSeed).
-	 * Checks if each permission already exists before inserting to avoid duplicates.
+	 * Also removes any permissions from the database that are not present in the seed data.
 	 */
 	private async seedPermissions() {
 		const permissions = permissionsSeed;
 
+		// Keep track of all seed permission identifiers (name + app) -  (undefined mapped to null)
+		const seedKeys = permissions.map(
+			(p) => `${p.name}::${p.app ?? 'NULL'}`, // use 'NULL' string for comparison
+		);
+
+		// Insert missing permissions
 		for (const permission of permissions) {
-			// Check if the permission already exists in the database
 			const permissionExists = await this.permissionRepository.findOne({
-				where: { name: permission.name },
+				where: {
+					name: permission.name,
+					app: permission.app === null ? IsNull() : permission.app,
+				},
 			});
 
-			// If it doesn't exist, save the new permission
 			if (!permissionExists) {
 				await this.permissionRepository.save(permission);
+			}
+		}
+
+		// Remove permissions that are not in the seed
+		const allDbPermissions = await this.permissionRepository.find();
+
+		for (const dbPermission of allDbPermissions) {
+			const key = `${dbPermission.name}::${dbPermission.app ?? 'NULL'}`;
+			if (!seedKeys.includes(key)) {
+				await this.permissionRepository.remove(dbPermission);
 			}
 		}
 	}
