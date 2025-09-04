@@ -1,6 +1,6 @@
 import { Model, Document, RootFilterQuery } from 'mongoose';
 import { PaginationDto } from './pagination.dto';
-import { PaginatedResult, PaginationLinks } from './pagination.interface';
+import { IPaginatedResult, IPaginationLinks } from './pagination.interface';
 
 /**
  * Utility function to paginate data using Mongoose's find or aggregate methods.
@@ -11,7 +11,7 @@ import { PaginatedResult, PaginationLinks } from './pagination.interface';
  * @param {any} [queryOrPipeline] - Optional query object for find or aggregation pipeline.
  * @param {string} [link] - The endpoint to which the data retrieved from.
  * @param {boolean} [isAggregate=false] - Whether to use aggregate pipeline.
- * @returns {Promise<PaginatedResult<T>>} - A promise that resolves to a paginated result object.
+ * @returns {Promise<IPaginatedResult<T>>} - A promise that resolves to a paginated result object.
  */
 export async function MongoosePaginate<T extends Document>(
 	paginationDto: PaginationDto,
@@ -20,7 +20,7 @@ export async function MongoosePaginate<T extends Document>(
 	link?: string,
 	isAggregate: boolean = false,
 	Projection: Record<string, number> = {},
-): Promise<PaginatedResult<T>> {
+): Promise<IPaginatedResult<T>> {
 	let totalItems: number;
 	let items: T[];
 
@@ -58,7 +58,7 @@ export async function MongoosePaginate<T extends Document>(
 			currentPage: paginationDto.page,
 			firstItem: paginationDto.skip + 1,
 		},
-		links: getPaginationLinks(link, paginationDto, totalItems),
+		links: getIPaginationLinks(link, paginationDto, totalItems),
 	};
 }
 
@@ -68,13 +68,13 @@ export async function MongoosePaginate<T extends Document>(
  * @param {string} link - The endpoint to which the data retrieved from.
  * @param {PaginationDto} paginationDto - DTO containing pagination parameters (page, limit, etc.).
  * @param {number} totalItems - Total number of items across all pages.
- * @returns {PaginationLinks | undefined} - An object containing navigation links.
+ * @returns {IPaginationLinks | undefined} - An object containing navigation links.
  */
-function getPaginationLinks(
+function getIPaginationLinks(
 	link: string | undefined,
 	paginationDto: PaginationDto,
 	totalItems: number,
-): PaginationLinks | undefined {
+): IPaginationLinks | undefined {
 	if (!link) return undefined;
 
 	const totalPages = Math.ceil(totalItems / paginationDto.limit);

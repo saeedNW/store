@@ -1,6 +1,6 @@
 import { SelectQueryBuilder, Repository, ObjectLiteral } from 'typeorm';
 import { PaginationDto } from './pagination.dto';
-import { PaginatedResult, PaginationLinks } from './pagination.interface';
+import { IPaginatedResult, IPaginationLinks } from './pagination.interface';
 
 /**
  * Utility function to paginate data using TypeORM's repository or query builder.
@@ -11,7 +11,7 @@ import { PaginatedResult, PaginationLinks } from './pagination.interface';
  * @param {SelectQueryBuilder<T>} [queryBuilder] - Optional query builder for custom queries.
  * @param {string} [link] - The endpoint to which the data retrieved from.
  * @param {boolean} [distinct=false] - Whether to count distinct items only (useful for complex queries).
- * @returns {Promise<PaginatedResult<T>>} - A promise that resolves to a paginated result object.
+ * @returns {Promise<IPaginatedResult<T>>} - A promise that resolves to a paginated result object.
  */
 export async function TypeOrmPaginate<T extends ObjectLiteral>(
 	paginationDto: PaginationDto,
@@ -19,7 +19,7 @@ export async function TypeOrmPaginate<T extends ObjectLiteral>(
 	queryBuilder?: SelectQueryBuilder<T>,
 	link?: string,
 	distinct: boolean = false,
-): Promise<PaginatedResult<T>> {
+): Promise<IPaginatedResult<T>> {
 	let totalItems: number; // Total number of items across all pages
 	let items: T[]; // Items for the current page
 
@@ -56,7 +56,7 @@ export async function TypeOrmPaginate<T extends ObjectLiteral>(
 			currentPage: Number(paginationDto.page),
 			firstItem: paginationDto.skip + 1,
 		},
-		links: getPaginationLinks(paginationDto, totalItems, link),
+		links: getIPaginationLinks(paginationDto, totalItems, link),
 	};
 }
 
@@ -66,13 +66,13 @@ export async function TypeOrmPaginate<T extends ObjectLiteral>(
  * @param {PaginationDto} paginationDto - DTO containing pagination parameters (page, limit, etc.).
  * @param {number} totalItems - Total number of items across all pages.
  * @param {string} link - The endpoint to which the data retrieved from.
- * @returns {PaginationLinks | undefined} - An object containing navigation links.
+ * @returns {IPaginationLinks | undefined} - An object containing navigation links.
  */
-function getPaginationLinks(
+function getIPaginationLinks(
 	paginationDto: PaginationDto,
 	totalItems: number,
 	link?: string,
-): PaginationLinks | undefined {
+): IPaginationLinks | undefined {
 	// Return undefined if link was not provided
 	if (!link) return undefined;
 
