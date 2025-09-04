@@ -1,4 +1,4 @@
-import { LoggerService, LogLevel, Injectable } from '@nestjs/common';
+import { Injectable, LoggerService, LogLevel } from '@nestjs/common';
 
 /**
  * A custom implementation of NestJS's `LoggerService` that outputs logs in JSON format.
@@ -90,10 +90,10 @@ export class CustomLoggerService implements LoggerService {
 	 * Logs a standard message at the 'log' level.
 	 *
 	 * @param {any} message - The message to log.
-	 * @param {string} context - Optional context for this specific log entry.
+	 * @param {string} optionalParams - Optional parameters for this specific log entry.
 	 */
-	log(message: any, context?: string): void {
-		this.write('log', message, context);
+	log(message: any, optionalParams?: string): void {
+		this.write('log', `${message} - ${optionalParams}`, 'Manual Log');
 	}
 
 	/**
