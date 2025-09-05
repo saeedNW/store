@@ -6,6 +6,7 @@ import { PanelAccountModule } from './module/account/account.module';
 import { AddressModule } from './module/address/address.module';
 import { PanelAuthModule } from './module/auth/panel-auth.module';
 import { ProfileModule } from './module/profile/profile.module';
+import { PermissionModule } from './module/permission/permission.module';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { ProfileModule } from './module/profile/profile.module';
 		PanelAccountModule,
 		ProfileModule,
 		AddressModule,
+		PermissionModule,
 	],
 })
 export class AppModule {}
