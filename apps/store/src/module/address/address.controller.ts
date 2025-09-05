@@ -12,14 +12,14 @@ import {
 	UpdateAddressResponses,
 } from './response/responses.decorator';
 
-@Controller('address')
+@Controller({ path: 'address', version: '1' })
 @ApiTags('Address')
 @AuthDecorator()
 export class AddressController {
 	constructor(private readonly addressService: AddressService) {}
 
 	/**
-	 * Endpoint: GET /api/address
+	 * Endpoint: GET /api/v1/address
 	 * Get user's addresses list
 	 */
 	@Get()
@@ -30,7 +30,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: GET /api/address/:id
+	 * Endpoint: GET /api/v1/address/:id
 	 * Get user's single address by id
 	 */
 	@Get(':id')
@@ -41,7 +41,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: POST /api/address
+	 * Endpoint: POST /api/v1/address
 	 * Create address
 	 */
 	@Post()
@@ -52,7 +52,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: PUT /api/address/:id
+	 * Endpoint: PUT /api/v1/address/:id
 	 * Update address
 	 */
 	@Put(':id')
@@ -63,7 +63,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: DELETE /api/address/:id
+	 * Endpoint: DELETE /api/v1/address/:id
 	 * Delete address
 	 */
 	@Delete(':id')
@@ -74,7 +74,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: PATCH /api/address/:id
+	 * Endpoint: PATCH /api/v1/address/:id
 	 * Set default address
 	 */
 	@Patch(':id')

@@ -1,42 +1,40 @@
+import { AuthDecorator } from '@common/decorators';
+import { TMulterFile } from '@common/utilities/multer';
+import { ImageUploader, S3SingleFile } from '@modules/storage';
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
-	Post,
-	Put,
 	HttpCode,
 	HttpStatus,
-	UseInterceptors,
 	Patch,
-	Delete,
+	Post,
+	Put,
+	UseInterceptors,
 } from '@nestjs/common';
-import { ProfileService } from './profile.service';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AuthDecorator } from '@common/decorators';
+import { RequestEmailChangeDto, VerifyEmailChangeDto } from './dto/email-update.dto';
+import { UpdateProfileAvatarDto } from './dto/profile-avatar-update.dto';
+import { UpdateProfileDto } from './dto/profile-update.dto';
+import { ProfileService } from './profile.service';
 import {
 	DeleteProfileAvatarResponses,
 	GetProfileResponses,
+	RequestEmailChangeResponses,
 	UpdateProfileAvatarResponses,
 	UpdateProfileResponses,
-} from './response/responses.decorator';
-import { UpdateProfileDto } from './dto/profile-update.dto';
-import { RequestEmailChangeDto, VerifyEmailChangeDto } from './dto/email-update.dto';
-import {
-	RequestEmailChangeResponses,
 	VerifyEmailChangeResponses,
 } from './response/responses.decorator';
-import { ImageUploader, S3SingleFile } from '@modules/storage';
-import { UpdateProfileAvatarDto } from './dto/profile-avatar-update.dto';
-import { TMulterFile } from '@common/utilities/multer';
 
-@Controller('profile')
+@Controller({ path: 'profile', version: '1' })
 @ApiTags('Profile')
 @AuthDecorator()
 export class ProfileController {
 	constructor(private readonly profileService: ProfileService) {}
 
 	/**
-	 * Endpoint: GET /api/profile
+	 * Endpoint: GET /api/v1/profile
 	 * Retrieve user's profile
 	 */
 	@Get()
@@ -47,7 +45,7 @@ export class ProfileController {
 	}
 
 	/**
-	 * Endpoint: PUT /api/profile/update
+	 * Endpoint: PUT /api/v1/profile/update
 	 * Update user's profile
 	 */
 	@Put('update')
@@ -58,7 +56,7 @@ export class ProfileController {
 	}
 
 	/**
-	 * Endpoint: POST /api/profile/email-request
+	 * Endpoint: POST /api/v1/profile/email-request
 	 * Request to change email address (sends verification code)
 	 */
 	@Post('email-request')
@@ -70,7 +68,7 @@ export class ProfileController {
 	}
 
 	/**
-	 * Endpoint: POST /api/profile/email-verify
+	 * Endpoint: POST /api/v1/profile/email-verify
 	 * Verify email change with code
 	 */
 	@Post('email-verify')
@@ -82,7 +80,7 @@ export class ProfileController {
 	}
 
 	/**
-	 * Endpoint: PATCH /api/profile/avatar
+	 * Endpoint: PATCH /api/v1/profile/avatar
 	 * Update user avatar
 	 */
 	@Patch('avatar')
@@ -98,7 +96,7 @@ export class ProfileController {
 	}
 
 	/**
-	 * Endpoint: DELETE /api/profile/avatar
+	 * Endpoint: DELETE /api/v1/profile/avatar
 	 * Delete user avatar
 	 */
 	@Delete('avatar')

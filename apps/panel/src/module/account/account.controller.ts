@@ -1,8 +1,5 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthDecorator } from '@common/decorators';
 import { CheckOtpDto, SendOtpDto } from '@common/dto';
-import { UpdatePasswordDto } from './dto/update-password.dto';
 import {
 	AccountService,
 	PhoneOtpRequestResponses,
@@ -10,15 +7,18 @@ import {
 	RetrieveAccountResponses,
 	UpdatePasswordResponses,
 } from '@modules/account';
+import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
-@Controller('account')
+@Controller({ path: 'account', version: '1' })
 @ApiTags('Account')
 @AuthDecorator()
 export class PanelAccountController {
 	constructor(private readonly accountService: AccountService) {}
 
 	/**
-	 * Endpoint: GET /api/account
+	 * Endpoint: GET /api/v1/account
 	 * Retrieve user's account info
 	 */
 	@Get()
@@ -29,7 +29,7 @@ export class PanelAccountController {
 	}
 
 	/**
-	 * Endpoint: POST /api/account/phone-request
+	 * Endpoint: POST /api/v1/account/phone-request
 	 * Send an OTP to user's new phone number
 	 */
 	@Post('phone-request')
@@ -40,7 +40,7 @@ export class PanelAccountController {
 	}
 
 	/**
-	 * Endpoint: POST /api/account/phone-verify
+	 * Endpoint: POST /api/v1/account/phone-verify
 	 * Verify user's new phone number
 	 */
 	@Post('phone-verify')
@@ -52,7 +52,7 @@ export class PanelAccountController {
 	}
 
 	/**
-	 * Endpoint: POST /api/account/update-password
+	 * Endpoint: POST /api/v1/account/update-password
 	 * Update user's password
 	 */
 	@Patch('update-password')

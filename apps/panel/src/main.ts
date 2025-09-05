@@ -4,7 +4,7 @@ import { ResponseTransformerInterceptor } from '@common/interceptor';
 import { customHeadersMiddleware } from '@common/middlewares';
 import { UnprocessableEntityPipe } from '@common/pipe';
 import { CustomLoggerService, LoggingInterceptor } from '@modules/logger';
-import { ExceptionFilter, NestInterceptor, ValidationPipe } from '@nestjs/common';
+import { ExceptionFilter, NestInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { getCorsConfig, helmetConfig } from '@security';
@@ -29,6 +29,11 @@ async function bootstrap() {
 	app.use(customHeadersMiddleware);
 	// Set global prefix for all routes
 	app.setGlobalPrefix('/api');
+	// Enable API versioning
+	app.enableVersioning({
+		type: VersioningType.URI,
+		defaultVersion: '1',
+	});
 	// Initialize swagger
 	swaggerConfiguration(app, 'Panel API');
 	// Initialize custom response interceptor

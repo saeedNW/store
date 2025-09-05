@@ -1,220 +1,392 @@
-# Store application modules and features
+# 🏪 NestJS Store Backend – Architecture & Features
 
-## Databases
+This document provides a detailed overview of the **NestJS Store Backend Application**, its architecture, modules, and feature set.
+The project is structured as a **monorepo** and consists of multiple applications (APIs) serving different stakeholders: customers, sellers, and administrators.
 
-1. MongoDB
-2. PostgreSQL
-3. Redis
+---
 
-## Apps
+## 📂 Applications (Monorepo Apps)
 
-1. Store (Website)
-2. Panel (Admin)
-3. shop (Seller)
-4. Support (Socket Base Customer Service)
+| App                     | Description                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| **Store (Website API)** | Public-facing APIs where customers browse, purchase, and manage accounts                         |
+| **Shop (Seller API)**   | Management system for shop owners and staff to manage products, inventory, orders, and finances. |
+| **Panel (Panel API)**   | Administrative dashboard for managing the ecosystem (users, shops, roles, categories, audits).   |
 
-## Features
+---
 
-1. SMS [GENERAL] - **DONE**
-2. Email [GENERAL] - **DONE**
-3. Logger [GENERAL] - **DONE**
-4. Storage (File Uploader) - **DONE**
-5. Authentication [GENERAL] - **DONE**
-   1. Send OTP
-   2. Verify OTP
-   3. Login
-   4. Reset Password
-   5. Refresh Token
-   6. Logout
-   7. Active Sessions
-   8. Revoke Token
-   9. Revoke All Tokens Except Current
-6. Account [GENERAL] - **DONE**
-   1. Get Account Information
-   2. Update Phone Number
-   3. Update Password
-7. Profile - **DONE**
-   1. [PANEL] - **DONE**
-      1. Get user Profile Information
-      2. Update Profile Information
-      3. Remove Profile Picture
-   2. [STORE] - **DONE**
-      1. Create Profile
-      2. Get Profile Information
-      3. Update Profile Information
-      4. Update Email Address
-      5. Update Profile Picture
-      6. Remove Profile Picture
-8. Address - **DONE**
-   1. [PANEL] - **DONE**
-      1. Get User Address List
-      2. Get Single Address
-      3. Create Address
-      4. Update Address
-      5. Delete Address
-   2. [STORE] - **DONE**
-      1. Get All Address
-      2. Get Single Address
-      3. Create Address
-      4. Update Address
-      5. Delete Address
-      6. Set Default Address
-9. Permissions
-   1. [PANEL]
-      1. Get Permissions List
-   2. [SHOP]
-      1. Get Shop Permissions list
-10. Roles
-    1. [PANEL]
-       1. Get Roles List
-       2. Get Single Role
-       3. Create Role
-       4. Update Role
-       5. Delete Role
-    2. [SHOP]
-       1. Get Roles List for the Shop
-       2. Get Single Role for the Shop
-       3. Create Role for the Shop
-       4. Update Shop Role
-       5. Delete Shop Role
-11. User [PANEL]
-    1. Create user
-    2. Get User full Information [Account + Profile]
-    3. Update user information
-       1. Password
-       2. Phone Number
-    4. Update user role
-    5. Make user the shop staff
-12. Wallet
-13. Gallery
-14. Category
-15. Blog
-16. blog Comment
-17. Author
-18. Shop
-    1. [PANEL]
-       1. Get Shop List
-       2. Get Single Shop
-       3. Create Shop
-          1. Verify The Shop Creation Request
-       4. Update Shop
-       5. Delete Shop
-       6. Change Shop Owner
-       7. Change Shop Status [Active, Inactive]
-    2. [SHOP]
-       1. Register Shop
-       2. Get Shop Information
-       3. Check Registration Status
-       4. Update Shop Information
-          1. Update Shop Logo
-          2. Remove Shop Logo
-          3. Update Shop Description
-          4. Update Shop Address
-          5. Update Shop Activity Time
-19. Shop Staff
-    1. [PANEL]
-       1. Get Shop Staff List
-       2. Get Single Shop Staff
-    2. [SHOP]
-       1. Get Shop Staff List
-       2. Get Single Shop Staff
-       3. Update Shop Staff role
-       4. Delete Shop Staff
-20. Product
-21. Product Features
-22. Product QA
-23. Product Review and Rating
-24. Basket
-25. Order
-26. Discount
-27. Payment
-28. Audit
-29. Revision
-30. Notification
-31. Ticket
-32. Report
-    1. [PANEL]
-       1.
-    2. [SHOP]
-       1.
+## 🗄️ Databases
 
-## Features by Database
+| Database          | Usage                                                                                   |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| **PostgreSQL**    | Main relational data store: users, shops, products, orders, payments, permissions, etc. |
+| **MongoDB**       | Document storage: blogs, comments, file storage, notifications, audit logs.             |
+| **Redis**         | In-memory cache: OTP, tokens, sessions, temporary data.                                 |
+| **Elasticsearch** | Advanced search and filtering: products, blogs, shops.                                  |
 
-1. PostgreSQL
-   1. Authentication
-   2. User
-   3. Profile
-   4. Address
-   5. Wallet
-   6. Roles
-   7. Permissions
-   8. Category
-   9. Shop
-   10. Product
-   11. Product Features
-   12. Product QA
-   13. Product Review and Rating
-   14. Basket
-   15. Order
-   16. Discount
-   17. Payment
-   18. Ticket
-2. MongoDB
-   1. File Manager
-   2. Blog
-   3. blog Comment
-   4. Author
-   5. Activity
-   6. Notifications
-3. Redis
-   1. Authentication
-      1. OTP
-      2. Token
-      3. Session
+---
 
-## Token
+## 🔑 Core Features (Cross-App)
 
-### TTL
+1. **Authentication & Security**
 
-Access token => 15–30 minutes
+   - OTP (send/verify)
+   - Login / Logout
+   - Password Reset
+   - Refresh Token
+   - Active Session Tracking
+   - Token Revocation (single/all except current)
 
-Refresh token => 7–15 days
+2. **Account Management**
 
-### Add security key to JWT tokens
+   - Get Account Info
+   - Update Phone / Password
 
-#### Generate private key
+3. **Profile Management**
 
-```shell
-mkdir -p keys/access
-mkdir -p keys/refresh
+   - Create / Update Profile
+   - Manage Email & Picture
+   - Panel vs. Store specific endpoints
 
-openssl genpkey -algorithm ed25519 -out keys/access/ed25519_store_private.pem
-openssl genpkey -algorithm ed25519 -out keys/access/ed25519_panel_private.pem
-openssl genpkey -algorithm ed25519 -out keys/access/ed25519_shop_private.pem
-openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_store_private.pem
-openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_panel_private.pem
-openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_shop_private.pem
-```
+4. **Address Book**
 
-#### Generate public key
+   - CRUD operations
+   - Default Address Selection
 
-```shell
-openssl pkey -in keys/access/ed25519_store_private.pem -pubout -out keys/access/ed25519_store_public.pem
-openssl pkey -in keys/access/ed25519_panel_private.pem -pubout -out keys/access/ed25519_panel_public.pem
-openssl pkey -in keys/access/ed25519_shop_private.pem -pubout -out keys/access/ed25519_shop_public.pem
-openssl pkey -in keys/refresh/ed25519_store_private.pem -pubout -out keys/refresh/ed25519_store_public.pem
-openssl pkey -in keys/refresh/ed25519_panel_private.pem -pubout -out keys/refresh/ed25519_panel_public.pem
-openssl pkey -in keys/refresh/ed25519_shop_private.pem -pubout -out keys/refresh/ed25519_shop_public.pem
-```
+5. **Communication Channels**
 
-#### Generate Tokens encryption key
+   - SMS (OTP, notifications)
+   - Email (verification, notifications)
 
-Generate 3 different keys for each app and place them in the ENV file.
+6. **System Utilities**
 
-```shell
-openssl rand -base64 32
-```
+   - File Storage (Uploader, Gallery, File Manager)
 
-## Application Dockerize
+---
 
-To dockerize the application, create a `Dockerfile` in the project root with the necessary build instructions. Then, use `docker build` to create an image and `docker run` to start a container. Make sure to copy your environment files and configure any required ports or volumes as needed.
+## 📈 Monitoring & Observability
+
+1. **Structured Logging**
+
+   - Centralized logging for all apps (Store, Shop, Panel)
+   - Log levels: `DEBUG`, `INFO`, `WARN`, `ERROR`
+   - JSON formatting for easy ingestion into log aggregation tools
+
+2. **Request & Response Logging**
+
+   - Logs API requests, response status, duration, and user context
+   - Supports tracing multi-step operations across services
+
+3. **Error Logging & Alerts**
+
+   - Captures stack traces for exceptions
+   - Optional integration with alerting tools (e.g., Sentry, Rollbar)
+
+---
+
+## 👥 User & Access Control
+
+1. **Permissions**
+
+   - Panel: global system permissions
+   - Shop: shop-specific permissions
+
+2. **Roles**
+
+   - Admin (Panel) – Full access
+   - Vendor/Shop Roles – Managed per shop
+   - Customer (Store) – Limited to front-facing APIs
+
+3. **User Management (Panel)**
+
+   - Create/Update/Delete users
+   - Manage user roles
+   - Assign shop staff
+
+---
+
+## 💰 Financial Features
+
+1. **Wallet**
+
+   - Panel: monitor balances, adjustments
+   - Store: wallet balance, deposits, withdrawals
+
+2. **Basket (Store only)**
+
+   - Add/remove products
+   - Update quantities
+   - Sync with orders
+
+3. **Orders**
+
+   - Store: order placement & tracking
+   - Shop: manage incoming orders
+   - Panel: oversee all orders
+
+4. **Discounts & Promotions**
+
+   - Coupon/Promo code system
+   - Shop-level discounts
+   - Panel oversight
+
+5. **Payments**
+
+   - Multiple gateways
+   - Panel: transaction logs
+   - Shop: settlement reports
+
+6. **Vendor Settlement & Payouts**
+
+   - Commission calculation (percentage/fixed)
+   - Settlement cycles (weekly/monthly/on-demand)
+   - Vendor payout requests & approvals
+   - Panel oversight & fraud checks
+
+---
+
+## 🛍️ Shop & Product Management
+
+1. **Shops**
+
+   - Panel: create, update, verify, change ownership, activate/deactivate
+   - Shop: register, update details, logos, activity times
+
+2. **Shop Staff**
+
+   - Assign roles to staff
+   - CRUD staff members
+   - Manage permissions
+
+3. **Products**
+
+   - CRUD product catalog
+   - Panel: global product management
+   - Shop: seller-managed catalog
+   - Store: product browsing & purchase
+
+4. **Inventory & Stock Management**
+
+   - Product stock tracking (available, reserved, sold)
+   - Low-stock alerts
+
+5. **Product Features & Attributes**
+
+   - Variants (color, size, etc.)
+   - Configurable per shop/product
+
+6. **Product QA (Questions & Answers)**
+
+   - Store: ask questions
+   - Shop: answer questions
+   - Panel: moderate
+
+7. **Product Reviews & Ratings**
+
+   - Store: add/edit reviews
+   - Shop: respond to reviews
+   - Panel: oversee moderation
+
+---
+
+## 🚚 Shipping & Delivery
+
+1. Shipping provider integration
+2. Shipping zones & rules (e.g., free shipping threshold)
+3. Delivery tracking numbers & statuses
+
+---
+
+## 🛒 Customer Features
+
+1. Wishlists / Favorites
+2. Recently viewed products
+3. Product comparison
+
+---
+
+## 📚 Content & Community Features
+
+1. **Categories**
+
+   - Hierarchical (unlimited nesting)
+   - Shared across blogs and products
+
+2. **Blogs & Articles**
+
+   - Panel: create, manage, publish
+   - Shop: optional shop-level blogs
+   - Store: browsing and reading
+
+3. **Blog Comments**
+
+   - Store: comment on articles
+   - Panel: moderation
+
+4. **Authors**
+
+   - Manage blog authors (panel-level)
+
+---
+
+## 📡 Notifications & Support
+
+1. **Notifications**
+
+   - Store/Shop/Panel scoped notifications
+   - Realtime + stored (MongoDB)
+
+2. **Support Tickets**
+
+   - Store: user-submitted tickets
+   - Shop: shop-level support
+   - Panel: central management
+
+---
+
+## 📊 Analytics & Insights
+
+1. **Store Analytics** → customer behavior, product views, best sellers
+2. **Shop Analytics** → sales performance, revenue, refunds
+3. **Panel Analytics** → platform KPIs (GMV, order volume, churn)
+4. **Custom Dashboards** → filtered by date, shop, product
+
+### Metabase Integration
+
+1. **Reports via API** → Panel and Shop apps fetch analytics programmatically; no direct Metabase UI exposure.
+
+2. **Supported Features**:
+
+   - **Revenue & Sales Metrics** – daily, weekly, monthly reports; shop-specific and global aggregates
+   - **Product Performance & Inventory Analytics** – top-selling products, low-stock alerts, stock tracking
+   - **Vendor-specific Analytics** – sales, orders, and payout summaries per vendor/shop
+   - **Custom Filters & Dashboards** – filter by date range, shop, product category; results returned as JSON or chart-ready data
+   - **Exportable Reports** – CSV/Excel for transactions, orders, and user activity logs
+   - **Caching & Performance Optimization** – optional caching via Redis for frequently requested queries
+
+**Implementation Notes:**
+
+- Metabase connects directly to **PostgreSQL** with read-only access.
+- Panel/Shop APIs wrap Metabase queries to enforce **access control** and **branding**.
+- Enables **scheduled or on-demand reports** without giving users access to the Metabase UI.
+
+---
+
+## 📝 Audit & Revision Tracking
+
+1. **Audit Logs** (Panel & Shop)
+
+   - Track system-wide activity
+   - User actions (logins, updates, deletions)
+
+2. **Revisions** (Panel & Shop)
+
+   - Track data versioning for critical entities
+   - Rollback & history tracking
+
+---
+
+## 🛡️ Fraud & Security
+
+1. Suspicious login detection
+2. Device & IP fingerprinting
+3. Payment fraud monitoring
+4. 2FA for admins and vendors
+5. Blacklist / whitelist support
+
+---
+
+## 🔄 Versioned API
+
+- APIs are versioned to ensure backward compatibility.
+- Example:
+
+  - `/api/v1/products` → legacy clients
+  - `/api/v2/products` → new schema/features
+
+- Benefits:
+
+  - Smooth migrations
+  - Safer experimentation
+  - Long-term maintainability
+
+---
+
+## 📊 Features by Database
+
+### PostgreSQL
+
+- Users, Profiles, Addresses
+- Roles & Permissions
+- Shops & Staff
+- Products, Features, Categories
+- Basket, Orders, Discounts, Payments
+- Wallet
+- Tickets
+- **Analytics & Insights (via Metabase)**
+
+  - Revenue & sales metrics
+  - Product performance & inventory analytics
+  - Vendor/shop-specific analytics
+  - Custom dashboards & filtered reports
+  - Exportable CSV/Excel reports
+
+### MongoDB
+
+- File Manager & Storage
+- Blogs & Comments
+- Authors
+- Notifications
+- Activity logs
+
+### Redis
+
+- OTP & Session Tokens
+- Access/Refresh Token storage
+- Active sessions
+
+### Elasticsearch
+
+- Full-text search for products, blogs, shops
+- Filtering, sorting, autocomplete
+
+---
+
+## 🔐 Security & Tokens
+
+- **Access Token TTL:** 30 minutes - 1 hour
+
+- **Refresh Token TTL:** 7–15 days
+
+- **JWT Security Keys:**
+
+  - Ed25519 private/public keys generated per app (`Store`, `Panel`, `Shop`)
+  - Separate keys for access and refresh tokens
+
+    ```shell
+    mkdir -p keys/access
+    mkdir -p keys/refresh
+
+    openssl genpkey -algorithm ed25519 -out keys/access/ed25519_store_private.pem
+    openssl genpkey -algorithm ed25519 -out keys/access/ed25519_panel_private.pem
+    openssl genpkey -algorithm ed25519 -out keys/access/ed25519_shop_private.pem
+    openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_store_private.pem
+    openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_panel_private.pem
+    openssl genpkey -algorithm ed25519 -out keys/refresh/ed25519_shop_private.pem
+
+    openssl pkey -in keys/access/ed25519_store_private.pem -pubout -out keys/access/ed25519_store_public.pem
+    openssl pkey -in keys/access/ed25519_panel_private.pem -pubout -out keys/access/ed25519_panel_public.pem
+    openssl pkey -in keys/access/ed25519_shop_private.pem -pubout -out keys/access/ed25519_shop_public.pem
+    openssl pkey -in keys/refresh/ed25519_store_private.pem -pubout -out keys/refresh/ed25519_store_public.pem
+    openssl pkey -in keys/refresh/ed25519_panel_private.pem -pubout -out keys/refresh/ed25519_panel_public.pem
+    openssl pkey -in keys/refresh/ed25519_shop_private.pem -pubout -out keys/refresh/ed25519_shop_public.pem
+    ```
+
+- **Encryption Keys:**
+
+  - 32-byte base64 keys per app
+  - Stored in `.env` files
+
+    ```shell
+    openssl rand -base64 32
+    ```

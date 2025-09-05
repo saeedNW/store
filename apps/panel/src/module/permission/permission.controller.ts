@@ -5,14 +5,14 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PermissionService } from './permission.service';
 
-@Controller('permission')
+@Controller({ path: 'permission', version: '1' })
 @ApiTags('Permission')
 @AuthDecorator()
 export class PermissionController {
 	constructor(private readonly permissionService: PermissionService) {}
 
 	/**
-	 * Endpoint: GET /api/permission/panel
+	 * Endpoint: GET /api/v1/permission/panel
 	 * Retrieve panel permissions list
 	 */
 	@Get('/panel')

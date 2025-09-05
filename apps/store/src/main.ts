@@ -1,15 +1,15 @@
+import { swaggerConfiguration } from '@common/config';
+import { AllExceptionFilter } from '@common/filters';
+import { ResponseTransformerInterceptor } from '@common/interceptor';
+import { customHeadersMiddleware } from '@common/middlewares';
+import { UnprocessableEntityPipe } from '@common/pipe';
+import { CustomLoggerService, LoggingInterceptor } from '@modules/logger';
+import { ExceptionFilter, NestInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { getCorsConfig, helmetConfig } from '@security';
 import helmet from 'helmet';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { ExceptionFilter, NestInterceptor, ValidationPipe } from '@nestjs/common';
-import { ResponseTransformerInterceptor } from '@common/interceptor';
-import { AllExceptionFilter } from '@common/filters';
-import { UnprocessableEntityPipe } from '@common/pipe';
-import { customHeadersMiddleware } from '@common/middlewares';
-import { swaggerConfiguration } from '@common/config';
-import { CustomLoggerService, LoggingInterceptor } from '@modules/logger';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
 	// Create a new instance of the Nest application
@@ -29,6 +29,11 @@ async function bootstrap() {
 	app.use(customHeadersMiddleware);
 	// Set global prefix for all routes
 	app.setGlobalPrefix('/api');
+	// Enable API versioning
+	app.enableVersioning({
+		type: VersioningType.URI,
+		defaultVersion: '1',
+	});
 	// Initialize swagger
 	swaggerConfiguration(app, 'Store API');
 	// Initialize custom response interceptor

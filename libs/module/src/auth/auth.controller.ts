@@ -1,6 +1,14 @@
+import { AuthDecorator, Token } from '@common/decorators';
+import { CheckOtpDto, SendOtpDto } from '@common/dto';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetRequestOtpDto } from './dto/reset-request.dto';
+import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
+import { RevokeSessionDto } from './dto/revoke-session.dto';
 import {
 	CheckOtpResponses,
 	GetActiveSessionsResponses,
@@ -12,22 +20,14 @@ import {
 	RevokeTokensResponses,
 	SendOtpResponses,
 } from './responses/responses.decorator';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { AuthDecorator, Token } from '@common/decorators';
-import { RevokeSessionDto } from './dto/revoke-session.dto';
-import { ResetRequestOtpDto } from './dto/reset-request.dto';
-import { ResetVerifyOtpDto } from './dto/reset-verify.dto.ts';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { LoginDto } from './dto/login.dto';
-import { CheckOtpDto, SendOtpDto } from '@common/dto';
 
-@Controller('auth')
+@Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	/**
-	 * Endpoint: POST /api/auth/send-otp
+	 * Endpoint: POST /api/v1/auth/send-otp
 	 * Sends an OTP (One-Time Password) to the user for authentication.
 	 */
 	@Post('send-otp')
@@ -38,7 +38,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/check-otp
+	 * Endpoint: POST /api/v1/auth/check-otp
 	 * Verifies the OTP (One-Time Password) provided by the user
 	 */
 	@Post('check-otp')
@@ -49,7 +49,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/login
+	 * Endpoint: POST /api/v1/auth/login
 	 * Logs in the user with the provided credentials.
 	 */
 	@Post('login')
@@ -60,7 +60,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/reset-request
+	 * Endpoint: POST /api/v1/auth/reset-request
 	 * Sends an OTP (One-Time Password) to the user for resetting the password.
 	 */
 	@Post('reset-request')
@@ -71,7 +71,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/reset-verify
+	 * Endpoint: POST /api/v1/auth/reset-verify
 	 * Verifies the OTP (One-Time Password) provided by the user for resetting the password.
 	 */
 	@Post('reset-verify')
@@ -82,7 +82,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/reset-password
+	 * Endpoint: POST /api/v1/auth/reset-password
 	 * Resets the user's password using the provided OTP.
 	 */
 	@Post('reset-password')
@@ -93,7 +93,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/refresh-token
+	 * Endpoint: POST /api/v1/auth/refresh-token
 	 * Refreshes the user's token
 	 */
 	@Post('refresh-token')
@@ -104,7 +104,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: GET /api/auth/sessions
+	 * Endpoint: GET /api/v1/auth/sessions
 	 * Retrieves the user's active sessions
 	 */
 	@Get('sessions')
@@ -120,7 +120,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/logout
+	 * Endpoint: POST /api/v1/auth/logout
 	 * Logs out the user and revokes the current session
 	 */
 	@Post('logout')
@@ -132,7 +132,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/revoke-tokens
+	 * Endpoint: POST /api/v1/auth/revoke-tokens
 	 * Revokes all tokens
 	 */
 	@Post('revoke-tokens')
@@ -144,7 +144,7 @@ export class AuthController {
 	}
 
 	/**
-	 * Endpoint: POST /api/auth/revoke-session
+	 * Endpoint: POST /api/v1/auth/revoke-session
 	 * Revokes a specific session
 	 */
 	@Post('revoke-session')

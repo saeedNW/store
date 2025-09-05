@@ -6,14 +6,14 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UpdateProfileDto } from './dto/profile-update.dto';
 import { ProfileService } from './profile.service';
 
-@Controller('profile')
+@Controller({ path: 'profile', version: '1' })
 @ApiTags(`Profile`)
 @AuthDecorator()
 export class ProfileController {
 	constructor(private readonly profileService: ProfileService) {}
 
 	/**
-	 * Endpoint: GET /api/profile/:userId
+	 * Endpoint: GET /api/v1/profile/:userId
 	 * Retrieve user's profile
 	 */
 	@Get(':userId')
@@ -27,7 +27,7 @@ export class ProfileController {
 	}
 
 	/**
-	 * Endpoint: PUT /api/profile/update/:userId
+	 * Endpoint: PUT /api/v1/profile/update/:userId
 	 * Update user's profile
 	 */
 	@Put('update/:userId')
@@ -41,7 +41,7 @@ export class ProfileController {
 	}
 
 	/**
-	 * Endpoint: DELETE /api/profile/avatar/:userId
+	 * Endpoint: DELETE /api/v1/profile/avatar/:userId
 	 * Delete user's avatar
 	 */
 	@Delete('avatar/:userId')

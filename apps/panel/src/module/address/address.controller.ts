@@ -6,14 +6,14 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
 
-@Controller('address')
+@Controller({ path: 'address', version: '1' })
 @ApiTags('Address')
 @AuthDecorator()
 export class AddressController {
 	constructor(private readonly addressService: AddressService) {}
 
 	/**
-	 * Endpoint: GET /api/address/user/:userId
+	 * Endpoint: GET /api/v1/address/user/:userId
 	 * Get user's addresses list
 	 */
 	@Get('user/:userId')
@@ -29,7 +29,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: GET /api/address/:id
+	 * Endpoint: GET /api/v1/address/:id
 	 * Get user's single address by id
 	 */
 	@Get(':id')
@@ -45,7 +45,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: Post /api/address/user/:userId
+	 * Endpoint: Post /api/v1/address/user/:userId
 	 * Create new address for specified user
 	 */
 	@Post('user/:userId')
@@ -61,7 +61,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: PUT /api/address/:id
+	 * Endpoint: PUT /api/v1/address/:id
 	 * Update address
 	 */
 	@Put(':id')
@@ -75,7 +75,7 @@ export class AddressController {
 	}
 
 	/**
-	 * Endpoint: DELETE /api/address/:id
+	 * Endpoint: DELETE /api/v1/address/:id
 	 * Delete address
 	 */
 	@Delete(':id')
