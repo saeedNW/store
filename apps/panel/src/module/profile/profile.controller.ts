@@ -17,7 +17,10 @@ export class ProfileController {
 	 * Retrieve user's profile
 	 */
 	@Get(':userId')
-	@Permissions([PermissionsConst.PROFILE_GET], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.PROFILE_MANAGEMENT, PermissionsConst.PROFILE_GET],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.PROFILE_GET}] - Get user profile` })
 	getProfile(@Param('userId') userId: string) {
 		return this.profileService.getProfile(userId);
@@ -28,7 +31,10 @@ export class ProfileController {
 	 * Update user's profile
 	 */
 	@Put('update/:userId')
-	@Permissions([PermissionsConst.PROFILE_UPDATE], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.PROFILE_MANAGEMENT, PermissionsConst.PROFILE_UPDATE],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.PROFILE_UPDATE}] - Update user profile` })
 	updateProfile(@Body() updateProfileDto: UpdateProfileDto, @Param('userId') userId: string) {
 		return this.profileService.updateProfile(updateProfileDto, userId);
@@ -39,7 +45,10 @@ export class ProfileController {
 	 * Delete user's avatar
 	 */
 	@Delete('avatar/:userId')
-	@Permissions([PermissionsConst.PROFILE_REMOVE_AVATAR], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.PROFILE_MANAGEMENT, PermissionsConst.PROFILE_REMOVE_AVATAR],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({
 		summary: `[RBAC: ${PermissionsConst.PROFILE_REMOVE_AVATAR}] - Delete user avatar`,
 	})

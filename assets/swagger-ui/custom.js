@@ -1,7 +1,6 @@
 setTimeout(() => {
 	RBAC();
 	search();
-	timeIndicator();
 	navSidebar();
 
 	// Make the Schema section close by default
@@ -72,62 +71,6 @@ function RBAC() {
 		}
 	});
 }
-
-function timeIndicator() {
-	// Store start times for requests
-	const requestTimes = new Map();
-
-	// Patch fetch to measure request/response times
-	const originalFetch = window.fetch;
-	window.fetch = async function (input, init) {
-		const key = typeof input === 'string' ? input : input.url;
-		requestTimes.set(key, performance.now());
-
-		const response = await originalFetch(input, init);
-
-		const start = requestTimes.get(key);
-		if (start) {
-			const duration = Math.round(performance.now() - start);
-			requestTimes.delete(key);
-			updateOpblockTime(key, duration);
-		}
-
-		return response;
-	};
-
-	// Update the opblock UI based on URL
-	function updateOpblockTime(url, duration) {
-		const opblocks = document.querySelectorAll('.opblock');
-		opblocks.forEach((opblock) => {
-			const pathElement = opblock.querySelector('.opblock-summary-path');
-			if (!pathElement) return;
-
-			// Simple URL match: last segment of path
-			const path = pathElement.textContent.trim();
-			if (url.includes(path.split('/').pop())) {
-				let timeIndicator = opblock.querySelector('.time-indicator');
-				if (!timeIndicator) {
-					timeIndicator = document.createElement('span');
-					timeIndicator.className = 'time-indicator';
-					pathElement.appendChild(timeIndicator);
-				}
-
-				let color;
-				if (duration <= 300) {
-					color = '#2e7d32'; // Green
-				} else if (duration <= 800) {
-					color = '#f9a825'; // Yellow
-				} else {
-					color = '#c62828'; // Red
-				}
-
-				timeIndicator.textContent = `${duration}ms`;
-				timeIndicator.style.color = color;
-			}
-		});
-	}
-}
-
 function navSidebar() {
 	// Create the sidebar container
 	const navSidebar = document.createElement('div');

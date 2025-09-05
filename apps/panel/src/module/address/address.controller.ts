@@ -17,7 +17,10 @@ export class AddressController {
 	 * Get user's addresses list
 	 */
 	@Get('user/:userId')
-	@Permissions([PermissionsConst.ADDRESS_GET_ALL], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.ADDRESS_MANAGEMENT, PermissionsConst.ADDRESS_GET_ALL],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({
 		summary: `[RBAC: ${PermissionsConst.ADDRESS_GET_ALL}] - Get user's addresses list`,
 	})
@@ -30,7 +33,10 @@ export class AddressController {
 	 * Get user's single address by id
 	 */
 	@Get(':id')
-	@Permissions([PermissionsConst.ADDRESS_GET_ONE], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.ADDRESS_MANAGEMENT, PermissionsConst.ADDRESS_GET_ONE],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({
 		summary: `[RBAC: ${PermissionsConst.ADDRESS_GET_ONE}] - Get user's single address by id`,
 	})
@@ -43,7 +49,10 @@ export class AddressController {
 	 * Create new address for specified user
 	 */
 	@Post('user/:userId')
-	@Permissions([PermissionsConst.ADDRESS_CREATE], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.ADDRESS_MANAGEMENT, PermissionsConst.ADDRESS_CREATE],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({
 		summary: `[RBAC: ${PermissionsConst.ADDRESS_CREATE}] - Create new address for specified user`,
 	})
@@ -56,7 +65,10 @@ export class AddressController {
 	 * Update address
 	 */
 	@Put(':id')
-	@Permissions([PermissionsConst.ADDRESS_UPDATE], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.ADDRESS_MANAGEMENT, PermissionsConst.ADDRESS_UPDATE],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.ADDRESS_UPDATE}] - Update address` })
 	update(@Param('id') id: string, @Body() addressUpdateDto: AddressUpdateDto) {
 		return this.addressService.update(id, addressUpdateDto);
@@ -67,7 +79,10 @@ export class AddressController {
 	 * Delete address
 	 */
 	@Delete(':id')
-	@Permissions([PermissionsConst.ADDRESS_DELETE], EPermissionApps.PANEL)
+	@Permissions(
+		[PermissionsConst.ADDRESS_MANAGEMENT, PermissionsConst.ADDRESS_DELETE],
+		EPermissionApps.PANEL,
+	)
 	@ApiOperation({ summary: `[RBAC: ${PermissionsConst.ADDRESS_DELETE}] - Delete address` })
 	delete(@Param('id') id: string) {
 		return this.addressService.delete(id);
