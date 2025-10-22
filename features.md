@@ -352,6 +352,46 @@ The project is structured as a **monorepo** and consists of multiple application
 
 ---
 
+## 🧭 Features by Application
+
+### Store (Website API)
+
+- Authentication (OTP, login/logout, refresh), account & profile
+- Address book (CRUD, default), customer wallet
+- Basket, checkout, orders, payments
+- Product browsing, search, variants, reviews & ratings, Q&A
+- Wishlists, recently viewed, product comparison
+- Notifications, support tickets
+- Blog reading & comments
+- Delivery tracking
+
+### Shop (Seller API)
+
+- Shop registration & settings (logos, hours), staff & roles
+- Product/catalog management, variants & attributes
+- Inventory & stock tracking, low‑stock alerts
+- Order intake & fulfillment, refunds
+- Discounts & promotions, settlement reports
+- Vendor wallet & payouts (commission aware)
+- Shop analytics (sales, revenue, performance)
+- Optional shop blogs, comment moderation
+- Notifications, support management
+- Revisions & audit logs (shop scope), permissions
+
+### Panel (Panel API)
+
+- User management (create/update/delete), roles & global permissions
+- Shops lifecycle (create, verify, ownership changes, activate/deactivate)
+- Global product/catalog & categories management
+- Platform‑wide orders overview, transaction logs
+- Discounts oversight, payouts approval and fraud checks
+- System analytics & KPIs (GMV, orders, churn) via API‑wrapped Metabase
+- Content management (blogs, authors), comments moderation
+- Audit logs, security & compliance controls
+- Notifications (platform scope)
+
+---
+
 ## 🔐 Security & Tokens
 
 - **Access Token TTL:** 30 minutes - 1 hour
