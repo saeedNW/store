@@ -1,114 +1,73 @@
-// src/logger/logging.interceptor.ts
-
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { Observable, catchError, tap } from 'rxjs';
 import { Request, Response } from 'express';
-import { throwError } from 'rxjs';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { AppLogger } from './app-logger.service';
+import { RequestContextService } from './request-context.service';
 
-/**
- * An HTTP request/response interceptor that logs request details and errors.
- * Logging is environment-aware: detailed logs appear only in production.
- */
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-	constructor() {}
+	constructor(
+		private readonly logger: AppLogger,
+		private readonly requestContext: RequestContextService,
+	) {}
 
-	/**
-	 * Intercepts HTTP requests and responses for logging purposes.
-	 *
-	 * @param {ExecutionContext} context - Provides access to the current request context.
-	 * @param {CallHandler} next - The next handler in the request lifecycle.
-	 * @returns {Observable<any>} - An observable that logs the request on completion or error.
-	 * @throws {Error} - If the request fails.
-	 */
 	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-		// Capture the start time for measuring response duration
-		const now = Date.now();
+		const httpContext = context.switchToHttp();
+		const request = httpContext.getRequest<Request>();
+		const response = httpContext.getResponse<Response>();
 
-		// Switch to HTTP context to access request and response objects
-		const ctx = context.switchToHttp();
-		const req = ctx.getRequest<Request>();
-		const res = ctx.getResponse<Response>();
+		const method = request.method;
+		const originalUrl = (request as any).originalUrl;
+		const url = request.url;
+		const startTime = Date.now();
 
-		// Extract useful metadata from the request
-		const method = req.method;
-		const url = req.url;
-		const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-		const userAgent = req.headers['user-agent'];
-		const authHeader = req.headers['authorization'];
-		const body = req.body;
-		const query = req.query;
-		const params = req.params;
+		// Log incoming request
+		const logMessage = `${method} ${originalUrl || url}`;
+		const logContext = `${context.getClass().name}.${context.getHandler().name}`;
 
-		// Handle the request and attach side-effects (logging)
+		this.logger.debug(`→ ${logMessage}`, logContext);
+
+		// Update context with method and URL if not already set
+		this.requestContext.setContext({
+			method,
+			url: originalUrl || url,
+		});
+
 		return next.handle().pipe(
-			tap(() => {
-				// Log the request once it successfully completes
-				if (process.env.NODE_ENV === 'production') {
-					console.log(
-						{
-							type: 'HTTP Request',
-							method,
-							url,
-							statusCode: res.statusCode,
-							responseTime: `${Date.now() - now}ms`,
-							ip,
-							authHeader,
-							userAgent,
-							query,
-							body,
-							params,
-							user: req.userId || 'guest', // Optionally include authenticated user
-						},
-						'HTTP', // Optional context string
-					);
-				} else {
-					// Minimal logging in non-production environments
-					console.log({
-						type: 'HTTP Request',
-						method,
-						url,
-						statusCode: res.statusCode,
-						responseTime: `${Date.now() - now}ms`,
-					});
-				}
-			}),
-			catchError((err) => {
-				// Log any error that occurs during request processing
-				if (process.env.NODE_ENV === 'production') {
-					console.error(
-						{
-							type: 'HTTP Error',
-							method,
-							url,
-							statusCode: err?.status ?? 500,
-							responseTime: `${Date.now() - now}ms`,
-							ip,
-							userAgent,
-							authHeader,
-							query,
-							body,
-							params,
-							user: req.userId || 'guest',
-							errorMessage: err.message,
-							stack: err.stack,
-						},
-						'HTTP', // Optional context string
-					);
-				} else {
-					console.error({
-						type: 'HTTP Error',
-						method,
-						url,
-						statusCode: err?.status ?? 500,
-						responseTime: `${Date.now() - now}ms`,
-						stack: err.stack,
-					});
-				}
+			tap({
+				next: () => {
+					const duration = Date.now() - startTime;
+					const statusCode = response.statusCode;
+					const logLevel = this.getLogLevel(statusCode);
+					const message = `← ${method} ${originalUrl || url || ''} ${statusCode} ${duration}ms`;
 
-				// Forward the error for further handling by NestJS
-				return throwError(() => err as Error);
+					if (logLevel === 'error') {
+						this.logger.error(message, undefined, logContext);
+					} else if (logLevel === 'warn') {
+						this.logger.warn(message, logContext);
+					} else {
+						this.logger.log(message, logContext);
+					}
+				},
+				error: (error) => {
+					const duration = Date.now() - startTime;
+					const statusCode = response.statusCode || 500;
+					const message = `← ${method} ${originalUrl || url || ''} ${statusCode} ${duration}ms [ERROR]`;
+
+					this.logger.error(message, error?.stack || error?.message || String(error), logContext);
+				},
 			}),
 		);
+	}
+
+	private getLogLevel(statusCode: number): 'log' | 'warn' | 'error' {
+		if (statusCode >= 500) {
+			return 'error';
+		}
+		if (statusCode >= 400) {
+			return 'warn';
+		}
+		return 'log';
 	}
 }

@@ -1,15 +1,25 @@
-// src/logger/logger.module.ts
 import { Global, Module } from '@nestjs/common';
-import { CustomLoggerService } from './logger.service';
+import { WinstonModule } from 'nest-winston';
+import { AppLogger } from './app-logger.service';
+import { LoggerConfigService } from './logger.config';
+import { LoggingInterceptor } from './logging.interceptor';
+import { RequestContextMiddleware } from './request-context.middleware';
+import { RequestContextService } from './request-context.service';
 
 @Global()
 @Module({
-	providers: [
-		{
-			provide: CustomLoggerService,
-			useFactory: () => new CustomLoggerService(),
-		},
+	imports: [
+		WinstonModule.forRootAsync({
+			useClass: LoggerConfigService,
+		}),
 	],
-	exports: [CustomLoggerService],
+	providers: [
+		LoggerConfigService,
+		RequestContextService,
+		RequestContextMiddleware,
+		AppLogger,
+		LoggingInterceptor,
+	],
+	exports: [AppLogger, RequestContextService, RequestContextMiddleware, LoggingInterceptor],
 })
 export class LoggerModule {}
