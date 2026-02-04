@@ -1,8 +1,9 @@
 import { AuthDecorator } from '@common/decorators';
 import { AddressCreateDto, AddressUpdateDto } from '@common/dto';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
+import { AddressSwaggerExample } from './examples/swagger.examples';
 import {
 	CreateAddressResponses,
 	DeleteAddressResponses,
@@ -46,6 +47,7 @@ export class AddressController {
 	 */
 	@Post()
 	@ApiOperation({ summary: 'Create address' })
+	@ApiBody({ examples: AddressSwaggerExample.create, schema: { type: 'object' } })
 	@CreateAddressResponses()
 	create(@Body() addressCreateDto: AddressCreateDto) {
 		return this.addressService.create(addressCreateDto);

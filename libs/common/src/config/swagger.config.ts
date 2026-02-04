@@ -15,7 +15,7 @@ export function swaggerConfiguration(app: INestApplication, title: string = 'Nes
 		.setTitle(title)
 		.setDescription(`${title} documentation`)
 		.setVersion('1.0.0')
-		.addBearerAuth(swaggerBearerAuthConfig(), 'Authorization')
+		.addBearerAuth(swaggerBearerAuthConfig())
 		.build();
 
 	// Initialize Swagger document
@@ -23,9 +23,21 @@ export function swaggerConfiguration(app: INestApplication, title: string = 'Nes
 
 	// Setup Swagger UI with custom options
 	SwaggerModule.setup('/api-doc', app, swaggerDocument, {
-		swaggerOptions: { filter: true },
-		customCssUrl: '/swagger-ui/custom.css',
+		customSiteTitle: title,
+		customfavIcon: 'https://cdn-icons-png.flaticon.com/512/3176/3176376.png',
+		swaggerOptions: {
+			persistAuthorization: true,
+			filter: true,
+			showRequestDuration: true,
+			displayRequestDuration: true,
+			tryItOutEnabled: true,
+			syntaxHighlight: {
+				activate: true,
+				theme: 'monokai',
+			},
+		},
 		customJs: '/swagger-ui/custom.js',
+		customCssUrl: '/swagger-ui/custom.css',
 	});
 }
 
@@ -37,6 +49,8 @@ function swaggerBearerAuthConfig(): SecuritySchemeObject {
 	return {
 		type: 'http',
 		bearerFormat: 'JWT',
+		name: 'Authorization',
+		description: 'Enter JWT as: Bearer <token>',
 		in: 'header',
 		scheme: 'bearer',
 	};
