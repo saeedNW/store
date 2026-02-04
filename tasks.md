@@ -85,6 +85,18 @@
     - Users can compare products from same category
 - [ ] Blog/Products Category [Store] [id: 54f02c1e-6f02-48ce-87f0-fa6935e9a8ec] [Priority: Medium]
     - Get categories data as nested
+- [ ] Wishlist [Store] [id: 41a5486e-ab0e-41f8-a819-e02f121eed26] [Priority: Medium]
+    - Create default wishlist for each user
+    - Custom wishlist CRUD
+    - Add Items to wishlists
+    - Remove Items from wishlists
+- [ ] Blog [Store] [id: 2b20f973-6d72-4227-911f-85bd5588656a] [Priority: Medium]
+    - Get blogs list
+    - Get blogs by category
+    - Get single blog by slug
+    - Get blogs by author
+- [ ] Blog Comments [Store] [id: cf7398b2-72fd-4621-8cc2-28c83a429aa2] [Priority: Medium]
+    User's can post new comments for blogs
 
 ## Panel
 - [ ] Auth [Panel] [id: c977c30b-45ac-40b5-8247-3df51bc001de] [Priority: Medium]
@@ -334,6 +346,24 @@
     --------------------------------
     Note #1: Categories are shared between blogs and products
     Note #2: Categories can be nested
+- [ ] Blog [Panel] [id: 96a7c71d-2a98-444f-b045-789fc1b2417b] [Priority: Medium]
+    - Create new blog
+    - Get blogs list
+    - Get single blog by id
+    - Update blog
+    - Trash blog
+    - Restore blog from trsh
+    - Remove blog
+    During application startup two roles should be create `author` and `content manager`, the content manager have access to all blogs and the author can only create and update their own blogs. also the content manager should approve the authors' posts before they being shown in the site
+- [ ] Author [Panel] [id: 4042bba5-7f12-4d28-9c25-7343a9acff2c] [Priority: Medium]
+    In admin panel, admins can manage the authors profile and data
+- [ ] Blog Comments [Panel] [id: 7ffbe9b0-74c9-488d-bd63-3427faada533] [Priority: Medium]
+    - Get comments list
+    - Get single comment
+    - Accept/Reject (update status) a comment
+    - Trash comment
+    - Restore comment
+    - Remove comment
 
 ## Shop
 - [ ] Auth [Shop] [id: 670dfa37-0944-4260-8a93-68d80e14875a] [Priority: Medium]
@@ -480,6 +510,10 @@
     --------------------------------
     Note #1: Categories are shared between blogs and products
     Note #2: Categories can be nested
+- [ ] Blog [Shop] [id: fd677e6e-d131-4040-8552-96d0ef32ce29] [Priority: Medium]
+    If any of the shop's staffs has author access then they can create new posts see the posts lists and update, remove, and etc only their own posts
+- [ ] Author [Shop] [id: 3875baa8-7aef-499c-a470-09034bd4af77] [Priority: Medium]
+    if any of the shop staffs has author access they can manage and update their author profile data
 
 ## General
 - [ ] SMS [General] [id: 9fab3606-8862-4263-8f79-1ae245ac2d62] [Priority: Medium]
