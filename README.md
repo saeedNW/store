@@ -21,6 +21,13 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+## Deprecation Notice
+
+This repository was originally created as a personal learning project using a **monorepo NestJS structure** that included the admin panel, website, and other related applications.
+As my knowledge and experience have grown, I’ve decided to **move on to a new version of this project** with a different architecture and improved structure.
+
+This repository is now deprecated and will no longer receive updates or maintenance.
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
