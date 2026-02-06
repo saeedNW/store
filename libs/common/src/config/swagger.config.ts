@@ -33,7 +33,11 @@ export function swaggerConfiguration(app: INestApplication, title: string = 'Nes
 			tryItOutEnabled: true,
 			syntaxHighlight: {
 				activate: true,
-				theme: 'monokai',
+				theme: 'obsidian',
+				// arta
+				// monokai
+				// obsidian
+				// tomorrow-night
 			},
 		},
 		customJs: '/swagger-ui/custom.js',
